@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benchly — Trouvez votre banc idéal</title>
+<meta name="description" content="Découvrez, notez et partagez les meilleurs bancs autour de vous. La carte communautaire des bancs.">
+<meta name="theme-color" content="#0C447C">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --blue:#378ADD;--blue-mid:#185FA5;--blue-deep:#0C447C;--blue-light:#E6F1FB;
+  --sky:#B5D4F4;--ink:#0a1628;--white:#fff;--muted:#5a7a9a;
+  --sand:#F7F5F0;--amber:#F5A623;
+}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,box-shadow .3s;}
+nav.scrolled{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,0,0,.06);}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-logo-mark{width:32px;height:32px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.nav-logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.nav-cta{background:var(--blue);color:white;border:none;border-radius:50px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;text-decoration:none;transition:background .15s;}
+.nav-cta:hover{background:var(--blue-mid);}
+
+/* ── HERO ── */
+.hero{min-height:100vh;background:var(--blue-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+.hero-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(55,138,221,.35) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:6px 16px;font-size:13px;color:rgba(255,255,255,.8);margin-bottom:28px;animation:fadeUp .6s ease both;}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(42px,7vw,88px);color:white;line-height:1.0;letter-spacing:-2px;max-width:800px;margin-bottom:24px;animation:fadeUp .6s .1s ease both;}
+h1 em{font-style:italic;color:var(--sky);}
+.hero-sub{font-size:clamp(16px,2.5vw,20px);color:rgba(255,255,255,.65);max-width:520px;line-height:1.6;margin-bottom:44px;font-weight:300;animation:fadeUp .6s .2s ease both;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s .3s ease both;}
+.btn-primary{background:white;color:var(--blue-deep);border:none;border-radius:50px;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.25);border-radius:50px;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;text-decoration:none;transition:all .15s;}
+.btn-ghost:hover{background:rgba(255,255,255,.08);color:white;}
+.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.4);font-size:11px;letter-spacing:.1em;text-transform:uppercase;animation:fadeUp .6s .5s ease both;}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);animation:scrollPulse 2s infinite;}
+@keyframes scrollPulse{0%,100%{transform:scaleY(1);}50%{transform:scaleY(.6);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── STATS ── */
+.stats{background:var(--blue-mid);padding:40px 32px;display:flex;justify-content:center;gap:0;}
+.stat{flex:1;max-width:200px;text-align:center;padding:0 20px;border-right:1px solid rgba(255,255,255,.15);}
+.stat:last-child{border-right:none;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:36px;color:white;display:block;}
+.stat-label{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;}
+
+/* ── PHONE MOCKUP ── */
+.mockup-section{padding:100px 32px;background:var(--sand);display:flex;align-items:center;justify-content:center;gap:80px;flex-wrap:wrap;}
+.mockup-text{max-width:440px;}
+.section-label{font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;}
+.mockup-text h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,48px);line-height:1.1;letter-spacing:-1px;margin-bottom:18px;}
+.mockup-text p{font-size:16px;color:#4a6a8a;line-height:1.7;margin-bottom:28px;}
+.feature-list{display:flex;flex-direction:column;gap:12px;}
+.feature-item{display:flex;align-items:center;gap:12px;font-size:14px;color:#3a5a7a;}
+.feature-icon{width:32px;height:32px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.phone-wrap{position:relative;flex-shrink:0;}
+.phone{width:260px;height:520px;background:var(--ink);border-radius:40px;padding:14px;box-shadow:0 40px 80px rgba(12,68,124,.25),0 0 0 1px rgba(255,255,255,.1);position:relative;}
+.phone-notch{width:80px;height:26px;background:var(--ink);border-radius:0 0 16px 16px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;}
+.phone-screen{width:100%;height:100%;background:white;border-radius:28px;overflow:hidden;position:relative;}
+.phone-screen-content{position:absolute;inset:0;display:flex;flex-direction:column;}
+
+/* Contenu screen 1 : carte */
+.ps-topbar{background:white;padding:44px 10px 8px;display:flex;align-items:center;gap:6px;}
+.ps-logo-m{width:20px;height:20px;background:var(--blue);border-radius:5px;}
+.ps-logo-t{font-family:'DM Serif Display',serif;font-size:13px;}
+.ps-search{flex:1;background:#f0f0f0;border-radius:50px;height:26px;}
+.ps-map{flex:1;background:#e8f0e4;position:relative;overflow:hidden;}
+.ps-map-road-h{position:absolute;top:45%;left:0;right:0;height:10px;background:#d0dccb;}
+.ps-map-road-v{position:absolute;left:40%;top:0;bottom:0;width:10px;background:#d0dccb;}
+.ps-pin{position:absolute;width:22px;height:22px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:9px;}
+.ps-pin.blue{background:var(--blue);}
+.ps-pin.amber{background:var(--amber);}
+.ps-sheet{background:white;border-radius:16px 16px 0 0;padding:10px 12px 12px;box-shadow:0 -4px 16px rgba(0,0,0,.06);}
+.ps-bench-name{font-family:'DM Serif Display',serif;font-size:13px;margin-bottom:2px;}
+.ps-stars{color:var(--amber);font-size:10px;}
+.ps-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.ps-tag{font-size:9px;padding:2px 6px;background:var(--blue-light);color:var(--blue-mid);border-radius:50px;}
+.ps-nav{background:white;border-top:1px solid #f0f0f0;display:flex;padding:6px 0 10px;}
+.ps-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;color:#ccc;}
+.ps-nav-item.active{color:var(--blue);}
+
+/* Écran 2 : fiche */
+.screen2 .ps-hero{height:90px;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;font-size:32px;border-radius:10px;margin:44px 8px 8px;}
+.screen2 .ps-info{padding:0 10px;}
+.screen2 .ps-name{font-family:'DM Serif Display',serif;font-size:14px;}
+.screen2 .ps-rating{display:flex;align-items:center;gap:4px;margin:4px 0;}
+.screen2 .ps-rnum{font-size:11px;font-weight:500;}
+.ps-actions{display:flex;gap:5px;margin-top:8px;}
+.ps-act{flex:1;padding:6px;border-radius:6px;border:1px solid #eee;text-align:center;font-size:8px;color:#333;}
+.ps-act.primary{background:var(--blue);border-color:var(--blue);color:white;}
+
+/* ── CARTE DEMO ── */
+.map-section{padding:100px 32px;background:var(--blue-deep);position:relative;overflow:hidden;}
+.map-section-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.map-section-inner{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:48px;}
+.map-section h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,52px);color:white;text-align:center;letter-spacing:-1px;}
+.map-section p{font-size:17px;color:rgba(255,255,255,.6);text-align:center;max-width:500px;line-height:1.6;}
+.map-demo-wrap{width:100%;max-width:900px;border-radius:24px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);}
+.map-demo-bar{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.08);padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.map-demo-dots{display:flex;gap:6px;}
+.map-demo-dot{width:10px;height:10px;border-radius:50%;}
+.map-demo-url{flex:1;background:rgba(255,255,255,.08);border-radius:6px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.5);}
+#demo-map{height:420px;}
+
+/* ── HOW IT WORKS ── */
+.how-section{padding:100px 32px;background:white;}
+.how-inner{max-width:900px;margin:0 auto;text-align:center;}
+.how-inner h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,48px);letter-spacing:-1px;margin-bottom:12px;}
+.how-inner .sub{font-size:17px;color:#6a8aaa;margin-bottom:64px;line-height:1.6;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;text-align:left;}
+.step{position:relative;padding:32px;background:var(--sand);border-radius:20px;transition:transform .2s;}
+.step:hover{transform:translateY(-4px);}
+.step-num{font-family:'DM Serif Display',serif;font-size:48px;color:var(--blue-light);line-height:1;margin-bottom:16px;}
+.step h3{font-size:18px;font-weight:500;margin-bottom:8px;}
+.step p{font-size:14px;color:#5a7a9a;line-height:1.6;}
+.step-icon{width:44px;height:44px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;}
+
+/* ── CTA FINAL ── */
+.cta-section{padding:100px 32px;background:linear-gradient(135deg,var(--blue-mid),var(--blue-deep));text-align:center;position:relative;overflow:hidden;}
+.cta-section::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(181,212,244,.15) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-family:'DM Serif Display',serif;font-size:clamp(36px,5vw,64px);color:white;letter-spacing:-1.5px;margin-bottom:16px;position:relative;}
+.cta-section p{font-size:18px;color:rgba(255,255,255,.65);margin-bottom:40px;position:relative;}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;}
+
+/* ── FOOTER ── */
+footer{background:var(--ink);padding:40px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.footer-logo-mark{width:26px;height:26px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.footer-logo-text{font-family:'DM Serif Display',serif;font-size:16px;color:white;}
+footer p{font-size:13px;color:rgba(255,255,255,.35);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .mockup-section{flex-direction:column;padding:60px 20px;}
+  .stats{flex-wrap:wrap;}
+  .stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.15);padding:16px 20px;}
+  .stat:last-child{border-bottom:none;}
+  nav{padding:14px 20px;}
+  footer{flex-direction:column;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-mark">
+      <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/>
+        <rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/>
+      </svg>
+    </div>
+    <span class="nav-logo-text">Benchly</span>
+  </a>
+  <a class="nav-cta" href="/app">Ouvrir l'app →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    Communauté active · Angers et au-delà
+  </div>
+  <h1>Le banc parfait<br>vous <em>attend</em> quelque part</h1>
+  <p class="hero-sub">Benchly répertorie les meilleurs bancs autour de vous. Trouvez la vue, l'ombre ou le calme dont vous avez besoin — grâce à la communauté.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="/app">Découvrir les bancs 🪑</a>
+    <a class="btn-ghost" href="#demo">Voir la démo</a>
+  </div>
+  <div class="hero-scroll">
+    <span>Découvrir</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <span class="stat-num" id="stat-benches">—</span>
+    <span class="stat-label">Bancs répertoriés</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="stat-reviews">—</span>
+    <span class="stat-label">Avis partagés</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num">100%</span>
+    <span class="stat-label">Gratuit</span>
+  </div>
+</div>
+
+<!-- MOCKUP SECTION -->
+<section class="mockup-section">
+  <div class="mockup-text">
+    <div class="section-label">L'application</div>
+    <h2>Une carte vivante, par et pour les flâneurs</h2>
+    <p>Chaque banc a une histoire. Une vue à couper le souffle, une ombre en été, le chant des oiseaux au petit matin. Benchly vous aide à les trouver — et à les partager.</p>
+    <div class="feature-list">
+      <div class="feature-item"><div class="feature-icon">📍</div>Posez un banc sur la carte en un clic</div>
+      <div class="feature-item"><div class="feature-icon">⭐</div>Notes, avis et caractéristiques détaillées</div>
+      <div class="feature-item"><div class="feature-icon">📸</div>Photos pour voir avant d'y aller</div>
+      <div class="feature-item"><div class="feature-icon">🔇</div>Filtrez par ambiance : calme, ombragé, panorama…</div>
+    </div>
+  </div>
+
+  <!-- Phone mockup 1 : carte -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-screen-content">
+          <div class="ps-topbar">
+            <div class="ps-logo-m"></div>
+            <span class="ps-logo-t">Benchly</span>
+            <div class="ps-search"></div>
+          </div>
+          <div class="ps-map">
+            <div class="ps-map-road-h"></div>
+            <div class="ps-map-road-v"></div>
+            <div class="ps-pin blue" style="top:30%;left:55%">🌊</div>
+            <div class="ps-pin blue" style="top:55%;left:35%">🌳</div>
+            <div class="ps-pin amber" style="top:42%;left:68%">🏰</div>
+            <div class="ps-pin blue" style="top:65%;left:60%">🌿</div>
+          </div>
+          <div class="ps-sheet">
+            <div class="ps-bench-name">🌊 Banc du Lac de Maine</div>
+            <div class="ps-stars">★★★★★ <span style="color:#999;font-size:9px">4.8 · 47 avis</span></div>
+            <div class="ps-tags">
+              <span class="ps-tag">Vue panoramique</span>
+              <span class="ps-tag">Calme</span>
+              <span class="ps-tag">Proche eau</span>
+            </div>
+          </div>
+          <div class="ps-nav">
+            <div class="ps-nav-item active">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2C6.686 2 4 4.686 4 8c0 5 6 10 6 10s6-5 6-10c0-3.314-2.686-6-6-6z"/></svg>
+              Carte
+            </div>
+            <div class="ps-nav-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+              Explorer
+            </div>
+            <div class="ps-nav-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 4.8 5.6.8-4 3.9.9 5.5L10 14.5l-4.9 2.7.9-5.5-4-3.9 5.6-.8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              Favoris
+            </div>
+            <div class="ps-nav-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 18c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Profil
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CARTE DEMO -->
+<section class="map-section" id="demo">
+  <div class="map-section-grid"></div>
+  <div class="map-section-inner">
+    <div>
+      <h2>Explorez la carte en direct</h2>
+      <p>Les bancs ci-dessous sont réels, ajoutés par la communauté Benchly. Cliquez sur un marqueur pour voir sa fiche.</p>
+    </div>
+    <div class="map-demo-wrap">
+      <div class="map-demo-bar">
+        <div class="map-demo-dots">
+          <div class="map-demo-dot" style="background:#ff5f57"></div>
+          <div class="map-demo-dot" style="background:#ffbd2e"></div>
+          <div class="map-demo-dot" style="background:#28c840"></div>
+        </div>
+        <div class="map-demo-url">benchly-eosin.vercel.app</div>
+      </div>
+      <div id="demo-map"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-inner">
+    <div class="section-label" style="color:var(--blue)">Comment ça marche</div>
+    <h2>Simple comme un banc</h2>
+    <p class="sub">Trois gestes suffisent pour contribuer à la communauté.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">📍</div>
+        <div class="step-num">01</div>
+        <h3>Trouvez un banc</h3>
+        <p>Repérez un banc qui vous plaît. Appuyez sur + et cliquez sur sa position exacte sur la carte.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">✍️</div>
+        <div class="step-num">02</div>
+        <h3>Notez et décrivez</h3>
+        <p>Donnez une note, ajoutez vos caractéristiques et partagez vos photos. Tout ça en 30 secondes.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">🌍</div>
+        <div class="step-num">03</div>
+        <h3>Partagez la trouvaille</h3>
+        <p>Votre banc apparaît instantanément sur la carte pour tous les utilisateurs de Benchly.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <h2>Prêt à trouver<br><em style="font-style:italic">votre</em> banc ?</h2>
+  <p>Rejoignez la communauté et commencez à explorer.</p>
+  <div class="cta-btns">
+    <a class="btn-primary" href="/app">Ouvrir Benchly 🪑</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-logo" href="#">
+    <div class="footer-logo-mark">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/>
+        <rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/>
+      </svg>
+    </div>
+    <span class="footer-logo-text">Benchly</span>
+  </a>
+  <p>© 2025 Benchly · Fait avec ☀️ à Angers</p>
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Carte démo Leaflet
+const demoMap = L.map('demo-map', {zoomControl:true, attributionControl:false}).setView([47.474,-0.554],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(demoMap);
+
+// Charger les bancs depuis Supabase
+const SUPA_URL='https://utcaqupnoupizlfzxppwt.supabase.co';
+const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjA0NTcsImV4cCI6MjA5MDUzNjQ1N30.xaFG5h2jKLbc3tgi9Nx4Cp6zANAh9qFnR3JW1Iibg5g';
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
+
+function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
+
+async function loadDemoMap(){
+  // Géolocalisation : centrer sur l'utilisateur si accepté, sinon France entière
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos => demoMap.setView([pos.coords.latitude, pos.coords.longitude], 13),
+      ()  => demoMap.setView([46.5, 2.5], 6) // France entière si refus
+    );
+  } else {
+    demoMap.setView([46.5, 2.5], 6);
+  }
+
+  // Charger les bancs
+  const {data:benches} = await db.from('benches').select('*');
+  const {data:reviews} = await db.from('reviews').select('*');
+
+  // Compteurs stats
+  document.getElementById('stat-benches').textContent = benches?.length || 0;
+  document.getElementById('stat-reviews').textContent = reviews?.length || 0;
+
+  // Construire map avis par banc
+  const revMap = {};
+  (reviews||[]).forEach(r => {
+    if(!revMap[r.bench_id]) revMap[r.bench_id] = [];
+    revMap[r.bench_id].push(r);
+  });
+
+  // Placer les marqueurs
+  (benches||[]).forEach(b => {
+    const avis = revMap[b.id] || [];
+    const avg = avis.length
+      ? (avis.reduce((s,a)=>s+a.rating,0)/avis.length).toFixed(1)
+      : '—';
+
+    const icon = L.divIcon({
+      html:`<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#185FA5;border:2.5px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)"><span style="transform:rotate(45deg);font-size:13px">${b.emoji||'🪑'}</span></div>`,
+      className:'', iconSize:[34,34], iconAnchor:[17,34]
+    });
+
+    const tags = (b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:50px">${t}</span>`).join('');
+
+    L.marker([b.lat, b.lng], {icon}).addTo(demoMap).bindPopup(`
+      <div style="font-family:'DM Sans',sans-serif;min-width:180px">
+        <div style="font-weight:500;font-size:14px;margin-bottom:3px">${b.name}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
+        <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
+        <a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l'app →</a>
+      </div>
+    `, {maxWidth:220});
+  });
+}
+
+loadDemoMap();
+</script>
+</body>
+</html>
