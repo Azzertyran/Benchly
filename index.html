@@ -70,24 +70,14 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
 .bench-banner{position:relative;margin:10px 14px 0;border-radius:var(--r);overflow:hidden;}
 .bench-banner-scroll{display:flex;height:200px;overflow-x:auto;scroll-snap-type:x mandatory;gap:4px;border-radius:var(--r);}
 .bench-banner-scroll::-webkit-scrollbar{display:none;}
-.bench-banner-scroll img{height:100%;min-width:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in;flex-shrink:0;border-radius:var(--r);}
+.bench-banner-scroll img{height:100%;min-width:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in;flex-shrink:0;}
 .photo-count-badge{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.5);color:white;border-radius:20px;padding:2px 8px;font-size:11px;z-index:2;}
 #lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
 #lightbox.open{display:flex;}
 #lightbox img{max-width:95vw;max-height:85vh;border-radius:8px;object-fit:contain;}
-#lightbox-close{color:white;font-size:28px;cursor:pointer;background:none;border:none;align-self:flex-end;padding:0 8px;}
-.bench-banner{position:relative;height:200px;margin:10px 14px 0;border-radius:var(--r);overflow:hidden;}
-.bench-banner img{width:100%;height:100%;object-fit:cover;display:block;}
-.bench-banner-scroll{display:flex;height:200px;overflow-x:auto;gap:4px;scroll-snap-type:x mandatory;}
-.bench-banner-scroll::-webkit-scrollbar{display:none;}
-.bench-banner-scroll img{height:100%;min-width:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in;border-radius:var(--r);}
+#lightbox-close{color:white;font-size:32px;cursor:pointer;background:none;border:none;padding:8px;}
 .dist-badge{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.92);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;color:var(--blue-mid);box-shadow:0 1px 6px rgba(0,0,0,.1);z-index:2;}
 .fav-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15);border:none;font-size:16px;z-index:2;}
-.photo-count-badge{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.5);color:white;border-radius:20px;padding:2px 8px;font-size:11px;z-index:2;}
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;}
-#lightbox.open{display:flex;}
-#lightbox img{max-width:95vw;max-height:90vh;border-radius:8px;object-fit:contain;}
-#lightbox-close{position:absolute;top:16px;right:16px;color:white;font-size:28px;cursor:pointer;background:none;border:none;line-height:1;}
 .sc{padding:13px 16px 28px;}
 .sh-name{font-family:'DM Serif Display',serif;font-size:21px;color:var(--ink);margin-bottom:2px;}
 .sh-loc{font-size:12px;color:var(--muted);margin-bottom:10px;}
@@ -539,7 +529,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
   <!-- LIGHTBOX -->
   <div id="lightbox" onclick="closeLightbox()">
     <button id="lightbox-close" onclick="closeLightbox()">✕</button>
-    <img id="lightbox-img" src="" alt="photo agrandie">
+    <img id="lightbox-img" src="" alt="">
   </div>
 
   <!-- BOTTOM NAV -->
@@ -778,24 +768,15 @@ function handleSearch(v){
 // ── BENCH SHEET ───────────────────────────────────────
 function openBench(b){
   if(pinMode) return;
-  // Stocker le banc courant — évite les problèmes d'UUID dans les onclick inline
-  window._cb = b;
+  window._cb=b;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('bench-sheet').classList.add('open');
-
-  // Bannière photos ou emoji
-  const photos = b.photos||[];
-  let heroPart;
-  if(photos.length){
-    const imgs = photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')" alt="photo">`).join('');
-    const countBadge = photos.length>1?`<span class="photo-count-badge">1 / ${photos.length}</span>`:'';
-    heroPart=`<div class="bench-banner"><div class="bench-banner-scroll">${imgs}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${countBadge}</div>`;
-  } else {
-    heroPart=`<div class="bench-hero">${b.emoji}<span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button></div>`;
-  }
-
+  const photos=b.photos||[];
+  const hero=photos.length
+    ?`<div class="bench-banner"><div class="bench-banner-scroll">${photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${photos.length>1?`<span class="photo-count-badge">${photos.length} photos</span>`:''}</div>`
+    :`<div class="bench-hero">${b.emoji}<span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button></div>`;
   document.getElementById('sheet-inner').innerHTML=`
-    ${heroPart}
+    ${hero}
     <div class="sc">
       <div class="sh-name">${b.name}</div>
       <div class="sh-loc">${b.loc}</div>
@@ -814,15 +795,11 @@ function openBench(b){
 }
 
 function openItineraire(lat,lng){
-  // Ouvre Google Maps sur mobile/desktop avec les coordonnées exactes du banc
-  const url=`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`;
-  window.open(url,'_blank');
+  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`,'_blank');
 }
-
 function openLightbox(url){
-  const lb=document.getElementById('lightbox');
   document.getElementById('lightbox-img').src=url;
-  lb.classList.add('open');
+  document.getElementById('lightbox').classList.add('open');
 }
 function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
@@ -831,9 +808,8 @@ function closeLightbox(){
 function toggleFav(id){
   const b=benches.find(x=>x.id===id);if(!b)return;
   b.fav=!b.fav;
-  // Met à jour le bouton cœur dans la bannière
-  const favBtn=document.querySelector('.fav-badge');if(favBtn)favBtn.textContent=b.fav?'❤️':'🤍';
-  const actBtn=document.getElementById('fav-act-btn');if(actBtn)actBtn.textContent=b.fav?'❤️ Favori':'⭐ Favori';
+  document.querySelectorAll('.fav-badge').forEach(el=>el.textContent=b.fav?'❤️':'🤍');
+  const act=document.getElementById('fav-act-btn');if(act)act.textContent=b.fav?'❤️ Favori':'⭐ Favori';
   renderFavorites();updateStats();
   showToast(b.fav?'❤️ Ajouté aux favoris':'Retiré des favoris');
 }
@@ -924,7 +900,7 @@ function setBigStar(n){
 }
 
 async function submitReview(){
-  if(!reviewStars){document.getElementById('star-hint').textContent='👆 Choisissez une note d'abord';return;}
+  if(!reviewStars){document.getElementById('star-hint').textContent='\u{1F446} Choisissez une note d\'abord';return;}
   const authorRaw=document.getElementById('review-author').value.trim();
   if(!authorRaw){document.getElementById('review-author').focus();showToast('Indiquez votre nom ou pseudo');return;}
   localStorage.setItem('benchly-username',authorRaw);
@@ -936,32 +912,31 @@ async function submitReview(){
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Publication…';}
   try{
     await db.from('reviews').insert({bench_id:b.id,author:authorRaw,rating:reviewStars,comment:comment||null});
-    // Upload photos et fusion avec photos existantes
     const newUrls=[];
     for(const dataUrl of photoStore['rv']){
-      const res=await fetch(dataUrl);
-      const blob=await res.blob();
+      const res=await fetch(dataUrl);const blob=await res.blob();
       const ext=blob.type.split('/')[1]||'jpg';
-      const path=`${b.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const path=`${b.id}/${Date.now()}.${ext}`;
       const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type});
       if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);newUrls.push(pub.publicUrl);}
     }
     const allPhotos=[...(b.photos||[]),...newUrls];
-    const updateData={};
-    if(selectedTags.length) updateData.tags=[...new Set(selectedTags)];
-    if(allPhotos.length) updateData.photos=allPhotos;
-    if(Object.keys(updateData).length) await db.from('benches').update(updateData).eq('id',b.id);
+    const upd={};
+    if(selectedTags.length) upd.tags=[...new Set(selectedTags)];
+    if(allPhotos.length) upd.photos=allPhotos;
+    if(Object.keys(upd).length) await db.from('benches').update(upd).eq('id',b.id);
     closeReview();
     await loadBenches();
     const updated=benches.find(x=>x.id===b.id);
     if(updated)openBench(updated);
-    showToast('✓ Avis de '+authorRaw+' publié !');
+    showToast('\u2713 Avis de '+authorRaw+' publié !');
     const av=document.getElementById('s-avis');
     if(av)av.textContent=parseInt(av.textContent)+1;
     renderExplorer();
   }catch(e){console.error(e);showToast('Erreur lors de la publication');}
   finally{if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Publier mon avis';}}
 }
+
 
 function setStar(n){selectedStars=n;document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('lit',i<n));}
 
@@ -986,13 +961,11 @@ async function submitBench(){
     }).select().single();
     if(e1)throw e1;
     await db.from('reviews').insert({bench_id:nb.id,author,rating:selectedStars,comment:comment||null});
-    // Upload photos vers Supabase Storage
     const photoUrls=[];
     for(const dataUrl of photoStore['add']){
-      const res=await fetch(dataUrl);
-      const blob=await res.blob();
+      const res=await fetch(dataUrl);const blob=await res.blob();
       const ext=blob.type.split('/')[1]||'jpg';
-      const path=`${nb.id}/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const path=`${nb.id}/${Date.now()}.${ext}`;
       const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type});
       if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);photoUrls.push(pub.publicUrl);}
     }
@@ -1003,8 +976,100 @@ async function submitBench(){
     await loadBenches();
     updateStats();
     showToast('✓ "'+name+'" ajouté pour tout le monde !');
-  }catch(e){console.error(e);showToast('Erreur lors de l'ajout');}
+  }catch(e){console.error(e);showToast('Erreur lors de l\'ajout');}
   finally{btn.disabled=false;btn.textContent='Publier ce banc';}
 }
 
+// ── MULTI-PHOTO ───────────────────────────────────────
+const photoStore={add:[],rv:[]};
+const MAX_PHOTOS=5;
 
+function renderPhotoGrid(ns){
+  const grid=document.getElementById(ns+'-photo-grid');
+  const count=document.getElementById(ns+'-photo-count');
+  if(!grid)return;
+  const photos=photoStore[ns];
+  grid.innerHTML='';
+  photos.forEach((src,i)=>{
+    const thumb=document.createElement('div');
+    thumb.className='photo-thumb';
+    thumb.innerHTML=`<img src="${src}"><button class="del-btn" onclick="removePhoto('${ns}',${i})">✕</button>`;
+    grid.appendChild(thumb);
+  });
+  if(photos.length<MAX_PHOTOS){
+    const add=document.createElement('div');
+    add.className='photo-add-btn';
+    add.innerHTML=`<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="#bbb" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 5l1.5-2.5h3L14 5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ajouter</span>`;
+    add.onclick=()=>document.getElementById(ns+'-photo-input').click();
+    grid.appendChild(add);
+  }
+  count.textContent=`${photos.length} / ${MAX_PHOTOS} photo${photos.length>1?'s':''}`;
+  count.style.color=photos.length>=MAX_PHOTOS?'var(--blue-mid)':'var(--muted)';
+}
+
+function addPhotos(input,ns){
+  const files=[...input.files];
+  const remaining=MAX_PHOTOS-photoStore[ns].length;
+  const toAdd=files.slice(0,remaining);
+  if(files.length>remaining) showToast(`Max ${MAX_PHOTOS} photos — ${files.length-remaining} ignorée${files.length-remaining>1?'s':''}`);
+  toAdd.forEach(f=>{
+    const reader=new FileReader();
+    reader.onload=e=>{photoStore[ns].push(e.target.result);renderPhotoGrid(ns);};
+    reader.readAsDataURL(f);
+  });
+  input.value='';
+}
+
+function removePhoto(ns,idx){
+  photoStore[ns].splice(idx,1);
+  renderPhotoGrid(ns);
+}
+
+function initPhotoGrid(ns){
+  photoStore[ns]=[];
+  renderPhotoGrid(ns);
+}
+
+function resetForm(){
+  document.getElementById('add-name').value='';
+  document.getElementById('add-comment').value='';
+  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit'));
+  document.querySelectorAll('#add-sheet .tsel').forEach(t=>t.classList.remove('sel'));
+  selectedStars=0;
+  initPhotoGrid('add');
+}
+
+function updateStats(){
+  const fc=benches.filter(b=>b.fav).length;
+  document.getElementById('s-bancs').textContent=addedCount;
+  document.getElementById('s-favs').textContent=fc;
+  document.getElementById('mi-contrib').textContent=`${addedCount} banc${addedCount>1?'s':''} ajouté${addedCount>1?'s':''} · 3 avis postés`;
+  document.getElementById('mi-favs').textContent=`${fc} banc${fc>1?'s':''} sauvegardé${fc>1?'s':''}`;
+}
+
+// ── UTILS ─────────────────────────────────────────────
+function showToast(msg){
+  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2600);
+}
+function closeSheet(){document.getElementById('bench-sheet').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
+function closeAll(){
+  if(pinMode)return;
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('bench-sheet').classList.remove('open');
+  document.getElementById('add-sheet').classList.remove('open');
+}
+function goPage(name,el){
+  if(pinMode)exitPinMode();
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  el.classList.add('active');
+  closeAll();
+  if(name==='map'&&mapInstance)setTimeout(()=>mapInstance.invalidateSize(),60);
+  if(name==='favorites')renderFavorites();
+}
+function locateMe(){if(mapInstance)mapInstance.panTo([47.4742,-0.5536]);}
+</script>
+</body>
+</html>
