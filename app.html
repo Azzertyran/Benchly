@@ -1298,7 +1298,7 @@ async function renderContribBenches(){
   try{
     const{data:rows}=await db.from('benches').select('*').eq('created_by',author).order('created_at',{ascending:false});
     if(!rows||!rows.length){
-      body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">🪑</div><p>Vous n'avez pas encore ajouté de banc.<br>Appuyez sur + sur la carte pour commencer !</p></div>';
+      body.innerHTML=`<div class="contrib-empty"><div class="contrib-empty-icon">🪑</div><p>Pas encore de banc ajouté.</p></div>`;
       return;
     }
     body.innerHTML = rows.map(b=>`
@@ -1322,7 +1322,7 @@ async function renderContribReviews(){
   try{
     const{data:revs}=await db.from('reviews').select('*, benches(name,emoji)').eq('author',author).order('created_at',{ascending:false});
     if(!revs||!revs.length){
-      body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">✍️</div><p>Vous n'avez pas encore posté d'avis.<br>Cliquez sur un banc pour donner votre avis !</p></div>';
+      body.innerHTML=`<div class="contrib-empty"><div class="contrib-empty-icon">✍️</div><p>Pas encore d'avis posté.</p></div>`;
       return;
     }
     body.innerHTML = revs.map(r=>`
