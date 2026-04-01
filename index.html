@@ -437,9 +437,12 @@ async function loadDemoMap(){
       ? (avis.reduce((s,a)=>s+a.rating,0)/avis.length).toFixed(1)
       : '—';
 
+    const avgN = parseFloat(avg)||0;
+    const mc = avgN>=4.7?'#0C447C':avgN>=4.0?'#378ADD':avgN>=3.0?'#1D9E75':avgN>=2.5?'#EF9F27':'#E24B4A';
+    const benchSvg = `<svg width="32" height="46" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="${mc}" stroke="white" stroke-width="2"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>`;
     const icon = L.divIcon({
-      html:`<div style="width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#185FA5;border:2.5px solid white;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.25)"><span style="transform:rotate(45deg);font-size:13px">${b.emoji||'🪑'}</span></div>`,
-      className:'', iconSize:[34,34], iconAnchor:[17,34]
+      html: benchSvg,
+      className:'', iconSize:[32,46], iconAnchor:[16,44]
     });
 
     const tags = (b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:50px">${t}</span>`).join('');
