@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="theme-color" content="#378ADD">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="BenchMark">
@@ -1333,12 +1334,11 @@ async function renderContribBenches(){
       return;
     }
     body.innerHTML = rows.map(b=>`
-    body.innerHTML = rows.map(b=>`
       <div class="contrib-bench-card"><div class="contrib-card-header"><div>
         <div class="contrib-bench-emoji">${b.emoji||'🪑'}</div>
         <div class="contrib-bench-name">${b.name}</div>
         <div class="contrib-bench-loc">${b.location||''}</div>
-      </div><button class="contrib-delete-btn" onclick="deleteBench('${b.id}')" title="Supprimer">🗑️</button></div>
+      </div><button class="contrib-delete-btn" onclick="deleteBench(this.dataset.id)" data-id="${b.id}" title="Supprimer">🗑️</button></div>
       <div class="contrib-bench-meta">
         <span style="color:var(--amber);font-size:12px">${'★'.repeat(b.rating||0)}</span>
         <span style="font-size:11px;color:var(--muted)">${(b.tags||[]).slice(0,2).join(' · ')}</span>
@@ -1414,7 +1414,43 @@ function goPage(name,el){
   if(name==='map'&&mapInstance)setTimeout(()=>mapInstance.invalidateSize(),60);
   if(name==='favorites')renderFavorites();
 }
-function locateMe(){if(mapInstance)mapInstance.panTo([47.4742,-0.5536]);}
+function locateMe(){if(mapInstance)mapInstance.setView([window._userLat||47.4742,window._userLng||-0.5536],14);}
+
+// Exposer toutes les fonctions globalement pour les onclick inline
+window.togglePinMode=togglePinMode;
+window.locateMe=locateMe;
+window.setFilter=setFilter;
+window.handleSearch=handleSearch;
+window.searchCity=searchCity;
+window.openBench=openBench;
+window.openReview=openReview;
+window.closeReview=closeReview;
+window.setBigStar=setBigStar;
+window.submitReview=submitReview;
+window.updateAuthorPreview=updateAuthorPreview;
+window.openAdd=openAdd;
+window.cancelAdd=cancelAdd;
+window.submitBench=submitBench;
+window.setStar=setStar;
+window.toggleFav=toggleFav;
+window.goPage=goPage;
+window.saveWelcomeName=saveWelcomeName;
+window.editUsername=editUsername;
+window.handleAuthBtn=handleAuthBtn;
+window.loginWithGoogle=loginWithGoogle;
+window.openItineraire=openItineraire;
+window.openLightbox=openLightbox;
+window.closeLightbox=closeLightbox;
+window.addPhotos=addPhotos;
+window.removePhoto=removePhoto;
+window.closeAll=closeAll;
+window.sortList=sortList;
+window.openContrib=openContrib;
+window.closeContrib=closeContrib;
+window.switchContribTab=switchContribTab;
+window.toggleNotif=toggleNotif;
+window.deleteBench=deleteBench;
+window.deleteReview=deleteReview;
 </script>
 </body>
 </html>
