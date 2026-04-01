@@ -1,8 +1,8 @@
 {
-  "name": "Benchly",
-  "short_name": "Benchly",
+  "name": "BenchMark",
+  "short_name": "BenchMark",
   "description": "Trouvez et partagez les meilleurs bancs autour de vous",
-  "start_url": "/",
+  "start_url": "/app",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#378ADD",
