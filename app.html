@@ -798,6 +798,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
   }).addTo(mapInstance);
   L.control.zoom({position:'bottomright'}).addTo(mapInstance);
   mapInstance.on('click', onMapClick);
+  mapInstance.on('moveend', updateCountPill);
+  mapInstance.on('zoomend', updateCountPill);
 
   // Géolocalisation automatique
   if(navigator.geolocation){
@@ -845,7 +847,7 @@ function exitPinMode(){
   mapInstance.getContainer().classList.remove('pinmode');
   document.getElementById('fab').classList.remove('pinmode');
   document.getElementById('pin-banner').classList.remove('show');
-  document.getElementById('count-pill').textContent=countLabel();
+  setTimeout(updateCountPill, 100); // attendre que la carte se stabilise
   if(tempPinMarker){tempPinMarker.remove();tempPinMarker=null;}
 }
 
@@ -910,8 +912,16 @@ function makeIcon(b){
   return L.divIcon({html:`<div class="bm" style="background:${b.rating>=4.5?'#378ADD':'#185FA5'};"><div class="bm-inner">${b.emoji}</div></div>`,className:'',iconSize:[34,34],iconAnchor:[17,34]});
 }
 function countLabel(){
-  const list=currentFilter==='all'?benches:benches.filter(b=>b.tags.includes(currentFilter));
+  if(!mapInstance) return '';
+  const bounds = mapInstance.getBounds();
+  const list = (currentFilter==='all'?benches:benches.filter(b=>b.tags.includes(currentFilter)))
+    .filter(b => bounds.contains([b.lat, b.lng]));
+  if(!list.length) return 'Aucun banc dans cette zone';
   return `${list.length} banc${list.length>1?'s':''} dans cette zone`;
+}
+
+function updateCountPill(){
+  document.getElementById('count-pill').textContent = countLabel();
 }
 function renderMarkers(){
   leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
@@ -920,7 +930,7 @@ function renderMarkers(){
     const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));
     leafletMarkers.push(m);
   });
-  document.getElementById('count-pill').textContent=countLabel();
+  setTimeout(updateCountPill, 100); // attendre que la carte se stabilise
 }
 function setFilter(tag,el){
   currentFilter=tag;
