@@ -275,7 +275,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
         </div>
         <div class="search-pill">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M11 11l3 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Quartier, ville…" oninput="handleSearch(this.value)">
+          <input type="text" placeholder="Quartier, ville…" id="search-input" oninput="handleSearch(this.value)" onkeydown="if(event.key==='Enter')searchCity(this.value)">
         </div>
       </div>
       <div class="filter-scroll">
@@ -563,7 +563,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
 // ── SUPABASE CONFIG ──
 const SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjA0NTcsImV4cCI6MjA5MDUzNjQ1N30.xaFG5h2jKLbc3tgi9Nx4Cp6zANAh9qFnR3JW1Iibg5g';
-const db=supabase.createClient(SUPA_URL,SUPA_KEY);
+let db; // initialisé dans DOMContentLoaded
 let benches=[];
 
 // ── SUPABASE : CHARGEMENT ─────────────────────────────
@@ -652,11 +652,35 @@ if('serviceWorker' in navigator){
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
-  mapInstance=L.map('map',{zoomControl:false,attributionControl:false}).setView([47.474,-0.554],14);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(mapInstance);
+  db=supabase.createClient(SUPA_URL,SUPA_KEY);
+  // Démarrer la carte centrée sur la France, puis géolocaliser l'utilisateur
+  mapInstance=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.5,2.5],6);
+  L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
+    maxZoom:20,
+    attribution:'© <a href="https://www.maptiler.com">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+    language:'fr'
+  }).addTo(mapInstance);
   L.control.zoom({position:'bottomright'}).addTo(mapInstance);
-  L.circleMarker([47.4742,-0.5536],{radius:8,fillColor:'#378ADD',fillOpacity:1,color:'white',weight:3}).addTo(mapInstance);
   mapInstance.on('click', onMapClick);
+
+  // Géolocalisation automatique
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const {latitude:lat, longitude:lng} = pos.coords;
+        mapInstance.setView([lat, lng], 14);
+        // Point bleu "Vous êtes ici"
+        L.circleMarker([lat,lng],{radius:8,fillColor:'#378ADD',fillOpacity:1,color:'white',weight:3})
+          .addTo(mapInstance)
+          .bindPopup('Vous êtes ici');
+      },
+      () => {
+        // Refus ou erreur → France entière, pas de point bleu
+        mapInstance.setView([46.5, 2.5], 6);
+      },
+      {timeout:6000, maximumAge:60000}
+    );
+  }
 
   loadBenches();
 
@@ -718,7 +742,10 @@ function openAddForm(lat, lng){
   setTimeout(()=>{
     if(miniMap){ miniMap.remove(); miniMap=null; }
     miniMap=L.map('mini-map',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false}).setView([lat,lng],16);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(miniMap);
+    L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
+      maxZoom:20,
+      attribution:''
+    }).addTo(miniMap);
     const icon=L.divIcon({html:`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`,className:'',iconSize:[24,32],iconAnchor:[12,32]});
     L.marker([lat,lng],{icon}).addTo(miniMap);
   },50);
@@ -772,12 +799,52 @@ function setFilter(tag,el){
   renderMarkers(); renderExplorer();
 }
 function handleSearch(v){
+  // Filtrage local des bancs en temps réel
   if(!v.trim()){renderMarkers();return;}
   const q=v.toLowerCase();
   leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
-  const res=benches.filter(b=>b.name.toLowerCase().includes(q)||b.loc.toLowerCase().includes(q)||b.tags.some(t=>t.toLowerCase().includes(q)));
-  res.forEach(b=>{const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));leafletMarkers.push(m);});
-  document.getElementById('count-pill').textContent=`${res.length} résultat${res.length>1?'s':''}`;
+  const res=benches.filter(b=>
+    b.name.toLowerCase().includes(q)||
+    b.loc.toLowerCase().includes(q)||
+    b.tags.some(t=>t.toLowerCase().includes(q))
+  );
+  res.forEach(b=>{
+    const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));
+    leafletMarkers.push(m);
+  });
+  document.getElementById('count-pill').textContent=
+    res.length?`${res.length} banc${res.length>1?'s':''} trouvé${res.length>1?'s':''}`:'Aucun banc trouvé';
+}
+
+let searchTimeout=null;
+async function searchCity(v){
+  if(!v.trim()) return;
+  const pill=document.getElementById('count-pill');
+  pill.textContent='Recherche en cours…';
+  try{
+    // Nominatim geocoding (OpenStreetMap, gratuit)
+    const url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(v)}&format=json&limit=1&accept-language=fr`;
+    const res=await fetch(url,{headers:{'Accept-Language':'fr'}});
+    const data=await res.json();
+    if(data&&data.length>0){
+      const {lat,lon,display_name,boundingbox}=data[0];
+      // Zoomer sur la ville
+      if(boundingbox){
+        const bounds=[[parseFloat(boundingbox[0]),parseFloat(boundingbox[2])],[parseFloat(boundingbox[1]),parseFloat(boundingbox[3])]];
+        mapInstance.fitBounds(bounds,{padding:[20,20],maxZoom:14});
+      } else {
+        mapInstance.setView([parseFloat(lat),parseFloat(lon)],13);
+      }
+      // Montrer les bancs dans la zone
+      renderMarkers();
+      pill.textContent=`Résultats pour "${display_name.split(',')[0]}"`;
+    } else {
+      pill.textContent='Ville introuvable — essayez un autre nom';
+    }
+  }catch(e){
+    console.error(e);
+    pill.textContent='Erreur de recherche';
+  }
 }
 
 // ── BENCH SHEET ───────────────────────────────────────
