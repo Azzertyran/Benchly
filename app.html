@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#378ADD">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -68,7 +68,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 @keyframes bounceIn{0%{transform:scale(.3) translateY(-20px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
 
 /* BENCH SHEET */
-#bench-sheet{position:absolute;bottom:64px;left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1002;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:78%;overflow-y:auto;}
+#bench-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1002;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:78%;overflow-y:auto;}
 #bench-sheet.open{transform:translateY(0);}
 #bench-sheet::-webkit-scrollbar{display:none;}
 .drag-bar{text-align:center;padding:10px 0 0;position:sticky;top:0;background:var(--white);z-index:2;}
@@ -106,7 +106,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .rv-text{font-size:12px;line-height:1.5;color:var(--muted);margin-top:1px;}
 
 /* REVIEW SHEET */
-#review-sheet{position:absolute;bottom:64px;left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1004;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90%;overflow-y:auto;}
+#review-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1004;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:85dvh;overflow-y:auto;}
 #review-sheet.open{transform:translateY(0);}
 #review-sheet::-webkit-scrollbar{display:none;}
 .review-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 13px;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:0;z-index:2;}
@@ -148,7 +148,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .user-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-mid);}
 
 /* ADD SHEET */
-#add-sheet{position:absolute;bottom:64px;left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1003;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90%;overflow-y:auto;}
+#add-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1003;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90%;overflow-y:auto;}
 #add-sheet.open{transform:translateY(0);}
 #add-sheet::-webkit-scrollbar{display:none;}
 .add-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 13px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--white);z-index:2;}
@@ -292,7 +292,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .toast.show{transform:translateX(-50%) translateY(0);}
 
 /* BOTTOM NAV */
-#bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 18px;z-index:10000;}
+#bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 max(18px,env(safe-area-inset-bottom));z-index:10000;}
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:10px;color:#ccc;transition:color .15s;}
 .nav-item.active{color:var(--blue);}
 
@@ -826,6 +826,13 @@ if('serviceWorker' in navigator){
 
 window.addEventListener('DOMContentLoaded',async()=>{
   db=supabase.createClient(SUPA_URL,SUPA_KEY);
+
+  // Forcer fermeture de tous les sheets au démarrage
+  ['bench-sheet','review-sheet','add-sheet','contrib-sheet','admin-sheet'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el){el.classList.remove('open');el.style.transform='translateX(100%)';}
+  });
+  document.getElementById('overlay').classList.remove('show');
   // Démarrer la carte centrée sur la France, puis géolocaliser l'utilisateur
   mapInstance=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.5,2.5],6);
   L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
