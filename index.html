@@ -361,11 +361,26 @@ const demoMap = L.map('demo-map', {zoomControl:true, attributionControl:false}).
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(demoMap);
 
 // Charger les bancs depuis Supabase
-const SUPA_URL='https://utcaqupnoupizlfzxppwt.supabase.co';
+const SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjA0NTcsImV4cCI6MjA5MDUzNjQ1N30.xaFG5h2jKLbc3tgi9Nx4Cp6zANAh9qFnR3JW1Iibg5g';
 const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
+
+function animateCount(id, target){
+  const el = document.getElementById(id);
+  if(!el || target === 0){ if(el) el.textContent = target; return; }
+  let start = 0;
+  const duration = 1200;
+  const step = timestamp => {
+    if(!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    el.textContent = Math.floor(progress * target);
+    if(progress < 1) requestAnimationFrame(step);
+    else el.textContent = target;
+  };
+  requestAnimationFrame(step);
+}
 
 async function loadDemoMap(){
   // Géolocalisation : centrer sur l'utilisateur si accepté, sinon France entière
@@ -383,8 +398,8 @@ async function loadDemoMap(){
   const {data:reviews} = await db.from('reviews').select('*');
 
   // Compteurs stats
-  document.getElementById('stat-benches').textContent = benches?.length || 0;
-  document.getElementById('stat-reviews').textContent = reviews?.length || 0;
+  animateCount('stat-benches', benches?.length || 0);
+  animateCount('stat-reviews', reviews?.length || 0);
 
   // Construire map avis par banc
   const revMap = {};
