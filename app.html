@@ -6,10 +6,10 @@
 <meta name="theme-color" content="#378ADD">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="Benchly">
+<meta name="apple-mobile-web-app-title" content="BenchMark">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<title>Benchly</title>
+<title>BenchMark</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -273,6 +273,9 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .contrib-review-stars{color:var(--amber);font-size:13px;margin-bottom:4px;}
 .contrib-review-text{font-size:13px;color:var(--muted);line-height:1.5;}
 .contrib-review-date{font-size:10px;color:#bbb;margin-top:4px;}
+.contrib-delete-btn{background:none;border:none;cursor:pointer;color:#ddd;font-size:16px;padding:4px;transition:color .15s;float:right;margin-top:-2px;}
+.contrib-delete-btn:hover{color:var(--red);}
+.contrib-card-header{display:flex;align-items:flex-start;justify-content:space-between;}
 .notif-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
 .notif-label{font-size:14px;color:var(--ink);}
 .notif-sub{font-size:11px;color:var(--muted);margin-top:2px;}
@@ -308,7 +311,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="top-row">
         <div class="logo">
           <div class="logo-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg></div>
-          <span class="logo-text">Benchly</span>
+          <span class="logo-text">BenchMark</span>
         </div>
         <div class="search-pill">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M11 11l3 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/></svg>
@@ -368,7 +371,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
         <div class="profile-av" id="profile-av">?</div>
       </div>
       <div class="profile-name" id="profile-name">—</div>
-      <div class="profile-sub" id="profile-sub">Membre Benchly</div>
+      <div class="profile-sub" id="profile-sub">Membre BenchMark</div>
       <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:14px;padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Se connecter avec Google</button>
     </div>
     <div class="stats-row">
@@ -388,7 +391,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="menu-lbl">Application</div>
       <div class="menu-card">
         <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
-        <div class="menu-item"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de Benchly</div><div class="mi-sub">Version 1.0 · Prototype</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Prototype</div></div><span class="mi-arrow">›</span></div>
       </div>
     </div>
     <div style="height:24px;"></div>
@@ -400,7 +403,7 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="welcome-logo">
         <svg width="26" height="26" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg>
       </div>
-      <div class="welcome-title">Bienvenue sur Benchly</div>
+      <div class="welcome-title">Bienvenue sur BenchMark</div>
       <div class="welcome-sub">Trouvez et partagez les meilleurs bancs autour de vous.</div>
       <button class="google-btn" onclick="loginWithGoogle()">
         <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
@@ -701,12 +704,12 @@ async function loginWithGoogle(){
 
 async function logout(){
   await db.auth.signOut();
-  localStorage.removeItem('benchly-username');
+  localStorage.removeItem('benchmark-username');
   applyUsername('Anonyme', null);
   const btn=document.getElementById('auth-btn');
   if(btn){btn.textContent='Se connecter avec Google';}
   const sub=document.getElementById('profile-sub');
-  if(sub) sub.textContent='Membre Benchly';
+  if(sub) sub.textContent='Membre BenchMark';
   showToast('Déconnecté');
 }
 
@@ -722,7 +725,7 @@ async function initAuth(){
     const user=session.user;
     const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
     const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
-    localStorage.setItem('benchly-username',name);
+    localStorage.setItem('benchmark-username',name);
     applyUsername(name,photo);
     const btn=document.getElementById('auth-btn');
     if(btn){btn.textContent='Se déconnecter';}
@@ -731,7 +734,7 @@ async function initAuth(){
     document.getElementById('welcome-modal').classList.remove('show');
   } else {
     window._session=null;
-    const saved=localStorage.getItem('benchly-username');
+    const saved=localStorage.getItem('benchmark-username');
     if(saved){
       applyUsername(saved,null);
     } else {
@@ -744,7 +747,7 @@ async function initAuth(){
       const user=session.user;
       const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
       const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
-      localStorage.setItem('benchly-username',name);
+      localStorage.setItem('benchmark-username',name);
       applyUsername(name,photo);
       const btn=document.getElementById('auth-btn');
       if(btn){btn.textContent='Se déconnecter';}
@@ -756,10 +759,10 @@ async function initAuth(){
 }
 
 function editUsername(){
-  const current=localStorage.getItem('benchly-username')||'';
+  const current=localStorage.getItem('benchmark-username')||'';
   const nouveau=prompt('Votre nom ou pseudo affiché sur vos avis :',current);
   if(nouveau&&nouveau.trim()){
-    localStorage.setItem('benchly-username',nouveau.trim());
+    localStorage.setItem('benchmark-username',nouveau.trim());
     applyUsername(nouveau.trim(),null);
     showToast('✓ Nom mis à jour : '+nouveau.trim());
   }
@@ -768,7 +771,7 @@ function editUsername(){
 function saveWelcomeName(){
   const val=document.getElementById('welcome-name').value.trim();
   if(!val){document.getElementById('welcome-name').focus();return;}
-  localStorage.setItem('benchly-username',val);
+  localStorage.setItem('benchmark-username',val);
   document.getElementById('welcome-modal').classList.remove('show');
   applyUsername(val,null);
 }
@@ -995,6 +998,7 @@ function openBench(b){
         <button class="act-btn" onclick="openItineraire(window._cb.lat,window._cb.lng)">📍 Itinéraire</button>
         <button class="act-btn" id="fav-act-btn" onclick="toggleFav(window._cb.id)">${b.fav?'❤️ Favori':'⭐ Favori'}</button>
         <button class="act-btn primary" onclick="openReview(window._cb.id)">✍️ Mon avis</button>
+        ${b._raw?.created_by===localStorage.getItem('benchmark-username')?`<button class="act-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteBench(window._cb.id)">🗑️</button>`:''}
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
       ${b.avis.map(a=>`<div class="review-card"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div></div></div>`).join('')}
@@ -1074,7 +1078,7 @@ function openReview(id){
   document.querySelectorAll('.bsb').forEach(s=>s.classList.remove('lit'));
 
   // Pré-remplir le nom depuis localStorage
-  const savedName=localStorage.getItem('benchly-username')||'Alexandre';
+  const savedName=localStorage.getItem('benchmark-username')||'Alexandre';
   document.getElementById('review-author').value=savedName;
   updateAuthorPreview(savedName);
 
@@ -1111,7 +1115,7 @@ async function submitReview(){
   if(!reviewStars){document.getElementById('star-hint').textContent='\u{1F446} Choisissez une note d\'abord';return;}
   const authorRaw=document.getElementById('review-author').value.trim();
   if(!authorRaw){document.getElementById('review-author').focus();showToast('Indiquez votre nom ou pseudo');return;}
-  localStorage.setItem('benchly-username',authorRaw);
+  localStorage.setItem('benchmark-username',authorRaw);
   const comment=document.getElementById('review-comment').value.trim();
   const b=benches.find(x=>x.id===reviewBenchId);
   if(!b)return;
@@ -1158,7 +1162,7 @@ async function submitBench(){
   const tags=[...document.querySelectorAll('#add-sheet .tsel.sel')].map(t=>t.textContent.trim());
   const comment=document.getElementById('add-comment').value.trim();
   const addrText=document.getElementById('loc-coords-text').textContent;
-  const author=localStorage.getItem('benchly-username')||'Anonyme';
+  const author=localStorage.getItem('benchmark-username')||'Anonyme';
   const btn=document.getElementById('submit-btn');
   btn.disabled=true;btn.textContent='Publication…';
   try{
@@ -1256,7 +1260,7 @@ function updateStats(){
 }
 
 // ── CONTRIBUTIONS ────────────────────────────────────
-let notifEnabled = localStorage.getItem('benchly-notif') !== 'false';
+let notifEnabled = localStorage.getItem('benchmark-notif') !== 'false';
 let currentContribTab = 'benches';
 
 function openContrib(type){
@@ -1282,6 +1286,33 @@ function closeContrib(){
   document.getElementById('contrib-sheet').classList.remove('open');
 }
 
+async function deleteBench(id){
+  if(!confirm('Supprimer ce banc définitivement ? Les avis associés seront aussi supprimés.')) return;
+  try{
+    await db.from('reviews').delete().eq('bench_id', id);
+    await db.from('benches').delete().eq('id', id);
+    showToast('🗑️ Banc supprimé');
+    await loadBenches();
+    renderContribBenches();
+  }catch(e){
+    console.error(e);
+    showToast('Erreur lors de la suppression');
+  }
+}
+
+async function deleteReview(id){
+  if(!confirm('Supprimer cet avis définitivement ?')) return;
+  try{
+    await db.from('reviews').delete().eq('id', id);
+    showToast('🗑️ Avis supprimé');
+    await loadBenches();
+    renderContribReviews();
+  }catch(e){
+    console.error(e);
+    showToast('Erreur lors de la suppression');
+  }
+}
+
 function switchContribTab(tab, el){
   currentContribTab = tab;
   document.querySelectorAll('.contrib-tab').forEach(t=>t.classList.remove('active'));
@@ -1292,7 +1323,7 @@ function switchContribTab(tab, el){
 
 async function renderContribBenches(){
   const body = document.getElementById('contrib-body');
-  const author = localStorage.getItem('benchly-username')||'';
+  const author = localStorage.getItem('benchmark-username')||'';
   if(!author){ body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">👤</div><p>Connectez-vous pour voir vos contributions.</p></div>'; return; }
   body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">⏳</div><p>Chargement…</p></div>';
   try{
@@ -1302,21 +1333,21 @@ async function renderContribBenches(){
       return;
     }
     body.innerHTML = rows.map(b=>`
-      <div class="contrib-bench-card">
+    body.innerHTML = rows.map(b=>`
+      <div class="contrib-bench-card"><div class="contrib-card-header"><div>
         <div class="contrib-bench-emoji">${b.emoji||'🪑'}</div>
         <div class="contrib-bench-name">${b.name}</div>
         <div class="contrib-bench-loc">${b.location||''}</div>
-        <div class="contrib-bench-meta">
-          <span style="color:var(--amber);font-size:12px">${'★'.repeat(b.rating||0)}</span>
-          <span style="font-size:11px;color:var(--muted)">${(b.tags||[]).slice(0,2).join(' · ')}</span>
-        </div>
-      </div>`).join('');
-  }catch(e){body.innerHTML='<div class="contrib-empty"><p>Erreur de chargement.</p></div>';}
+      </div><button class="contrib-delete-btn" onclick="deleteBench('${b.id}')" title="Supprimer">🗑️</button></div>
+      <div class="contrib-bench-meta">
+        <span style="color:var(--amber);font-size:12px">${'★'.repeat(b.rating||0)}</span>
+        <span style="font-size:11px;color:var(--muted)">${(b.tags||[]).slice(0,2).join(' · ')}</span>
+      </div></div>`).join('');
 }
 
 async function renderContribReviews(){
   const body = document.getElementById('contrib-body');
-  const author = localStorage.getItem('benchly-username')||'';
+  const author = localStorage.getItem('benchmark-username')||'';
   if(!author){ body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">👤</div><p>Connectez-vous pour voir vos avis.</p></div>'; return; }
   body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">⏳</div><p>Chargement…</p></div>';
   try{
@@ -1326,13 +1357,14 @@ async function renderContribReviews(){
       return;
     }
     body.innerHTML = revs.map(r=>`
-      <div class="contrib-review-card">
+    body.innerHTML = revs.map(r=>`
+      <div class="contrib-review-card"><div class="contrib-card-header"><div>
         <div class="contrib-review-bench">${r.benches?.emoji||'🪑'} ${r.benches?.name||'Banc'}</div>
         <div class="contrib-review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
-        <div class="contrib-review-text">${r.comment||'Aucun commentaire.'}</div>
-        <div class="contrib-review-date">${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+      </div><button class="contrib-delete-btn" onclick="deleteReview('${r.id}')" title="Supprimer">🗑️</button></div>
+      <div class="contrib-review-text">${r.comment||'Aucun commentaire.'}</div>
+      <div class="contrib-review-date">${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
       </div>`).join('');
-  }catch(e){body.innerHTML='<div class="contrib-empty"><p>Erreur de chargement.</p></div>';}
 }
 
 function renderNotifications(){
@@ -1352,7 +1384,7 @@ function renderNotifications(){
 
 function toggleNotif(){
   notifEnabled = !notifEnabled;
-  localStorage.setItem('benchly-notif', notifEnabled);
+  localStorage.setItem('benchmark-notif', notifEnabled);
   const btn = document.getElementById('toggle-notif');
   if(btn) btn.classList.toggle('on', notifEnabled);
   const sub = document.getElementById('notif-sub');
