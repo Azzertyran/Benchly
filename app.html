@@ -1343,6 +1343,7 @@ async function renderContribBenches(){
         <span style="color:var(--amber);font-size:12px">${'★'.repeat(b.rating||0)}</span>
         <span style="font-size:11px;color:var(--muted)">${(b.tags||[]).slice(0,2).join(' · ')}</span>
       </div></div>`).join('');
+  }catch(e){body.innerHTML=`<div class="contrib-empty"><p>Erreur de chargement.</p></div>`;}
 }
 
 async function renderContribReviews(){
@@ -1357,14 +1358,14 @@ async function renderContribReviews(){
       return;
     }
     body.innerHTML = revs.map(r=>`
-    body.innerHTML = revs.map(r=>`
       <div class="contrib-review-card"><div class="contrib-card-header"><div>
         <div class="contrib-review-bench">${r.benches?.emoji||'🪑'} ${r.benches?.name||'Banc'}</div>
         <div class="contrib-review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
-      </div><button class="contrib-delete-btn" onclick="deleteReview('${r.id}')" title="Supprimer">🗑️</button></div>
+      </div><button class="contrib-delete-btn" onclick="deleteReview(this.dataset.id)" data-id="${r.id}" title="Supprimer">🗑️</button></div>
       <div class="contrib-review-text">${r.comment||'Aucun commentaire.'}</div>
       <div class="contrib-review-date">${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
       </div>`).join('');
+  }catch(e){body.innerHTML=`<div class="contrib-empty"><p>Erreur de chargement.</p></div>`;}
 }
 
 function renderNotifications(){
