@@ -126,7 +126,7 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
 .bsb:hover{transform:scale(1.2);}
 .star-hint{text-align:center;font-size:12px;color:var(--muted);height:18px;margin-bottom:12px;transition:all .15s;}
 
-/* WELCOME MODAL */
+/* WELCOME / AUTH MODAL */
 #welcome-modal{position:absolute;inset:0;z-index:2000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s;}
 #welcome-modal.show{opacity:1;pointer-events:all;}
 .welcome-card{background:var(--white);border-radius:24px 24px 0 0;width:100%;padding:28px 22px 44px;transform:translateY(60px);transition:transform .4s cubic-bezier(.32,.72,0,1);}
@@ -134,12 +134,17 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
 .welcome-logo{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
 .welcome-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);text-align:center;margin-bottom:6px;}
 .welcome-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:22px;}
-.welcome-input-wrap{position:relative;margin-bottom:14px;}
-.welcome-input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .15s;text-align:center;}
+.welcome-input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .15s;text-align:center;margin-bottom:14px;}
 .welcome-input:focus{border-color:var(--blue);}
 .welcome-input::placeholder{color:#bbb;}
-.welcome-btn{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:17px;cursor:pointer;}
+.welcome-btn{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:17px;cursor:pointer;margin-bottom:10px;}
 .welcome-btn:hover{background:var(--blue-mid);}
+.google-btn{width:100%;padding:13px;background:white;color:var(--ink);border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s;}
+.google-btn:hover{background:var(--sand);}
+.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:12px;}
+.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
+.user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--blue-light);}
+.user-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-mid);}
 
 /* ADD SHEET */
 #add-sheet{position:absolute;bottom:64px;left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1003;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90%;overflow-y:auto;}
@@ -327,9 +332,12 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
   <!-- PAGE PROFIL -->
   <div class="page" id="page-profile">
     <div class="profile-hero">
-      <div class="profile-av" id="profile-av">?</div>
+      <div id="profile-av-wrap">
+        <div class="profile-av" id="profile-av">?</div>
+      </div>
       <div class="profile-name" id="profile-name">—</div>
-      <div class="profile-sub">Membre Benchly</div>
+      <div class="profile-sub" id="profile-sub">Membre Benchly</div>
+      <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:14px;padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Se connecter avec Google</button>
     </div>
     <div class="stats-row">
       <div class="stat-item"><div class="stat-num" id="s-bancs">0</div><div class="stat-label">Bancs ajoutés</div></div>
@@ -354,16 +362,21 @@ html,body{height:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webki
     <div style="height:24px;"></div>
   </div>
 
-  <!-- WELCOME MODAL -->
+  <!-- WELCOME / AUTH MODAL -->
   <div id="welcome-modal">
     <div class="welcome-card">
       <div class="welcome-logo">
         <svg width="26" height="26" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg>
       </div>
       <div class="welcome-title">Bienvenue sur Benchly</div>
-      <div class="welcome-sub">Trouvez et partagez les meilleurs bancs autour de vous.<br>Comment souhaitez-vous être identifié ?</div>
-      <input class="welcome-input" id="welcome-name" type="text" placeholder="Votre prénom ou pseudo…" maxlength="30">
-      <button class="welcome-btn" onclick="saveWelcomeName()">C'est parti !</button>
+      <div class="welcome-sub">Trouvez et partagez les meilleurs bancs autour de vous.</div>
+      <button class="google-btn" onclick="loginWithGoogle()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
+        Continuer avec Google
+      </button>
+      <div class="auth-divider">ou</div>
+      <input class="welcome-input" id="welcome-name" type="text" placeholder="Continuer avec un pseudo…" maxlength="30">
+      <button class="welcome-btn" onclick="saveWelcomeName()">Continuer sans compte</button>
     </div>
   </div>
 
@@ -606,29 +619,103 @@ let pinMode=false, pendingLat=null, pendingLng=null;
 
 function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
 
-// ── USERNAME ──────────────────────────────────────────
+// ── AUTH & USERNAME ───────────────────────────────────
 function getInitials(name){
-  return name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+  return (name||'?').trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
 }
 
-function applyUsername(name){
+function applyUsername(name, photoUrl){
   const ini=getInitials(name);
   const lbl=document.getElementById('nav-profile-label');
   if(lbl) lbl.textContent=name.split(' ')[0];
+  const avWrap=document.getElementById('profile-av-wrap');
   const av=document.getElementById('profile-av');
   const nm=document.getElementById('profile-name');
-  if(av) av.textContent=ini;
+  if(photoUrl&&avWrap){
+    avWrap.innerHTML='<img src="'+photoUrl+'" class="profile-av" style="object-fit:cover;width:70px;height:70px;border-radius:50%;border:3px solid rgba(255,255,255,.3);" alt="'+name+'">';
+  } else if(av){
+    av.textContent=ini;
+  }
   if(nm) nm.textContent=name;
   const mi=document.getElementById('mi-username');
   if(mi) mi.textContent=name+' (affiché sur vos avis)';
 }
 
+async function loginWithGoogle(){
+  try{
+    const{error}=await db.auth.signInWithOAuth({
+      provider:'google',
+      options:{redirectTo:window.location.href}
+    });
+    if(error) throw error;
+  }catch(e){
+    console.error(e);
+    showToast('Erreur de connexion Google');
+  }
+}
+
+async function logout(){
+  await db.auth.signOut();
+  localStorage.removeItem('benchly-username');
+  applyUsername('Anonyme', null);
+  const btn=document.getElementById('auth-btn');
+  if(btn){btn.textContent='Se connecter avec Google';}
+  const sub=document.getElementById('profile-sub');
+  if(sub) sub.textContent='Membre Benchly';
+  showToast('Déconnecté');
+}
+
+function handleAuthBtn(){
+  if(window._session) logout();
+  else loginWithGoogle();
+}
+
+async function initAuth(){
+  const{data:{session}}=await db.auth.getSession();
+  window._session=session;
+  if(session&&session.user){
+    const user=session.user;
+    const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
+    const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
+    localStorage.setItem('benchly-username',name);
+    applyUsername(name,photo);
+    const btn=document.getElementById('auth-btn');
+    if(btn){btn.textContent='Se déconnecter';}
+    const sub=document.getElementById('profile-sub');
+    if(sub) sub.textContent='Connecté · '+user.email;
+    document.getElementById('welcome-modal').classList.remove('show');
+  } else {
+    window._session=null;
+    const saved=localStorage.getItem('benchly-username');
+    if(saved){
+      applyUsername(saved,null);
+    } else {
+      setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
+    }
+  }
+  db.auth.onAuthStateChange(function(_event,session){
+    window._session=session;
+    if(session&&session.user){
+      const user=session.user;
+      const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
+      const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
+      localStorage.setItem('benchly-username',name);
+      applyUsername(name,photo);
+      const btn=document.getElementById('auth-btn');
+      if(btn){btn.textContent='Se déconnecter';}
+      const sub=document.getElementById('profile-sub');
+      if(sub) sub.textContent='Connecté · '+user.email;
+      document.getElementById('welcome-modal').classList.remove('show');
+    }
+  });
+}
+
 function editUsername(){
   const current=localStorage.getItem('benchly-username')||'';
-  const nouveau=prompt('Votre nom ou pseudo affiché sur vos avis :', current);
+  const nouveau=prompt('Votre nom ou pseudo affiché sur vos avis :',current);
   if(nouveau&&nouveau.trim()){
-    localStorage.setItem('benchly-username', nouveau.trim());
-    applyUsername(nouveau.trim());
+    localStorage.setItem('benchly-username',nouveau.trim());
+    applyUsername(nouveau.trim(),null);
     showToast('✓ Nom mis à jour : '+nouveau.trim());
   }
 }
@@ -636,9 +723,9 @@ function editUsername(){
 function saveWelcomeName(){
   const val=document.getElementById('welcome-name').value.trim();
   if(!val){document.getElementById('welcome-name').focus();return;}
-  localStorage.setItem('benchly-username', val);
+  localStorage.setItem('benchly-username',val);
   document.getElementById('welcome-modal').classList.remove('show');
-  applyUsername(val);
+  applyUsername(val,null);
 }
 
 // INIT
@@ -651,7 +738,7 @@ if('serviceWorker' in navigator){
   });
 }
 
-window.addEventListener('DOMContentLoaded',()=>{
+window.addEventListener('DOMContentLoaded',async()=>{
   db=supabase.createClient(SUPA_URL,SUPA_KEY);
   // Démarrer la carte centrée sur la France, puis géolocaliser l'utilisateur
   mapInstance=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.5,2.5],6);
@@ -684,14 +771,8 @@ window.addEventListener('DOMContentLoaded',()=>{
 
   loadBenches();
 
-  // Nom d'utilisateur
-  const saved=localStorage.getItem('benchly-username');
-  if(saved){
-    applyUsername(saved);
-  } else {
-    // Première visite → modale de bienvenue
-    setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'), 800);
-  }
+  // Auth Google
+  await initAuth();
 
   // Valider avec Entrée
   document.getElementById('welcome-name').addEventListener('keydown', e=>{
