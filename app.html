@@ -296,6 +296,11 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
 .nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:10px;color:#ccc;transition:color .15s;}
 .nav-item.active{color:var(--blue);}
 
+/* ADMIN */
+.admin-badge{background:var(--red);color:white;font-size:9px;padding:2px 6px;border-radius:50px;font-weight:500;margin-left:6px;vertical-align:middle;}
+.admin-delete{background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
+.admin-delete:hover{background:var(--red);color:white;}
+
 /* Marker */
 @keyframes pop{0%{transform:rotate(-45deg) scale(.5);opacity:0}70%{transform:rotate(-45deg) scale(1.1)}100%{transform:rotate(-45deg) scale(1);opacity:1}}
 .bm{width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.22);border:2.5px solid white;animation:pop .3s cubic-bezier(.175,.885,.32,1.275);}
@@ -393,6 +398,15 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
       <div class="menu-card">
         <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
         <div class="menu-item"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Prototype</div></div><span class="mi-arrow">›</span></div>
+      </div>
+    </div>
+    <div class="menu-section" id="admin-section" style="display:none">
+      <div class="menu-lbl" style="color:var(--red)">Administration</div>
+      <div class="menu-card">
+        <div class="menu-item" onclick="openAdminPanel()"><div class="mi-icon" style="background:#FCEBEB"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#E24B4A" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" style="color:var(--red)">Panneau admin</div><div class="mi-sub">Gérer tous les bancs et avis</div></div><span class="mi-arrow">›</span></div>
+      </div>
+    </div>
+    <div class="menu-section" style="display:none">
       </div>
     </div>
     <div style="height:24px;"></div>
@@ -581,6 +595,16 @@ html,body{height:100%;height:100dvh;font-family:'DM Sans',sans-serif;background:
   <!-- TOAST -->
   <div class="toast" id="toast"></div>
 
+  <!-- ADMIN PANEL -->
+  <div id="admin-sheet" style="position:absolute;inset:0;bottom:64px;background:var(--sand);z-index:3000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;display:none;">
+    <div style="background:var(--white);padding:52px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;">
+      <button onclick="closeAdminPanel()" style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--red);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0 0 10px;">← Retour</button>
+      <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--red);">Panneau admin 🔐</div>
+      <div style="font-size:12px;color:var(--muted);margin-top:4px;">Tous les bancs et avis · accès restreint</div>
+    </div>
+    <div style="padding:14px;" id="admin-body"></div>
+  </div>
+
   <!-- LIGHTBOX -->
   <div id="lightbox" onclick="closeLightbox()">
     <button id="lightbox-close" onclick="closeLightbox()">✕</button>
@@ -733,6 +757,19 @@ async function initAuth(){
     const sub=document.getElementById('profile-sub');
     if(sub) sub.textContent='Connecté · '+user.email;
     document.getElementById('welcome-modal').classList.remove('show');
+    // Mode admin
+    window._isAdmin = user.email === 'pilipog49@gmail.com';
+    if(window._isAdmin){
+      const profName=document.getElementById('profile-name');
+      if(profName){
+        const badge=document.createElement('span');
+        badge.className='admin-badge';
+        badge.textContent='ADMIN';
+        profName.appendChild(badge);
+      }
+      const adminSection=document.getElementById('admin-section');
+      if(adminSection) adminSection.style.display='block';
+    }
   } else {
     window._session=null;
     const saved=localStorage.getItem('benchmark-username');
@@ -1403,6 +1440,72 @@ function toggleNotif(){
   showToast(notifEnabled ? '🔔 Notifications activées' : '🔕 Notifications désactivées');
 }
 
+// ── ADMIN ────────────────────────────────────────────
+function openAdminPanel(){
+  if(!window._isAdmin){showToast('Accès refusé');return;}
+  const sheet=document.getElementById('admin-sheet');
+  sheet.style.display='block';
+  setTimeout(()=>sheet.style.transform='translateX(0)',10);
+  loadAdminData();
+}
+
+function closeAdminPanel(){
+  const sheet=document.getElementById('admin-sheet');
+  sheet.style.transform='translateX(100%)';
+  setTimeout(()=>sheet.style.display='none',350);
+}
+
+async function loadAdminData(){
+  const body=document.getElementById('admin-body');
+  body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted)">Chargement...</div>`;
+  try{
+    const{data:allBenches}=await db.from('benches').select('*').order('created_at',{ascending:false});
+    const{data:allReviews}=await db.from('reviews').select('*, benches(name)').order('created_at',{ascending:false});
+
+    body.innerHTML=`
+      <div style="font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Tous les bancs (${allBenches?.length||0})</div>
+      ${(allBenches||[]).map(b=>`
+        <div style="background:var(--white);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+          <div>
+            <div style="font-size:14px;font-weight:500">${b.emoji||'🪑'} ${b.name}</div>
+            <div style="font-size:11px;color:var(--muted);margin-top:2px">Par : ${b.created_by||'anonyme'} · ${new Date(b.created_at).toLocaleDateString('fr-FR')}</div>
+          </div>
+          <button class="admin-delete" onclick="adminDeleteBench('${b.id}')">🗑️ Supprimer</button>
+        </div>`).join('')}
+      <div style="font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;">Tous les avis (${allReviews?.length||0})</div>
+      ${(allReviews||[]).map(r=>`
+        <div style="background:var(--white);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.05)">
+          <div style="flex:1;min-width:0;margin-right:10px">
+            <div style="font-size:13px;font-weight:500">${r.benches?.name||'?'} — ${'★'.repeat(r.rating||0)}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px">Par : ${r.author} · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
+            <div style="font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.comment||'(sans commentaire)'}</div>
+          </div>
+          <button class="admin-delete" onclick="adminDeleteReview('${r.id}')">🗑️</button>
+        </div>`).join('')}`;
+  }catch(e){
+    body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--red)">Erreur de chargement</div>`;
+  }
+}
+
+async function adminDeleteBench(id){
+  if(!window._isAdmin){showToast('Accès refusé');return;}
+  if(!confirm('Supprimer ce banc et tous ses avis ?')) return;
+  await db.from('reviews').delete().eq('bench_id',id);
+  await db.from('benches').delete().eq('id',id);
+  showToast('🗑️ Banc supprimé');
+  await loadBenches();
+  loadAdminData();
+}
+
+async function adminDeleteReview(id){
+  if(!window._isAdmin){showToast('Accès refusé');return;}
+  if(!confirm('Supprimer cet avis ?')) return;
+  await db.from('reviews').delete().eq('id',id);
+  showToast('🗑️ Avis supprimé');
+  await loadBenches();
+  loadAdminData();
+}
+
 // ── UTILS ─────────────────────────────────────────────
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
@@ -1462,6 +1565,11 @@ window.switchContribTab=switchContribTab;
 window.toggleNotif=toggleNotif;
 window.deleteBench=deleteBench;
 window.deleteReview=deleteReview;
+window.openAdminPanel=openAdminPanel;
+window.closeAdminPanel=closeAdminPanel;
+window.adminDeleteBench=adminDeleteBench;
+window.adminDeleteReview=adminDeleteReview;
+window.updateCountPill=updateCountPill;
 </script>
 </body>
 </html>
