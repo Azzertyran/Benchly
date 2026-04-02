@@ -2,1641 +2,465 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#378ADD">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="BenchMark">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BenchMark — Trouvez votre banc idéal</title>
+<meta name="description" content="Découvrez, notez et partagez les meilleurs bancs autour de vous. La carte communautaire des bancs.">
+<meta name="theme-color" content="#0C447C">
 <link rel="manifest" href="/manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23378ADD'/%3E%3Crect x='5' y='13' width='22' height='4' rx='2' fill='white'/%3E%3Crect x='5' y='9' width='22' height='3' rx='1.5' fill='rgba(255,255,255,0.6)'/%3E%3Crect x='7' y='17' width='3' height='6' rx='1.5' fill='white'/%3E%3Crect x='22' y='17' width='3' height='6' rx='1.5' fill='white'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="/icon-192.png">
-<title>BenchMark</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
-  --blue:#378ADD;--blue-light:#E6F1FB;--blue-mid:#185FA5;--blue-deep:#0C447C;
-  --sky:#B5D4F4;--sand:#F7F5F0;--ink:#1a1a1a;--muted:#6b6b6b;
-  --border:rgba(0,0,0,0.08);--white:#fff;--r:16px;--rs:10px;
-  --amber:#F5A623;--red:#E24B4A;--green:#1D9E75;
+  --blue:#378ADD;--blue-mid:#185FA5;--blue-deep:#0C447C;--blue-light:#E6F1FB;
+  --sky:#B5D4F4;--ink:#0a1628;--white:#fff;--muted:#5a7a9a;
+  --sand:#F7F5F0;--amber:#F5A623;
 }
-html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webkit-font-smoothing:antialiased;overflow:hidden;}
-#app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%;background:var(--white);position:relative;overflow:hidden;}
-.page{position:absolute;inset:0;bottom:64px;overflow-y:auto;display:none;flex-direction:column;}
-.page.active{display:flex;}
-.page::-webkit-scrollbar{display:none;}
-#page-map{background:#e8f0e4;}
-#map{position:absolute;inset:0;z-index:1;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 
-/* TOPBAR */
-#topbar{position:absolute;top:0;left:0;right:0;z-index:1000;padding:14px 14px 0;display:flex;flex-direction:column;gap:9px;pointer-events:none;}
-.top-row{display:flex;align-items:center;gap:9px;pointer-events:all;}
-.logo{display:flex;align-items:center;gap:7px;background:var(--white);border-radius:50px;padding:7px 13px 7px 9px;box-shadow:0 2px 12px rgba(0,0,0,.1);flex-shrink:0;}
-.logo-mark{width:26px;height:26px;background:var(--blue);border-radius:8px;display:flex;align-items:center;justify-content:center;}
-.logo-text{font-family:'DM Serif Display',serif;font-size:16px;color:var(--ink);}
-.search-pill{flex:1;display:flex;align-items:center;gap:7px;background:var(--white);border-radius:50px;padding:9px 13px;box-shadow:0 2px 12px rgba(0,0,0,.1);pointer-events:all;}
-.search-pill input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;flex:1;width:100%;}
-.search-pill input::placeholder{color:#bbb;}
-.filter-scroll{display:flex;gap:7px;overflow-x:auto;pointer-events:all;padding-bottom:2px;}
-.filter-scroll::-webkit-scrollbar{display:none;}
-.chip{font-size:12px;padding:5px 12px;border-radius:50px;border:none;cursor:pointer;white-space:nowrap;background:var(--white);color:var(--muted);box-shadow:0 2px 8px rgba(0,0,0,.08);transition:all .15s;}
-.chip.active{background:var(--blue);color:var(--white);}
-.count-pill{position:absolute;top:108px;left:50%;transform:translateX(-50%);background:var(--white);border-radius:50px;padding:5px 13px;font-size:11px;color:var(--muted);box-shadow:0 2px 10px rgba(0,0,0,.1);z-index:999;pointer-events:none;white-space:nowrap;transition:all .3s;}
-.map-ctrl-wrap{position:absolute;bottom:80px;left:14px;z-index:999;}
-.map-ctrl-btn{width:40px;height:40px;border-radius:50%;background:var(--white);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,.12);}
+/* ── NAV ── */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,box-shadow .3s;}
+nav.scrolled{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,0,0,.06);}
+.nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
+.nav-logo-mark{width:32px;height:32px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.nav-logo-text{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);}
+.nav-cta{background:var(--blue);color:white;border:none;border-radius:50px;padding:10px 22px;font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;text-decoration:none;transition:background .15s;}
+.nav-cta:hover{background:var(--blue-mid);}
 
-/* FAB */
-#fab{position:absolute;bottom:80px;right:14px;width:50px;height:50px;background:var(--blue);border:none;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:999;box-shadow:0 4px 16px rgba(55,138,221,.4);transition:all .2s;}
-#fab.pinmode{background:var(--red);transform:rotate(45deg);}
+/* ── HERO ── */
+.hero{min-height:100vh;background:var(--blue-deep);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden;}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.04) 1px,transparent 1px);background-size:48px 48px;pointer-events:none;}
+.hero-glow{position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:600px;height:600px;background:radial-gradient(circle,rgba(55,138,221,.35) 0%,transparent 70%);pointer-events:none;}
+.hero-badge{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:6px 16px;font-size:13px;color:rgba(255,255,255,.8);margin-bottom:28px;animation:fadeUp .6s ease both;}
+.hero-badge-dot{width:7px;height:7px;border-radius:50%;background:#4ade80;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.6;transform:scale(1.3);}}
+h1{font-family:'DM Serif Display',serif;font-size:clamp(42px,7vw,88px);color:white;line-height:1.0;letter-spacing:-2px;max-width:800px;margin-bottom:24px;animation:fadeUp .6s .1s ease both;}
+h1 em{font-style:italic;color:var(--sky);}
+.hero-sub{font-size:clamp(16px,2.5vw,20px);color:rgba(255,255,255,.65);max-width:520px;line-height:1.6;margin-bottom:44px;font-weight:300;animation:fadeUp .6s .2s ease both;}
+.hero-btns{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;animation:fadeUp .6s .3s ease both;}
+.btn-primary{background:white;color:var(--blue-deep);border:none;border-radius:50px;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;text-decoration:none;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
+.btn-ghost{background:transparent;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.25);border-radius:50px;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;text-decoration:none;transition:all .15s;}
+.btn-ghost:hover{background:rgba(255,255,255,.08);color:white;}
+.hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.4);font-size:11px;letter-spacing:.1em;text-transform:uppercase;animation:fadeUp .6s .5s ease both;}
+.scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);animation:scrollPulse 2s infinite;}
+@keyframes scrollPulse{0%,100%{transform:scaleY(1);}50%{transform:scaleY(.6);}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}
 
-/* PIN MODE BANNER */
-#pin-banner{position:absolute;top:0;left:0;right:0;z-index:1001;pointer-events:none;display:flex;justify-content:center;padding-top:130px;opacity:0;transition:opacity .3s;}
-#pin-banner.show{opacity:1;pointer-events:none;}
-.pin-banner-inner{background:var(--ink);color:white;border-radius:50px;padding:10px 20px;font-size:13px;display:flex;align-items:center;gap:8px;box-shadow:0 4px 16px rgba(0,0,0,.25);}
-.pin-pulse{width:10px;height:10px;border-radius:50%;background:var(--amber);animation:pulse 1.2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.5;transform:scale(1.3);}}
+/* ── STATS ── */
+.stats{background:var(--blue-mid);padding:40px 32px;display:flex;justify-content:center;gap:0;}
+.stat{flex:1;max-width:200px;text-align:center;padding:0 20px;border-right:1px solid rgba(255,255,255,.15);}
+.stat:last-child{border-right:none;}
+.stat-num{font-family:'DM Serif Display',serif;font-size:36px;color:white;display:block;}
+.stat-label{font-size:13px;color:rgba(255,255,255,.6);margin-top:4px;}
 
-/* CROSSHAIR CURSOR sur la carte en mode épingle */
-#map.pinmode{cursor:crosshair !important;}
-#map.pinmode .leaflet-interactive{cursor:crosshair !important;}
+/* ── PHONE MOCKUP ── */
+.mockup-section{padding:100px 32px;background:var(--sand);display:flex;align-items:center;justify-content:center;gap:80px;flex-wrap:wrap;}
+.mockup-text{max-width:440px;}
+.section-label{font-size:12px;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--blue);margin-bottom:14px;}
+.mockup-text h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,48px);line-height:1.1;letter-spacing:-1px;margin-bottom:18px;}
+.mockup-text p{font-size:16px;color:#4a6a8a;line-height:1.7;margin-bottom:28px;}
+.feature-list{display:flex;flex-direction:column;gap:12px;}
+.feature-item{display:flex;align-items:center;gap:12px;font-size:14px;color:#3a5a7a;}
+.feature-icon{width:32px;height:32px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;}
+.phone-wrap{position:relative;flex-shrink:0;}
+.phone{width:260px;height:520px;background:var(--ink);border-radius:40px;padding:14px;box-shadow:0 40px 80px rgba(12,68,124,.25),0 0 0 1px rgba(255,255,255,.1);position:relative;}
+.phone-notch{width:80px;height:26px;background:var(--ink);border-radius:0 0 16px 16px;position:absolute;top:0;left:50%;transform:translateX(-50%);z-index:2;}
+.phone-screen{width:100%;height:100%;background:white;border-radius:28px;overflow:hidden;position:relative;}
+.phone-screen-content{position:absolute;inset:0;display:flex;flex-direction:column;}
 
-/* TEMP PIN */
-.temp-pin-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;animation:bounceIn .3s cubic-bezier(.175,.885,.32,1.275);}
-@keyframes bounceIn{0%{transform:scale(.3) translateY(-20px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
+/* Contenu screen 1 : carte */
+.ps-topbar{background:white;padding:44px 10px 8px;display:flex;align-items:center;gap:6px;}
+.ps-logo-m{width:20px;height:20px;background:var(--blue);border-radius:5px;}
+.ps-logo-t{font-family:'DM Serif Display',serif;font-size:13px;}
+.ps-search{flex:1;background:#f0f0f0;border-radius:50px;height:26px;}
+.ps-map{flex:1;background:#e8f0e4;position:relative;overflow:hidden;}
+.ps-map-road-h{position:absolute;top:45%;left:0;right:0;height:10px;background:#d0dccb;}
+.ps-map-road-v{position:absolute;left:40%;top:0;bottom:0;width:10px;background:#d0dccb;}
+.ps-pin{position:absolute;width:22px;height:22px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:9px;}
+.ps-pin.blue{background:var(--blue);}
+.ps-pin.amber{background:var(--amber);}
+.ps-sheet{background:white;border-radius:16px 16px 0 0;padding:10px 12px 12px;box-shadow:0 -4px 16px rgba(0,0,0,.06);}
+.ps-bench-name{font-family:'DM Serif Display',serif;font-size:13px;margin-bottom:2px;}
+.ps-stars{color:var(--amber);font-size:10px;}
+.ps-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap;}
+.ps-tag{font-size:9px;padding:2px 6px;background:var(--blue-light);color:var(--blue-mid);border-radius:50px;}
+.ps-nav{background:white;border-top:1px solid #f0f0f0;display:flex;padding:6px 0 10px;}
+.ps-nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:8px;color:#ccc;}
+.ps-nav-item.active{color:var(--blue);}
 
-/* BENCH SHEET */
-#bench-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1002;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:78%;overflow-y:auto;visibility:hidden;}
-#bench-sheet.open{transform:translateY(0);visibility:visible;}
-#bench-sheet::-webkit-scrollbar{display:none;}
-.drag-bar{text-align:center;padding:10px 0 0;position:sticky;top:0;background:var(--white);z-index:2;}
-.drag-handle{width:34px;height:4px;background:#e0e0e0;border-radius:2px;display:inline-block;}
-.bench-hero{height:148px;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;font-size:52px;margin:10px 14px 0;border-radius:var(--r);position:relative;}
-.bench-banner{position:relative;margin:10px 14px 0;border-radius:var(--r);overflow:hidden;}
-.bench-banner-scroll{display:flex;height:200px;overflow-x:auto;scroll-snap-type:x mandatory;gap:4px;border-radius:var(--r);}
-.bench-banner-scroll::-webkit-scrollbar{display:none;}
-.bench-banner-scroll img{height:100%;min-width:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in;flex-shrink:0;}
-.photo-count-badge{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.5);color:white;border-radius:20px;padding:2px 8px;font-size:11px;z-index:2;}
-#lightbox{position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:9999;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px;}
-#lightbox.open{display:flex;}
-#lightbox img{max-width:95vw;max-height:85vh;border-radius:8px;object-fit:contain;}
-#lightbox-close{color:white;font-size:32px;cursor:pointer;background:none;border:none;padding:8px;}
-.dist-badge{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.92);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;color:var(--blue-mid);box-shadow:0 1px 6px rgba(0,0,0,.1);z-index:2;}
-.fav-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15);border:none;font-size:16px;z-index:2;}
-.sc{padding:13px 16px 28px;}
-.sh-name{font-family:'DM Serif Display',serif;font-size:21px;color:var(--ink);margin-bottom:2px;}
-.sh-loc{font-size:12px;color:var(--muted);margin-bottom:10px;}
-.rating-row{display:flex;align-items:center;gap:7px;margin-bottom:12px;}
-.stars-disp{color:var(--amber);font-size:14px;letter-spacing:-.5px;}
-.rnum{font-size:13px;font-weight:500;}.rcnt{font-size:12px;color:var(--muted);}
-.tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-.btag{font-size:11px;padding:3px 9px;background:var(--blue-light);color:var(--blue-mid);border-radius:50px;}
-.sh-desc{font-size:13px;line-height:1.65;color:var(--muted);margin-bottom:16px;}
-.act-row{display:flex;gap:8px;margin-bottom:18px;}
-.act-btn{flex:1;padding:10px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:5px;transition:background .1s;}
-.act-btn:hover{background:var(--sand);}
-.act-btn.primary{background:var(--blue);border-color:var(--blue);color:white;}
-.sec-label{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-top:14px;border-top:1px solid var(--border);}
-.review-card{display:flex;gap:9px;margin-bottom:12px;}
-.av{width:30px;height:30px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--blue-mid);flex-shrink:0;}
-.rv-name{font-size:12px;font-weight:500;color:var(--ink);}
-.rv-stars{color:var(--amber);font-size:10px;}
-.rv-text{font-size:12px;line-height:1.5;color:var(--muted);margin-top:1px;}
+/* Écran 2 : fiche */
+.screen2 .ps-hero{height:90px;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;font-size:32px;border-radius:10px;margin:44px 8px 8px;}
+.screen2 .ps-info{padding:0 10px;}
+.screen2 .ps-name{font-family:'DM Serif Display',serif;font-size:14px;}
+.screen2 .ps-rating{display:flex;align-items:center;gap:4px;margin:4px 0;}
+.screen2 .ps-rnum{font-size:11px;font-weight:500;}
+.ps-actions{display:flex;gap:5px;margin-top:8px;}
+.ps-act{flex:1;padding:6px;border-radius:6px;border:1px solid #eee;text-align:center;font-size:8px;color:#333;}
+.ps-act.primary{background:var(--blue);border-color:var(--blue);color:white;}
 
-/* REVIEW SHEET */
-#review-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1004;transform:translateY(110%);visibility:hidden;transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:85dvh;overflow-y:auto;}
-#review-sheet.open{transform:translateY(0);visibility:visible;}
-#review-sheet::-webkit-scrollbar{display:none;}
-.review-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 13px;border-bottom:1px solid var(--border);background:var(--white);position:sticky;top:0;z-index:2;}
-.review-head-left{display:flex;flex-direction:column;}
-.review-head-title{font-family:'DM Serif Display',serif;font-size:18px;color:var(--ink);}
-.review-head-bench{font-size:12px;color:var(--muted);margin-top:2px;}
-.review-body{padding:16px 16px 36px;}
-.author-pill{display:flex;align-items:center;gap:10px;background:var(--sand);border-radius:var(--rs);padding:10px 12px;border:1.5px solid var(--border);}
-.author-av{width:30px;height:30px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-mid);flex-shrink:0;}
-.author-info{flex:1;min-width:0;}
-.author-label{font-size:10px;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;}
-.author-name-input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;color:var(--ink);background:transparent;width:100%;margin-top:1px;}
-.author-name-input::placeholder{color:#bbb;font-weight:400;}
-.author-edit-hint{font-size:10px;color:var(--blue);flex-shrink:0;font-style:italic;}
-.big-stars{display:flex;gap:10px;justify-content:center;padding:12px 0 4px;}
-.bsb{font-size:40px;cursor:pointer;background:none;border:none;padding:0;color:#e0e0e0;transition:color .1s,transform .15s;line-height:1;}
-.bsb.lit{color:var(--amber);}
-.bsb:hover{transform:scale(1.2);}
-.star-hint{text-align:center;font-size:12px;color:var(--muted);height:18px;margin-bottom:12px;transition:all .15s;}
+/* ── CARTE DEMO ── */
+.map-section{padding:100px 32px;background:var(--blue-deep);position:relative;overflow:hidden;}
+.map-section-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.03) 1px,transparent 1px);background-size:32px 32px;pointer-events:none;}
+.map-section-inner{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:48px;}
+.map-section h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,52px);color:white;text-align:center;letter-spacing:-1px;}
+.map-section p{font-size:17px;color:rgba(255,255,255,.6);text-align:center;max-width:500px;line-height:1.6;}
+.map-demo-wrap{width:100%;max-width:900px;border-radius:24px;overflow:hidden;box-shadow:0 40px 80px rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.1);}
+.map-demo-bar{background:rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.08);padding:12px 16px;display:flex;align-items:center;gap:10px;}
+.map-demo-dots{display:flex;gap:6px;}
+.map-demo-dot{width:10px;height:10px;border-radius:50%;}
+.map-demo-url{flex:1;background:rgba(255,255,255,.08);border-radius:6px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.5);}
+#demo-map{height:420px;}
 
-/* WELCOME / AUTH MODAL */
-#welcome-modal{position:absolute;inset:0;z-index:2000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.45);backdrop-filter:blur(3px);opacity:0;pointer-events:none;transition:opacity .3s;}
-#welcome-modal.show{opacity:1;pointer-events:all;}
-.welcome-card{background:var(--white);border-radius:24px 24px 0 0;width:100%;padding:28px 22px 44px;transform:translateY(60px);transition:transform .4s cubic-bezier(.32,.72,0,1);}
-#welcome-modal.show .welcome-card{transform:translateY(0);}
-.welcome-logo{width:52px;height:52px;background:var(--blue);border-radius:14px;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
-.welcome-title{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);text-align:center;margin-bottom:6px;}
-.welcome-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:22px;}
-.welcome-input{width:100%;padding:13px 16px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:15px;color:var(--ink);outline:none;transition:border-color .15s;text-align:center;margin-bottom:14px;}
-.welcome-input:focus{border-color:var(--blue);}
-.welcome-input::placeholder{color:#bbb;}
-.welcome-btn{width:100%;padding:14px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:17px;cursor:pointer;margin-bottom:10px;}
-.welcome-btn:hover{background:var(--blue-mid);}
-.google-btn{width:100%;padding:13px;background:white;color:var(--ink);border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:background .15s;}
-.google-btn:hover{background:var(--sand);}
-.auth-divider{display:flex;align-items:center;gap:10px;margin:14px 0;color:var(--muted);font-size:12px;}
-.auth-divider::before,.auth-divider::after{content:'';flex:1;height:1px;background:var(--border);}
-.user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--blue-light);}
-.user-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-mid);}
+/* ── HOW IT WORKS ── */
+.how-section{padding:100px 32px;background:white;}
+.how-inner{max-width:900px;margin:0 auto;text-align:center;}
+.how-inner h2{font-family:'DM Serif Display',serif;font-size:clamp(32px,4vw,48px);letter-spacing:-1px;margin-bottom:12px;}
+.how-inner .sub{font-size:17px;color:#6a8aaa;margin-bottom:64px;line-height:1.6;}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:32px;text-align:left;}
+.step{position:relative;padding:32px;background:var(--sand);border-radius:20px;transition:transform .2s;}
+.step:hover{transform:translateY(-4px);}
+.step-num{font-family:'DM Serif Display',serif;font-size:48px;color:var(--blue-light);line-height:1;margin-bottom:16px;}
+.step h3{font-size:18px;font-weight:500;margin-bottom:8px;}
+.step p{font-size:14px;color:#5a7a9a;line-height:1.6;}
+.step-icon{width:44px;height:44px;background:var(--blue);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;}
 
-/* ADD SHEET */
-#add-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1003;transform:translateY(110%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90%;overflow-y:auto;visibility:hidden;}
-#add-sheet.open{transform:translateY(0);visibility:visible;}
-#add-sheet::-webkit-scrollbar{display:none;}
-.add-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 13px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--white);z-index:2;}
-.add-title-wrap{display:flex;flex-direction:column;}
-.add-title{font-family:'DM Serif Display',serif;font-size:18px;line-height:1.2;}
-.add-subtitle{font-size:11px;color:var(--muted);margin-top:2px;}
-.close-x{width:28px;height:28px;border-radius:50%;background:#f0f0f0;border:none;cursor:pointer;font-size:15px;color:var(--muted);flex-shrink:0;}
-.add-body{padding:4px 16px 36px;}
+/* ── CTA FINAL ── */
+.cta-section{padding:100px 32px;background:linear-gradient(135deg,var(--blue-mid),var(--blue-deep));text-align:center;position:relative;overflow:hidden;}
+.cta-section::before{content:'';position:absolute;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:800px;background:radial-gradient(circle,rgba(181,212,244,.15) 0%,transparent 70%);pointer-events:none;}
+.cta-section h2{font-family:'DM Serif Display',serif;font-size:clamp(36px,5vw,64px);color:white;letter-spacing:-1.5px;margin-bottom:16px;position:relative;}
+.cta-section p{font-size:18px;color:rgba(255,255,255,.65);margin-bottom:40px;position:relative;}
+.cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;}
 
-/* LOCATION PREVIEW */
-.loc-preview{margin-top:14px;border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;}
-.loc-map{height:120px;position:relative;background:linear-gradient(135deg,#e8f4e8,#d4ecd4);display:flex;align-items:center;justify-content:center;}
-#mini-map{height:120px;}
-.loc-info{padding:8px 12px;display:flex;align-items:center;gap:8px;background:var(--sand);}
-.loc-dot{width:8px;height:8px;border-radius:50%;background:var(--green);flex-shrink:0;}
-.loc-coords{font-size:12px;color:var(--ink);font-weight:500;}
-.loc-coords span{font-size:11px;color:var(--muted);font-weight:400;margin-left:4px;}
-.loc-change{margin-left:auto;font-size:11px;color:var(--blue);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;}
+/* ── FOOTER ── */
+footer{background:var(--ink);padding:40px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
+.footer-logo-mark{width:26px;height:26px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;}
+.footer-logo-text{font-family:'DM Serif Display',serif;font-size:16px;color:white;}
+footer p{font-size:13px;color:rgba(255,255,255,.35);}
 
-.fl{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:14px 0 5px;}
-.fi{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:var(--white);outline:none;transition:border-color .15s;resize:none;}
-.fi:focus{border-color:var(--blue);}
-.fi.err{border-color:var(--red);}
-.star-row{display:flex;gap:6px;margin-top:2px;}
-.sb{font-size:28px;cursor:pointer;background:none;border:none;padding:0;color:#ddd;transition:color .1s,transform .1s;}
-.sb.lit{color:var(--amber);}
-
-/* TAG GROUPS */
-.tag-group{margin-bottom:4px;}
-.tag-group-label{font-size:10px;font-weight:500;letter-spacing:.05em;text-transform:uppercase;color:#bbb;margin-bottom:5px;}
-.tsel-wrap{display:flex;gap:6px;flex-wrap:wrap;}
-.tsel{font-size:12px;padding:5px 11px;border-radius:50px;border:1.5px solid var(--border);cursor:pointer;background:var(--white);color:var(--muted);transition:all .15s;user-select:none;}
-.tsel:hover{border-color:var(--blue-mid);}
-.tsel.sel{background:var(--blue-light);border-color:var(--blue);color:var(--blue-mid);}
-
-/* PHOTO PICKER */
-.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:2px;}
-.photo-thumb{position:relative;aspect-ratio:1;border-radius:var(--rs);overflow:hidden;background:var(--sand);}
-.photo-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-.photo-thumb .del-btn{position:absolute;top:4px;right:4px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.55);border:none;color:white;font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1;}
-.photo-add-btn{aspect-ratio:1;border-radius:var(--rs);border:1.5px dashed #ccc;background:var(--sand);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;gap:4px;transition:all .15s;}
-.photo-add-btn:hover{border-color:var(--blue);background:var(--blue-light);}
-.photo-add-btn span{font-size:10px;color:var(--muted);}
-.photo-count{font-size:11px;color:var(--muted);margin-top:6px;text-align:right;}
-.submit-btn{width:100%;margin-top:18px;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;transition:background .15s;}
-.submit-btn:hover{background:var(--blue-mid);}
-.submit-btn:disabled{background:#ccc;cursor:not-allowed;}
-
-/* EXPLORER */
-#page-explorer{background:var(--sand);}
-.page-head{padding:52px 16px 14px;background:var(--white);border-bottom:1px solid var(--border);}
-.page-head h2{font-family:'DM Serif Display',serif;font-size:22px;margin-bottom:2px;}
-.page-head p{font-size:13px;color:var(--muted);}
-.sort-row{display:flex;gap:7px;padding:10px 14px;overflow-x:auto;background:var(--white);border-bottom:1px solid var(--border);}
-.sort-row::-webkit-scrollbar{display:none;}
-.sort-chip{font-size:12px;padding:5px 12px;border-radius:50px;border:1.5px solid var(--border);cursor:pointer;background:var(--white);color:var(--muted);white-space:nowrap;transition:all .15s;}
-.sort-chip.active{background:var(--ink);color:white;border-color:var(--ink);}
-.bench-list{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
-.bench-card{background:var(--white);border-radius:var(--r);overflow:hidden;display:flex;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);transition:transform .1s;}
-.bench-card:active{transform:scale(.98);}
-.bc-img{width:80px;flex-shrink:0;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;font-size:30px;}
-.bc-info{flex:1;padding:11px 12px;}
-.bc-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:1px;}
-.bc-loc{font-size:11px;color:var(--muted);margin-bottom:6px;}
-.bc-meta{display:flex;align-items:center;gap:5px;flex-wrap:wrap;}
-.bc-stars{color:var(--amber);font-size:11px;}
-.bc-rnum{font-size:11px;font-weight:500;}
-.bc-rcnt{font-size:11px;color:var(--muted);}
-.bc-tag{font-size:10px;padding:2px 7px;background:var(--blue-light);color:var(--blue-mid);border-radius:50px;margin-left:auto;}
-.bc-dist{font-size:11px;color:var(--muted);margin-top:4px;}
-
-/* FAVORITES */
-#page-favorites{background:var(--sand);}
-.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 30px;text-align:center;}
-.empty-icon{font-size:48px;margin-bottom:12px;opacity:.4;}
-.empty-state h3{font-family:'DM Serif Display',serif;font-size:18px;color:var(--ink);margin-bottom:6px;}
-.empty-state p{font-size:13px;line-height:1.6;color:var(--muted);}
-
-/* PROFILE */
-#page-profile{background:var(--sand);}
-.profile-hero{background:linear-gradient(160deg,var(--blue-deep),var(--blue));padding:52px 20px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;}
-.profile-av{width:70px;height:70px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;color:var(--blue-deep);margin-bottom:10px;border:3px solid rgba(255,255,255,.3);}
-.profile-name{font-family:'DM Serif Display',serif;font-size:20px;color:white;margin-bottom:2px;}
-.profile-sub{font-size:12px;color:rgba(255,255,255,.7);}
-.stats-row{display:flex;background:var(--white);border-bottom:1px solid var(--border);}
-.stat-item{flex:1;padding:14px 10px;text-align:center;border-right:1px solid var(--border);}
-.stat-item:last-child{border-right:none;}
-.stat-num{font-family:'DM Serif Display',serif;font-size:22px;color:var(--blue);}
-.stat-label{font-size:11px;color:var(--muted);margin-top:1px;}
-.menu-section{margin:12px 14px 0;}
-.menu-lbl{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.menu-card{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);}
-.menu-item{display:flex;align-items:center;gap:12px;padding:13px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .1s;}
-.menu-item:last-child{border-bottom:none;}
-.menu-item:hover{background:var(--sand);}
-.mi-icon{width:34px;height:34px;border-radius:10px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
-.mi-text{flex:1;}
-.mi-title{font-size:14px;color:var(--ink);}
-.mi-sub{font-size:11px;color:var(--muted);margin-top:1px;}
-.mi-arrow{color:#ccc;font-size:18px;}
-
-/* CONTRIBUTIONS PAGE */
-#contrib-sheet{position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:64px;background:var(--sand);z-index:2000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;}
-#contrib-sheet.open{transform:translateX(0);}
-#contrib-sheet::-webkit-scrollbar{display:none;}
-.contrib-head{background:var(--white);padding:52px 16px 0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;}
-.contrib-back{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--blue);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0 0 14px;}
-.contrib-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);margin-bottom:14px;}
-.contrib-tabs{display:flex;gap:0;border-top:1px solid var(--border);}
-.contrib-tab{flex:1;padding:12px;text-align:center;font-size:13px;color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;border-bottom:2px solid transparent;transition:all .15s;}
-.contrib-tab.active{color:var(--blue);border-bottom-color:var(--blue);}
-.contrib-body{padding:14px;}
-.contrib-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center;color:var(--muted);}
-.contrib-empty-icon{font-size:40px;margin-bottom:12px;opacity:.4;}
-.contrib-empty p{font-size:13px;line-height:1.6;}
-.contrib-bench-card{background:var(--white);border-radius:var(--r);padding:13px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
-.contrib-bench-emoji{font-size:24px;margin-bottom:6px;}
-.contrib-bench-name{font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px;}
-.contrib-bench-loc{font-size:11px;color:var(--muted);margin-bottom:6px;}
-.contrib-bench-meta{display:flex;align-items:center;gap:6px;}
-.contrib-review-card{background:var(--white);border-radius:var(--r);padding:13px 14px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
-.contrib-review-bench{font-size:12px;color:var(--blue);font-weight:500;margin-bottom:4px;}
-.contrib-review-stars{color:var(--amber);font-size:13px;margin-bottom:4px;}
-.contrib-review-text{font-size:13px;color:var(--muted);line-height:1.5;}
-.contrib-review-date{font-size:10px;color:#bbb;margin-top:4px;}
-.contrib-delete-btn{background:none;border:none;cursor:pointer;color:#ddd;font-size:16px;padding:4px;transition:color .15s;float:right;margin-top:-2px;}
-.contrib-delete-btn:hover{color:var(--red);}
-.contrib-card-header{display:flex;align-items:flex-start;justify-content:space-between;}
-.notif-row{display:flex;align-items:center;justify-content:space-between;background:var(--white);border-radius:var(--r);padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 6px rgba(0,0,0,.05);}
-.notif-label{font-size:14px;color:var(--ink);}
-.notif-sub{font-size:11px;color:var(--muted);margin-top:2px;}
-.toggle{width:44px;height:26px;border-radius:13px;background:#ddd;position:relative;cursor:pointer;transition:background .2s;border:none;flex-shrink:0;}
-.toggle.on{background:var(--blue);}
-.toggle::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:white;transition:transform .2s;box-shadow:0 1px 4px rgba(0,0,0,.2);}
-.toggle.on::after{transform:translateX(18px);}
-
-/* OVERLAY & TOAST */
-#overlay{position:absolute;inset:0;background:rgba(0,0,0,.28);z-index:1001;opacity:0;pointer-events:none;transition:opacity .3s;backdrop-filter:blur(1px);}
-#overlay.show{opacity:1;pointer-events:all;}
-.toast{position:absolute;top:18px;left:50%;transform:translateX(-50%) translateY(-80px);background:var(--green);color:white;border-radius:50px;padding:10px 20px;font-size:13px;font-weight:500;z-index:9999;transition:transform .35s cubic-bezier(.32,.72,0,1);white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.15);}
-.toast.show{transform:translateX(-50%) translateY(0);}
-
-/* BOTTOM NAV */
-#bottom-nav{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-top:1px solid var(--border);display:flex;padding:8px 0 max(18px,env(safe-area-inset-bottom));z-index:10000;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:10px;color:#ccc;transition:color .15s;}
-.nav-item.active{color:var(--blue);}
-
-/* ADMIN */
-.admin-badge{background:var(--red);color:white;font-size:9px;padding:2px 6px;border-radius:50px;font-weight:500;margin-left:6px;vertical-align:middle;}
-.admin-delete{background:none;border:1px solid var(--red);color:var(--red);border-radius:6px;padding:4px 8px;font-size:11px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .15s;}
-.admin-delete:hover{background:var(--red);color:white;}
-
-/* Marker */
-@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .mockup-section{flex-direction:column;padding:60px 20px;}
+  .stats{flex-wrap:wrap;}
+  .stat{border-right:none;border-bottom:1px solid rgba(255,255,255,.15);padding:16px 20px;}
+  .stat:last-child{border-bottom:none;}
+  nav{padding:14px 20px;}
+  footer{flex-direction:column;text-align:center;}
+}
 </style>
 </head>
 <body>
-<div id="app">
 
-  <!-- PAGE MAP -->
-  <div class="page active" id="page-map">
-    <div id="map"></div>
-    <div id="topbar">
-      <div class="top-row">
-        <div class="logo">
-          <div class="logo-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg></div>
-          <span class="logo-text">BenchMark</span>
-        </div>
-        <div class="search-pill">
-          <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M11 11l3 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Quartier, ville…" id="search-input" oninput="handleSearch(this.value)" onkeydown="if(event.key==='Enter')searchCity(this.value)">
-        </div>
-      </div>
-      <div class="filter-scroll">
-        <button class="chip active" onclick="setFilter('all',this)">Tous</button>
-        <button class="chip" onclick="setFilter('top',this)">⭐ Mieux notés</button>
-        <button class="chip" onclick="setFilter('near',this)">📍 Proches</button>
-        <button class="chip" onclick="setFilter('photos',this)">📸 Avec photos</button>
-        <button class="chip" onclick="setFilter('Vue panoramique',this)">🌅 Panoramique</button>
-        <button class="chip" onclick="setFilter('Ombragé',this)">🌳 Ombragé</button>
-        <button class="chip" onclick="setFilter('Calme',this)">🔇 Calme</button>
-        <button class="chip" onclick="setFilter('Ensoleillé',this)">☀️ Ensoleillé</button>
-        <button class="chip" onclick="setFilter('Abrité pluie',this)">🌧️ Abrité</button>
-        <button class="chip" onclick="setFilter('Chiens bienvenus',this)">🐶 Chiens</button>
-      </div>
+<!-- NAV -->
+<nav id="nav">
+  <a class="nav-logo" href="#">
+    <div class="nav-logo-mark">
+      <svg width="16" height="16" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/>
+        <rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/>
+      </svg>
     </div>
-    <div class="count-pill" id="count-pill">5 bancs dans cette zone</div>
-    <div class="map-ctrl-wrap">
-      <button class="map-ctrl-btn" onclick="locateMe()">
-        <svg width="17" height="17" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" fill="#378ADD"/><circle cx="10" cy="10" r="7" stroke="#378ADD" stroke-width="1.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="#378ADD" stroke-width="1.5" stroke-linecap="round"/></svg>
-      </button>
-    </div>
-    <button id="fab" onclick="togglePinMode()">
-      <svg id="fab-icon" width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
-    </button>
+    <span class="nav-logo-text">BenchMark</span>
+  </a>
+  <a class="nav-cta" href="/app">Ouvrir l'app →</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-badge">
+    <span class="hero-badge-dot"></span>
+    Communauté active · Angers et au-delà
   </div>
-
-  <!-- PIN MODE BANNER -->
-  <div id="pin-banner">
-    <div class="pin-banner-inner">
-      <div class="pin-pulse"></div>
-      Appuyez sur la carte pour poser le banc
-    </div>
+  <h1>Le banc parfait<br>vous <em>attend</em> quelque part</h1>
+  <p class="hero-sub">BenchMark répertorie les meilleurs bancs autour de vous. Trouvez la vue, l'ombre ou le calme dont vous avez besoin — grâce à la communauté.</p>
+  <div class="hero-btns">
+    <a class="btn-primary" href="/app">Découvrir les bancs</a>
+    <a class="btn-ghost" href="#demo">Voir la démo</a>
   </div>
-
-  <!-- PAGE EXPLORER -->
-  <div class="page" id="page-explorer">
-    <div class="page-head"><h2>Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
-    <div class="sort-row">
-      <button class="sort-chip active" onclick="sortList('note',this)">⭐ Mieux notés</button>
-      <button class="sort-chip" onclick="sortList('dist',this)">📍 Plus proches</button>
-      <button class="sort-chip" onclick="sortList('avis',this)">💬 Plus d'avis</button>
-    </div>
-    <div class="bench-list" id="bench-list"></div>
+  <div class="hero-scroll">
+    <span>Découvrir</span>
+    <div class="scroll-line"></div>
   </div>
+</section>
 
-  <!-- PAGE FAVORIS -->
-  <div class="page" id="page-favorites">
-    <div class="page-head"><h2>Mes favoris</h2><p id="fav-sub">Vos bancs sauvegardés</p></div>
-    <div id="fav-list" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;"></div>
+<!-- STATS -->
+<div class="stats">
+  <div class="stat">
+    <span class="stat-num" id="stat-benches">—</span>
+    <span class="stat-label">Bancs répertoriés</span>
   </div>
-
-  <!-- PAGE PROFIL -->
-  <div class="page" id="page-profile">
-    <div class="profile-hero">
-      <div id="profile-av-wrap">
-        <div class="profile-av" id="profile-av">?</div>
-      </div>
-      <div class="profile-name" id="profile-name">—</div>
-      <div class="profile-sub" id="profile-sub">Membre BenchMark</div>
-      <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:14px;padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Se connecter avec Google</button>
-    </div>
-    <div class="stats-row">
-      <div class="stat-item" onclick="openContrib('contributions')" style="cursor:pointer;"><div class="stat-num" id="s-bancs">0</div><div class="stat-label">Bancs ajoutés</div></div>
-      <div class="stat-item" onclick="openContrib('contributions');setTimeout(()=>switchContribTab('reviews',document.querySelectorAll('.contrib-tab')[1]),100)" style="cursor:pointer;"><div class="stat-num" id="s-avis">3</div><div class="stat-label">Avis postés</div></div>
-      <div class="stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;"><div class="stat-num" id="s-favs">0</div><div class="stat-label">Favoris</div></div>
-    </div>
-    <div class="menu-section">
-      <div class="menu-lbl">Mon compte</div>
-      <div class="menu-card">
-        <div class="menu-item" onclick="editUsername()"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="#185FA5" stroke-width="1.4"/><path d="M2 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Mon nom affiché</div><div class="mi-sub" id="mi-username">—</div></div><span class="mi-arrow" style="color:var(--blue);font-size:13px;">Modifier</span></div>
-        <div class="menu-item" onclick="openContrib('contributions')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#185FA5" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">Mes contributions</div><div class="mi-sub" id="mi-contrib">0 banc ajouté · 3 avis postés</div></div><span class="mi-arrow">›</span></div>
-        <div class="menu-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2C5.686 2 3 4.686 3 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.314-2.686-6-6-6z" stroke="#185FA5" stroke-width="1.4"/><circle cx="9" cy="8" r="2" stroke="#185FA5" stroke-width="1.4"/></svg></div><div class="mi-text"><div class="mi-title">Favoris</div><div class="mi-sub" id="mi-favs">0 banc sauvegardé</div></div><span class="mi-arrow">›</span></div>
-      </div>
-    </div>
-    <div class="menu-section">
-      <div class="menu-lbl">Application</div>
-      <div class="menu-card">
-        <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
-        <div class="menu-item"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Prototype</div></div><span class="mi-arrow">›</span></div>
-      </div>
-    </div>
-    <div class="menu-section" id="admin-section" style="display:none">
-      <div class="menu-lbl" style="color:var(--red)">Administration</div>
-      <div class="menu-card">
-        <div class="menu-item" onclick="openAdminPanel()"><div class="mi-icon" style="background:#FCEBEB"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#E24B4A" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" style="color:var(--red)">Panneau admin</div><div class="mi-sub">Gérer tous les bancs et avis</div></div><span class="mi-arrow">›</span></div>
-      </div>
-    </div>
-    <div class="menu-section" style="display:none">
-      </div>
-    </div>
-    <div style="height:24px;"></div>
+  <div class="stat">
+    <span class="stat-num" id="stat-reviews">—</span>
+    <span class="stat-label">Avis partagés</span>
   </div>
-
-  <!-- WELCOME / AUTH MODAL -->
-  <div id="welcome-modal">
-    <div class="welcome-card">
-      <div class="welcome-logo">
-        <svg width="26" height="26" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg>
-      </div>
-      <div class="welcome-title">Bienvenue sur BenchMark</div>
-      <div class="welcome-sub">Trouvez et partagez les meilleurs bancs autour de vous.</div>
-      <button class="google-btn" onclick="loginWithGoogle()">
-        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 0 0 9 18z"/><path fill="#FBBC05" d="M3.964 10.706A5.41 5.41 0 0 1 3.682 9c0-.593.102-1.17.282-1.706V4.962H.957A8.996 8.996 0 0 0 0 9c0 1.452.348 2.827.957 4.038l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 0 0 .957 4.962L3.964 7.294C4.672 5.163 6.656 3.58 9 3.58z"/></svg>
-        Continuer avec Google
-      </button>
-      <div class="auth-divider">ou</div>
-      <input class="welcome-input" id="welcome-name" type="text" placeholder="Continuer avec un pseudo…" maxlength="30">
-      <button class="welcome-btn" onclick="saveWelcomeName()">Continuer sans compte</button>
-    </div>
-  </div>
-
-  <!-- OVERLAY -->
-  <div id="overlay" onclick="closeAll()"></div>
-
-  <!-- BENCH SHEET -->
-  <div id="bench-sheet">
-    <div class="drag-bar" onclick="closeSheet()"><span class="drag-handle"></span></div>
-    <div id="sheet-inner"></div>
-  </div>
-
-  <!-- REVIEW SHEET -->
-  <div id="review-sheet">
-    <div class="review-head">
-      <div class="review-head-left">
-        <span class="review-head-title">Donner mon avis</span>
-        <span class="review-head-bench" id="review-bench-name">—</span>
-      </div>
-      <button class="close-x" onclick="closeReview()">✕</button>
-    </div>
-    <div class="review-body">
-
-      <div class="fl">Vous publiez en tant que</div>
-      <div class="author-pill">
-        <div class="author-av" id="review-av-initials">?</div>
-        <div class="author-info">
-          <div class="author-label">Nom affiché publiquement</div>
-          <input class="author-name-input" id="review-author" type="text" placeholder="Votre prénom ou pseudo…" oninput="updateAuthorPreview(this.value)">
-        </div>
-        <span class="author-edit-hint">modifiable</span>
-      </div>
-
-      <div class="fl" style="text-align:center;margin-bottom:0;">Note globale</div>
-      <div class="big-stars" id="big-star-row">
-        <button class="bsb" onclick="setBigStar(1)">★</button>
-        <button class="bsb" onclick="setBigStar(2)">★</button>
-        <button class="bsb" onclick="setBigStar(3)">★</button>
-        <button class="bsb" onclick="setBigStar(4)">★</button>
-        <button class="bsb" onclick="setBigStar(5)">★</button>
-      </div>
-      <div class="star-hint" id="star-hint"></div>
-
-      <div class="fl">Commentaire</div>
-      <textarea class="fi" id="review-comment" rows="3" placeholder="Ambiance, vue, confort, heure idéale…"></textarea>
-
-      <div class="fl">Caractéristiques</div>
-      <div style="font-size:11px;color:var(--muted);margin-bottom:10px;line-height:1.5;">Les tags déjà confirmés par d'autres sont pré-cochés. Ajoutez ou retirez selon votre expérience.</div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Environnement</div>
-        <div class="tsel-wrap" id="rv-tags-env">
-          <span class="tsel" data-tag="🌅 Vue panoramique" onclick="this.classList.toggle('sel')">🌅 Vue panoramique</span>
-          <span class="tsel" data-tag="🌳 Ombragé" onclick="this.classList.toggle('sel')">🌳 Ombragé</span>
-          <span class="tsel" data-tag="☀️ Ensoleillé" onclick="this.classList.toggle('sel')">☀️ Ensoleillé</span>
-          <span class="tsel" data-tag="🍃 Air frais" onclick="this.classList.toggle('sel')">🍃 Air frais</span>
-          <span class="tsel" data-tag="🐦 Faune / nature" onclick="this.classList.toggle('sel')">🐦 Faune / nature</span>
-          <span class="tsel" data-tag="💧 Proche eau" onclick="this.classList.toggle('sel')">💧 Proche eau</span>
-        </div>
-      </div>
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Ambiance</div>
-        <div class="tsel-wrap" id="rv-tags-amb">
-          <span class="tsel" data-tag="🔇 Calme" onclick="this.classList.toggle('sel')">🔇 Calme</span>
-          <span class="tsel" data-tag="🎵 Animé / musique" onclick="this.classList.toggle('sel')">🎵 Animé / musique</span>
-          <span class="tsel" data-tag="🌧️ Abrité pluie" onclick="this.classList.toggle('sel')">🌧️ Abrité pluie</span>
-        </div>
-      </div>
-      <div class="tag-group" style="margin-bottom:4px;">
-        <div class="tag-group-label">Accessibilité</div>
-        <div class="tsel-wrap" id="rv-tags-acc">
-          <span class="tsel" data-tag="♿ Accessible PMR" onclick="this.classList.toggle('sel')">♿ Accessible PMR</span>
-          <span class="tsel" data-tag="🚌 Proche transports" onclick="this.classList.toggle('sel')">🚌 Proche transports</span>
-          <span class="tsel" data-tag="🧒 Adapté enfants" onclick="this.classList.toggle('sel')">🧒 Adapté enfants</span>
-          <span class="tsel" data-tag="🐶 Chiens bienvenus" onclick="this.classList.toggle('sel')">🐶 Chiens bienvenus</span>
-        </div>
-      </div>
-
-      <div class="fl" style="margin-top:14px;">Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">(jusqu'à 5)</span></div>
-      <div class="photo-grid" id="rv-photo-grid"></div>
-      <div class="photo-count" id="rv-photo-count">0 / 5 photos</div>
-      <input type="file" accept="image/*" multiple id="rv-photo-input" style="display:none" onchange="addPhotos(this,'rv')">
-
-      <button class="submit-btn" style="margin-top:18px;" onclick="submitReview()">Publier mon avis</button>
-    </div>
-  </div>
-
-  <!-- ADD SHEET -->
-  <div id="add-sheet">
-    <div class="add-head">
-      <div class="add-title-wrap">
-        <span class="add-title">Nouveau banc</span>
-        <span class="add-subtitle" id="add-coords-label">Localisation confirmée sur la carte</span>
-      </div>
-      <button class="close-x" onclick="cancelAdd()">✕</button>
-    </div>
-    <div class="add-body">
-
-      <!-- Localisation preview -->
-      <div class="loc-preview">
-        <div id="mini-map"></div>
-        <div class="loc-info">
-          <div class="loc-dot"></div>
-          <div class="loc-coords" id="loc-coords-text">Chargement…<span id="loc-coords-sub"></span></div>
-          <button class="loc-change" onclick="cancelAdd()">Repositionner</button>
-        </div>
-      </div>
-
-      <div class="fl">Nom du lieu</div>
-      <input class="fi" id="add-name" type="text" placeholder="ex : Banc du belvédère…">
-
-      <div class="fl">Votre note</div>
-      <div class="star-row" id="star-row">
-        <button class="sb" onclick="setStar(1)">★</button>
-        <button class="sb" onclick="setStar(2)">★</button>
-        <button class="sb" onclick="setStar(3)">★</button>
-        <button class="sb" onclick="setStar(4)">★</button>
-        <button class="sb" onclick="setStar(5)">★</button>
-      </div>
-
-      <div class="fl">Commentaire</div>
-      <textarea class="fi" id="add-comment" rows="3" placeholder="Ambiance, vue, confort, heure idéale…"></textarea>
-
-      <div class="fl">Caractéristiques</div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Environnement</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌅 Vue panoramique</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌳 Ombragé</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">☀️ Ensoleillé</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🍃 Air frais</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🐦 Faune / nature</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">💧 Proche eau</span>
-        </div>
-      </div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Ambiance</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">🔇 Calme</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🎵 Animé / musique</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌧️ Abrité pluie</span>
-        </div>
-      </div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Accessibilité</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">♿ Accessible PMR</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🚌 Proche transports</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🧒 Adapté enfants</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🐶 Chiens bienvenus</span>
-        </div>
-      </div>
-
-      <div class="fl">Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">(jusqu'à 5)</span></div>
-      <div class="photo-grid" id="add-photo-grid"></div>
-      <div class="photo-count" id="add-photo-count">0 / 5 photos</div>
-      <input type="file" accept="image/*" multiple id="add-photo-input" style="display:none" onchange="addPhotos(this,'add')">
-
-      <button class="submit-btn" id="submit-btn" onclick="submitBench()">Publier ce banc</button>
-    </div>
-  </div>
-
-  <!-- TOAST -->
-  <div class="toast" id="toast"></div>
-
-  <!-- ADMIN PANEL -->
-  <div id="admin-sheet" style="position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:64px;background:var(--sand);z-index:3000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;">
-    <div style="background:var(--white);padding:52px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;">
-      <button onclick="closeAdminPanel()" style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--red);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0 0 10px;">← Retour</button>
-      <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--red);">Panneau admin 🔐</div>
-      <div style="font-size:12px;color:var(--muted);margin-top:4px;">Tous les bancs et avis · accès restreint</div>
-    </div>
-    <div style="padding:14px;" id="admin-body"></div>
-  </div>
-
-  <!-- LIGHTBOX -->
-  <div id="lightbox" onclick="closeLightbox()">
-    <button id="lightbox-close" onclick="closeLightbox()">✕</button>
-    <img id="lightbox-img" src="" alt="">
-  </div>
-
-  <!-- CONTRIBUTIONS SHEET -->
-  <div id="contrib-sheet">
-    <div class="contrib-head">
-      <button class="contrib-back" onclick="document.getElementById('contrib-sheet').style.transform='translateX(100%)'">← Retour</button>
-      <div class="contrib-title" id="contrib-title">Mes contributions</div>
-      <div class="contrib-tabs" id="contrib-tabs-bar">
-        <button class="contrib-tab active" onclick="switchContribTab('benches',this)">🪑 Bancs ajoutés</button>
-        <button class="contrib-tab" onclick="switchContribTab('reviews',this)">✍️ Avis postés</button>
-      </div>
-    </div>
-    <div class="contrib-body" id="contrib-body"></div>
-  </div>
-
-  <!-- BOTTOM NAV -->
-  <div id="bottom-nav">
-    <button class="nav-item active" id="nav-map" onclick="goPage('map',this)">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 5 6 10 6 10s6-5 6-10c0-3.314-2.686-6-6-6z" fill="currentColor"/><circle cx="10" cy="8" r="2" fill="white"/></svg>
-      Carte
-    </button>
-    <button class="nav-item" id="nav-explorer" onclick="goPage('explorer',this)">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="3" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
-      Explorer
-    </button>
-    <button class="nav-item" id="nav-favorites" onclick="goPage('favorites',this)">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 4.8 5.6.8-4 3.9.9 5.5L10 14.5l-4.9 2.7.9-5.5-4-3.9 5.6-.8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-      Favoris
-    </button>
-    <button class="nav-item" id="nav-profile" onclick="goPage('profile',this)">
-      <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 18c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <span id="nav-profile-label">Profil</span>
-    </button>
+  <div class="stat">
+    <span class="stat-num">100%</span>
+    <span class="stat-label">Gratuit</span>
   </div>
 </div>
 
+<!-- MOCKUP SECTION -->
+<section class="mockup-section">
+  <div class="mockup-text">
+    <div class="section-label">L'application</div>
+    <h2>Une carte vivante, par et pour les flâneurs</h2>
+    <p>Chaque banc a une histoire. Une vue à couper le souffle, une ombre en été, le chant des oiseaux au petit matin. BenchMark vous aide à les trouver — et à les partager.</p>
+    <div class="feature-list">
+      <div class="feature-item"><div class="feature-icon">📍</div>Posez un banc sur la carte en un clic</div>
+      <div class="feature-item"><div class="feature-icon">⭐</div>Notes, avis et caractéristiques détaillées</div>
+      <div class="feature-item"><div class="feature-icon">📸</div>Photos pour voir avant d'y aller</div>
+      <div class="feature-item"><div class="feature-icon">🔇</div>Filtrez par ambiance : calme, ombragé, panorama…</div>
+    </div>
+  </div>
+
+  <!-- Phone mockup 1 : carte -->
+  <div class="phone-wrap">
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="phone-screen-content">
+          <div class="ps-topbar">
+            <div class="ps-logo-m"></div>
+            <span class="ps-logo-t">BenchMark</span>
+            <div class="ps-search"></div>
+          </div>
+          <div class="ps-map">
+            <div class="ps-map-road-h"></div>
+            <div class="ps-map-road-v"></div>
+            <div class="ps-pin blue" style="top:30%;left:55%">🌊</div>
+            <div class="ps-pin blue" style="top:55%;left:35%">🌳</div>
+            <div class="ps-pin amber" style="top:42%;left:68%">🏰</div>
+            <div class="ps-pin blue" style="top:65%;left:60%">🌿</div>
+          </div>
+          <div class="ps-sheet">
+            <div class="ps-bench-name">🌊 Banc du Lac de Maine</div>
+            <div class="ps-stars">★★★★★ <span style="color:#999;font-size:9px">4.8 · 47 avis</span></div>
+            <div class="ps-tags">
+              <span class="ps-tag">Vue panoramique</span>
+              <span class="ps-tag">Calme</span>
+              <span class="ps-tag">Proche eau</span>
+            </div>
+          </div>
+          <div class="ps-nav">
+            <div class="ps-nav-item active">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="currentColor"><path d="M10 2C6.686 2 4 4.686 4 8c0 5 6 10 6 10s6-5 6-10c0-3.314-2.686-6-6-6z"/></svg>
+              Carte
+            </div>
+            <div class="ps-nav-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1" stroke="currentColor" stroke-width="1.5"/></svg>
+              Explorer
+            </div>
+            <div class="ps-nav-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 4.8 5.6.8-4 3.9.9 5.5L10 14.5l-4.9 2.7.9-5.5-4-3.9 5.6-.8z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+              Favoris
+            </div>
+            <div class="ps-nav-item">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 18c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+              Profil
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CARTE DEMO -->
+<section class="map-section" id="demo">
+  <div class="map-section-grid"></div>
+  <div class="map-section-inner">
+    <div>
+      <h2>Explorez la carte en direct</h2>
+      <p>Les bancs ci-dessous sont réels, ajoutés par la communauté BenchMark. Cliquez sur un marqueur pour voir sa fiche.</p>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border-radius:50px;padding:7px 14px;">
+        <svg width="12" height="18" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#0C447C" stroke="white" stroke-width="3"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,.85)">Excellent 4,7+</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border-radius:50px;padding:7px 14px;">
+        <svg width="12" height="18" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD" stroke="white" stroke-width="3"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,.85)">Bon 4 à 4,6</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border-radius:50px;padding:7px 14px;">
+        <svg width="12" height="18" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#1D9E75" stroke="white" stroke-width="3"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,.85)">Correct 3 à 4</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border-radius:50px;padding:7px 14px;">
+        <svg width="12" height="18" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#EF9F27" stroke="white" stroke-width="3"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,.85)">Moyen 2,5 à 3</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.1);border-radius:50px;padding:7px 14px;">
+        <svg width="12" height="18" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#E24B4A" stroke="white" stroke-width="3"/></svg>
+        <span style="font-size:12px;color:rgba(255,255,255,.85)">Faible 0 à 2,5</span>
+      </div>
+    </div>
+    <div class="map-demo-wrap">
+      <div class="map-demo-bar">
+        <div class="map-demo-dots">
+          <div class="map-demo-dot" style="background:#ff5f57"></div>
+          <div class="map-demo-dot" style="background:#ffbd2e"></div>
+          <div class="map-demo-dot" style="background:#28c840"></div>
+        </div>
+        <div class="map-demo-url">www.benchmap.app</div>
+      </div>
+      <div id="demo-map"></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how-section">
+  <div class="how-inner">
+    <div class="section-label" style="color:var(--blue)">Comment ça marche</div>
+    <h2>Simple comme un banc</h2>
+    <p class="sub">Trois gestes suffisent pour contribuer à la communauté.</p>
+    <div class="steps">
+      <div class="step">
+        <div class="step-icon">📍</div>
+        <div class="step-num">01</div>
+        <h3>Trouvez un banc</h3>
+        <p>Repérez un banc qui vous plaît. Appuyez sur + et cliquez sur sa position exacte sur la carte.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">✍️</div>
+        <div class="step-num">02</div>
+        <h3>Notez et décrivez</h3>
+        <p>Donnez une note, ajoutez vos caractéristiques et partagez vos photos. Tout ça en 30 secondes.</p>
+      </div>
+      <div class="step">
+        <div class="step-icon">🌍</div>
+        <div class="step-num">03</div>
+        <h3>Partagez la trouvaille</h3>
+        <p>Votre banc apparaît instantanément sur la carte pour tous les utilisateurs de BenchMark.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section class="cta-section">
+  <h2>Prêt à trouver<br><em style="font-style:italic">votre</em> banc ?</h2>
+  <p>Rejoignez la communauté et commencez à explorer.</p>
+  <div class="cta-btns">
+    <a class="btn-primary" href="/app">Ouvrir BenchMark</a>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-logo" href="#">
+    <div class="footer-logo-mark">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/>
+        <rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/>
+      </svg>
+    </div>
+    <span class="footer-logo-text">BenchMark</span>
+  </a>
+  <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
+</footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-// ── SUPABASE CONFIG ──
+// Nav scroll effect
+window.addEventListener('scroll', () => {
+  document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
+});
+
+// Carte démo Leaflet
+const demoMap = L.map('demo-map', {zoomControl:true, attributionControl:false}).setView([47.474,-0.554],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(demoMap);
+
+// Charger les bancs depuis Supabase
 const SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjA0NTcsImV4cCI6MjA5MDUzNjQ1N30.xaFG5h2jKLbc3tgi9Nx4Cp6zANAh9qFnR3JW1Iibg5g';
-let db; // initialisé dans DOMContentLoaded
-let benches=[];
-
-// ── SUPABASE : CHARGEMENT ─────────────────────────────
-function calcDist(lat,lng){
-  const R=6371,uLat=47.4742,uLng=-0.5536;
-  const dLat=(lat-uLat)*Math.PI/180,dLng=(lng-uLng)*Math.PI/180;
-  const a=Math.sin(dLat/2)**2+Math.cos(uLat*Math.PI/180)*Math.cos(lat*Math.PI/180)*Math.sin(dLng/2)**2;
-  return Math.round(Math.sqrt(a)*R*2*10)/10;
-}
-
-async function loadBenches(){
-  document.getElementById('count-pill').textContent='Chargement…';
-  try{
-    const{data:rows,error}=await db.from('benches').select('*').order('created_at',{ascending:false});
-    if(error)throw error;
-    const ids=rows.map(r=>r.id);
-    let revMap={};
-    if(ids.length){
-      const{data:revs}=await db.from('reviews').select('*').in('bench_id',ids);
-      (revs||[]).forEach(r=>{if(!revMap[r.bench_id])revMap[r.bench_id]=[];revMap[r.bench_id].push(r);});
-    }
-    const favSet=new Set(benches.filter(b=>b.fav).map(b=>b.id));
-    benches=rows.map(r=>{
-      const avis=(revMap[r.id]||[]).map(rv=>({u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||''}));
-      const avg=avis.length?Math.round(avis.reduce((s,a)=>s+a.s,0)/avis.length*10)/10:(r.rating||0);
-      return{id:r.id,lat:r.lat,lng:r.lng,name:r.name,loc:r.location||'',dist:calcDist(r.lat,r.lng),
-        rating:avg,reviews:avis.length,tags:r.tags||[],emoji:r.emoji||'🪑',
-        desc:r.description||'',photos:r.photos||[],avis,fav:favSet.has(r.id)};
-    });
-  }catch(e){console.error(e);showToast('Erreur de connexion');}
-  renderMarkers();renderExplorer();renderFavorites();updateStats();
-}
-
-
-let mapInstance, miniMap, miniMarker;
-let leafletMarkers=[], tempPinMarker=null;
-let currentFilter='all', currentSort='note';
-let selectedStars=0, addedCount=0;
-let pinMode=false, pendingLat=null, pendingLng=null;
+const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
 function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
 
-// ── AUTH & USERNAME ───────────────────────────────────
-function getInitials(name){
-  return (name||'?').trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+function animateCount(id, target){
+  const el = document.getElementById(id);
+  if(!el || target === 0){ if(el) el.textContent = target; return; }
+  let start = 0;
+  const duration = 1200;
+  const step = timestamp => {
+    if(!start) start = timestamp;
+    const progress = Math.min((timestamp - start) / duration, 1);
+    el.textContent = Math.floor(progress * target);
+    if(progress < 1) requestAnimationFrame(step);
+    else el.textContent = target;
+  };
+  requestAnimationFrame(step);
 }
 
-function applyUsername(name, photoUrl){
-  const ini=getInitials(name);
-  const lbl=document.getElementById('nav-profile-label');
-  if(lbl) lbl.textContent=name.split(' ')[0];
-  const avWrap=document.getElementById('profile-av-wrap');
-  const av=document.getElementById('profile-av');
-  const nm=document.getElementById('profile-name');
-  if(photoUrl&&avWrap){
-    avWrap.innerHTML='<img src="'+photoUrl+'" class="profile-av" style="object-fit:cover;width:70px;height:70px;border-radius:50%;border:3px solid rgba(255,255,255,.3);" alt="'+name+'">';
-  } else if(av){
-    av.textContent=ini;
-  }
-  if(nm) nm.textContent=name;
-  const mi=document.getElementById('mi-username');
-  if(mi) mi.textContent=name+' (affiché sur vos avis)';
-}
-
-async function loginWithGoogle(){
-  try{
-    const{error}=await db.auth.signInWithOAuth({
-      provider:'google',
-      options:{redirectTo:window.location.href}
-    });
-    if(error) throw error;
-  }catch(e){
-    console.error(e);
-    showToast('Erreur de connexion Google');
-  }
-}
-
-async function logout(){
-  await db.auth.signOut();
-  localStorage.removeItem('benchmark-username');
-  applyUsername('Anonyme', null);
-  const btn=document.getElementById('auth-btn');
-  if(btn){btn.textContent='Se connecter avec Google';}
-  const sub=document.getElementById('profile-sub');
-  if(sub) sub.textContent='Membre BenchMark';
-  showToast('Déconnecté');
-}
-
-function handleAuthBtn(){
-  if(window._session) logout();
-  else loginWithGoogle();
-}
-
-async function initAuth(){
-  const{data:{session}}=await db.auth.getSession();
-  window._session=session;
-  if(session&&session.user){
-    const user=session.user;
-    const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
-    const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
-    localStorage.setItem('benchmark-username',name);
-    applyUsername(name,photo);
-    const btn=document.getElementById('auth-btn');
-    if(btn){btn.textContent='Se déconnecter';}
-    const sub=document.getElementById('profile-sub');
-    if(sub) sub.textContent='Connecté · '+user.email;
-    document.getElementById('welcome-modal').classList.remove('show');
-    // Mode admin
-    window._isAdmin = user.email === 'pilipog49@gmail.com';
-    if(window._isAdmin){
-      const profName=document.getElementById('profile-name');
-      if(profName){
-        const badge=document.createElement('span');
-        badge.className='admin-badge';
-        badge.textContent='ADMIN';
-        profName.appendChild(badge);
-      }
-      const adminSection=document.getElementById('admin-section');
-      if(adminSection) adminSection.style.display='block';
-    }
-  } else {
-    window._session=null;
-    const saved=localStorage.getItem('benchmark-username');
-    if(saved){
-      applyUsername(saved,null);
-    } else {
-      setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
-    }
-  }
-  db.auth.onAuthStateChange(function(_event,session){
-    window._session=session;
-    if(session&&session.user){
-      const user=session.user;
-      const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
-      const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
-      localStorage.setItem('benchmark-username',name);
-      applyUsername(name,photo);
-      const btn=document.getElementById('auth-btn');
-      if(btn){btn.textContent='Se déconnecter';}
-      const sub=document.getElementById('profile-sub');
-      if(sub) sub.textContent='Connecté · '+user.email;
-      document.getElementById('welcome-modal').classList.remove('show');
-    }
-  });
-}
-
-function editUsername(){
-  const current=localStorage.getItem('benchmark-username')||'';
-  const nouveau=prompt('Votre nom ou pseudo affiché sur vos avis :',current);
-  if(nouveau&&nouveau.trim()){
-    localStorage.setItem('benchmark-username',nouveau.trim());
-    applyUsername(nouveau.trim(),null);
-    showToast('✓ Nom mis à jour : '+nouveau.trim());
-  }
-}
-
-function saveWelcomeName(){
-  const val=document.getElementById('welcome-name').value.trim();
-  if(!val){document.getElementById('welcome-name').focus();return;}
-  localStorage.setItem('benchmark-username',val);
-  document.getElementById('welcome-modal').classList.remove('show');
-  applyUsername(val,null);
-}
-
-// INIT
-// Enregistrement du Service Worker (PWA)
-if('serviceWorker' in navigator){
-  // Désinscrire tous les anciens service workers pour forcer le rechargement
-  navigator.serviceWorker.getRegistrations().then(regs => {
-    regs.forEach(reg => reg.unregister());
-  });
-}
-
-window.addEventListener('DOMContentLoaded',async()=>{
-  db=supabase.createClient(SUPA_URL,SUPA_KEY);
-
-  // Forcer fermeture de tous les sheets au démarrage
-  ['bench-sheet','review-sheet','add-sheet'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){
-      el.classList.remove('open');
-      el.style.transform='';
-      el.style.transition='none';
-      setTimeout(()=>{if(el)el.style.transition='';},300);
-    }
-  });
-  ['contrib-sheet','admin-sheet'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el){
-      el.classList.remove('open');
-      el.style.transform='translateX(100%)';
-      el.style.transition='none';
-      setTimeout(()=>{if(el)el.style.transition='';},300);
-    }
-  });
-  // Vider le contenu des sheets pour éviter restauration PWA
-  const si=document.getElementById('sheet-inner');
-  if(si) si.innerHTML='';
-  document.getElementById('overlay').classList.remove('show');
-
-  // Démarrer la carte centrée sur la France, puis géolocaliser l'utilisateur
-  mapInstance=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.5,2.5],6);
-  L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
-    maxZoom:20,
-    attribution:'© <a href="https://www.maptiler.com">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-    language:'fr'
-  }).addTo(mapInstance);
-  L.control.zoom({position:'bottomright'}).addTo(mapInstance);
-  mapInstance.on('click', onMapClick);
-  mapInstance.on('moveend', updateCountPill);
-  mapInstance.on('zoomend', updateCountPill);
-
-  // Géolocalisation automatique
+async function loadDemoMap(){
+  // Géolocalisation : centrer sur l'utilisateur si accepté, sinon France entière
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        const {latitude:lat, longitude:lng} = pos.coords;
-        mapInstance.setView([lat, lng], 14);
-        // Point bleu "Vous êtes ici"
-        L.circleMarker([lat,lng],{radius:8,fillColor:'#378ADD',fillOpacity:1,color:'white',weight:3})
-          .addTo(mapInstance)
-          .bindPopup('Vous êtes ici');
-      },
-      () => {
-        // Refus ou erreur → France entière, pas de point bleu
-        mapInstance.setView([46.5, 2.5], 6);
-      },
-      {timeout:6000, maximumAge:60000}
+      pos => demoMap.setView([pos.coords.latitude, pos.coords.longitude], 13),
+      ()  => demoMap.setView([46.5, 2.5], 6) // France entière si refus
     );
-  }
-
-  loadBenches();
-
-  // Auth Google
-  await initAuth();
-
-  // Valider avec Entrée
-  document.getElementById('welcome-name').addEventListener('keydown', e=>{
-    if(e.key==='Enter') saveWelcomeName();
-  });
-});
-
-// ── PIN MODE ──────────────────────────────────────────
-function togglePinMode(){
-  if(pinMode){ exitPinMode(); return; }
-  pinMode=true;
-  mapInstance.getContainer().classList.add('pinmode');
-  document.getElementById('fab').classList.add('pinmode');
-  document.getElementById('pin-banner').classList.add('show');
-  document.getElementById('count-pill').textContent='Cliquez sur la carte pour placer le banc';
-  closeAll();
-}
-
-function exitPinMode(){
-  pinMode=false;
-  mapInstance.getContainer().classList.remove('pinmode');
-  document.getElementById('fab').classList.remove('pinmode');
-  document.getElementById('pin-banner').classList.remove('show');
-  setTimeout(updateCountPill, 100); // attendre que la carte se stabilise
-  if(tempPinMarker){tempPinMarker.remove();tempPinMarker=null;}
-}
-
-function onMapClick(e){
-  if(!pinMode) return;
-  pendingLat=e.latlng.lat;
-  pendingLng=e.latlng.lng;
-
-  // Place temp pin
-  if(tempPinMarker) tempPinMarker.remove();
-  const icon=L.divIcon({
-    html:`<div style="font-size:32px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));animation:bounceIn .3s cubic-bezier(.175,.885,.32,1.275)">📍</div>`,
-    className:'',iconSize:[32,40],iconAnchor:[16,40]
-  });
-  tempPinMarker=L.marker([pendingLat,pendingLng],{icon}).addTo(mapInstance);
-
-  exitPinMode();
-  openAddForm(pendingLat, pendingLng);
-}
-
-function openAddForm(lat, lng){
-  initPhotoGrid('add');
-  // Init mini-map
-  setTimeout(()=>{
-    if(miniMap){ miniMap.remove(); miniMap=null; }
-    miniMap=L.map('mini-map',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false}).setView([lat,lng],16);
-    L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
-      maxZoom:20,
-      attribution:''
-    }).addTo(miniMap);
-    const icon=L.divIcon({html:`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`,className:'',iconSize:[24,32],iconAnchor:[12,32]});
-    L.marker([lat,lng],{icon}).addTo(miniMap);
-  },50);
-
-  // Reverse geocode coords label
-  document.getElementById('loc-coords-text').textContent=lat.toFixed(5)+', '+lng.toFixed(5);
-  document.getElementById('add-coords-label').textContent='Position confirmée · cliquez "Repositionner" pour changer';
-
-  // Fetch address
-  fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
-    .then(r=>r.json())
-    .then(d=>{
-      const addr=d.display_name||'Adresse inconnue';
-      const short=addr.split(',').slice(0,3).join(', ');
-      document.getElementById('loc-coords-text').textContent=short;
-    }).catch(()=>{});
-
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('add-sheet').classList.add('open');
-}
-
-function cancelAdd(){
-  document.getElementById('add-sheet').classList.remove('open');
-  document.getElementById('overlay').classList.remove('show');
-  if(tempPinMarker){tempPinMarker.remove();tempPinMarker=null;}
-  pendingLat=null; pendingLng=null;
-  resetForm();
-}
-
-// ── MARKERS ──────────────────────────────────────────
-function makeIcon(b){
-  const r = b.rating||0;
-  const color = r>=4.7?'#0C447C': r>=4.0?'#378ADD': r>=3.0?'#1D9E75': r>=2.5?'#EF9F27':'#E24B4A';
-  const svg=`<svg width="32" height="46" viewBox="0 0 32 46" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="${color}" stroke="white" stroke-width="2"/>
-    <rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/>
-    <rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/>
-    <rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/>
-    <rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/>
-  </svg>`;
-  return L.divIcon({html:svg,className:'',iconSize:[32,46],iconAnchor:[16,44]});
-}
-function countLabel(){
-  if(!mapInstance) return '';
-  const bounds = mapInstance.getBounds();
-  const list = getFilteredBenches().filter(b => bounds.contains([b.lat, b.lng]));
-  if(!list.length) return 'Aucun banc dans cette zone';
-  return `${list.length} banc${list.length>1?'s':''} dans cette zone`;
-}
-
-function updateCountPill(){
-  document.getElementById('count-pill').textContent = countLabel();
-}
-function renderMarkers(){
-  leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
-  const list=getFilteredBenches();
-  list.forEach(b=>{
-    const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));
-    leafletMarkers.push(m);
-  });
-  setTimeout(updateCountPill, 100); // attendre que la carte se stabilise
-}
-function setFilter(tag,el){
-  currentFilter=tag;
-  document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  renderMarkers(); renderExplorer();
-}
-
-function getFilteredBenches(){
-  if(currentFilter==='all') return benches;
-  if(currentFilter==='top') return [...benches].sort((a,b)=>b.rating-a.rating).slice(0,20);
-  if(currentFilter==='near') return [...benches].sort((a,b)=>a.dist-b.dist).slice(0,20);
-  if(currentFilter==='photos') return benches.filter(b=>b.photos&&b.photos.length>0);
-  return benches.filter(b=>b.tags.includes(currentFilter));
-}
-function handleSearch(v){
-  // Filtrage local des bancs en temps réel
-  if(!v.trim()){renderMarkers();return;}
-  const q=v.toLowerCase();
-  leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
-  const res=benches.filter(b=>
-    b.name.toLowerCase().includes(q)||
-    b.loc.toLowerCase().includes(q)||
-    b.tags.some(t=>t.toLowerCase().includes(q))
-  );
-  res.forEach(b=>{
-    const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));
-    leafletMarkers.push(m);
-  });
-  document.getElementById('count-pill').textContent=
-    res.length?`${res.length} banc${res.length>1?'s':''} trouvé${res.length>1?'s':''}`:'Aucun banc trouvé';
-}
-
-let searchTimeout=null;
-async function searchCity(v){
-  if(!v.trim()) return;
-  const pill=document.getElementById('count-pill');
-  pill.textContent='Recherche en cours…';
-  try{
-    // Nominatim geocoding (OpenStreetMap, gratuit)
-    const url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(v)}&format=json&limit=1&accept-language=fr`;
-    const res=await fetch(url,{headers:{'Accept-Language':'fr'}});
-    const data=await res.json();
-    if(data&&data.length>0){
-      const {lat,lon,display_name,boundingbox}=data[0];
-      // Zoomer sur la ville
-      if(boundingbox){
-        const bounds=[[parseFloat(boundingbox[0]),parseFloat(boundingbox[2])],[parseFloat(boundingbox[1]),parseFloat(boundingbox[3])]];
-        mapInstance.fitBounds(bounds,{padding:[20,20],maxZoom:14});
-      } else {
-        mapInstance.setView([parseFloat(lat),parseFloat(lon)],13);
-      }
-      // Montrer les bancs dans la zone
-      renderMarkers();
-      pill.textContent=`Résultats pour "${display_name.split(',')[0]}"`;
-    } else {
-      pill.textContent='Ville introuvable — essayez un autre nom';
-    }
-  }catch(e){
-    console.error(e);
-    pill.textContent='Erreur de recherche';
-  }
-}
-
-// ── BENCH SHEET ───────────────────────────────────────
-function openBench(b){
-  if(pinMode) return;
-  window._cb=b;
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('bench-sheet').classList.add('open');
-  const photos=b.photos||[];
-  const hero=photos.length
-    ?`<div class="bench-banner"><div class="bench-banner-scroll">${photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${photos.length>1?`<span class="photo-count-badge">${photos.length} photos</span>`:''}</div>`
-    :`<div class="bench-hero">${b.emoji}<span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button></div>`;
-  document.getElementById('sheet-inner').innerHTML=`
-    ${hero}
-    <div class="sc">
-      <div class="sh-name">${b.name}</div>
-      <div class="sh-loc">${b.loc}</div>
-      <div class="rating-row"><span class="stars-disp">${S(Math.round(b.rating))}</span><span class="rnum">${b.rating.toFixed(1)}</span><span class="rcnt">${b.reviews} avis</span></div>
-      <div class="tag-row">${b.tags.map(t=>`<span class="btag">${t}</span>`).join('')}</div>
-      <div class="sh-desc">${b.desc}</div>
-      <div class="act-row">
-        <button class="act-btn" onclick="openItineraire(window._cb.lat,window._cb.lng)">📍 Itinéraire</button>
-        <button class="act-btn" id="fav-act-btn" onclick="toggleFav(window._cb.id)">${b.fav?'❤️ Favori':'⭐ Favori'}</button>
-        <button class="act-btn primary" onclick="openReview(window._cb.id)">✍️ Mon avis</button>
-        ${b._raw?.created_by===localStorage.getItem('benchmark-username')?`<button class="act-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteBench(window._cb.id)">🗑️</button>`:''}
-      </div>
-      <div class="sec-label">Avis (${b.reviews})</div>
-      ${b.avis.map(a=>`<div class="review-card"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div></div></div>`).join('')}
-    </div>`;
-  mapInstance.panTo([b.lat,b.lng]);
-}
-
-function openItineraire(lat,lng){
-  window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&travelmode=walking`,'_blank');
-}
-function openLightbox(url){
-  document.getElementById('lightbox-img').src=url;
-  document.getElementById('lightbox').classList.add('open');
-}
-function closeLightbox(){
-  document.getElementById('lightbox').classList.remove('open');
-}
-
-function toggleFav(id){
-  const b=benches.find(x=>x.id===id);if(!b)return;
-  b.fav=!b.fav;
-  document.querySelectorAll('.fav-badge').forEach(el=>el.textContent=b.fav?'❤️':'🤍');
-  const act=document.getElementById('fav-act-btn');if(act)act.textContent=b.fav?'❤️ Favori':'⭐ Favori';
-  renderFavorites();updateStats();
-  showToast(b.fav?'❤️ Ajouté aux favoris':'Retiré des favoris');
-}
-
-// ── FAVORITES ─────────────────────────────────────────
-function renderFavorites(){
-  const favs=benches.filter(b=>b.fav);
-  const el=document.getElementById('fav-list');
-  document.getElementById('fav-sub').textContent=`${favs.length} banc${favs.length!==1?'s':''} sauvegardé${favs.length!==1?'s':''}`;
-  if(!favs.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🤍</div><h3>Aucun favori encore</h3><p>Appuyez sur le cœur sur la fiche d'un banc pour le sauvegarder ici.</p></div>`;return;}
-  el.innerHTML=favs.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)"><div class="bc-img">${b.emoji}</div><div class="bc-info"><div class="bc-name">${b.name}</div><div class="bc-loc">${b.loc}</div><div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews})</span><span class="bc-tag">${b.tags[0]||''}</span></div><div class="bc-dist">📍 ${b.dist} km</div></div></div>`).join('');
-}
-
-// ── EXPLORER ──────────────────────────────────────────
-function renderExplorer(){
-  let list=[...getFilteredBenches()];
-  if(currentSort==='note')list.sort((a,b)=>b.rating-a.rating);
-  else if(currentSort==='dist')list.sort((a,b)=>a.dist-b.dist);
-  else list.sort((a,b)=>b.reviews-a.reviews);
-  document.getElementById('exp-sub').textContent=`${list.length} banc${list.length>1?'s':''} autour de vous`;
-  document.getElementById('bench-list').innerHTML=list.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)"><div class="bc-img">${b.emoji}</div><div class="bc-info"><div class="bc-name">${b.name}</div><div class="bc-loc">${b.loc}</div><div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews} avis)</span><span class="bc-tag">${b.tags[0]||''}</span></div><div class="bc-dist">📍 ${b.dist} km</div></div></div>`).join('');
-}
-function sortList(key,el){
-  currentSort=key;
-  document.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');renderExplorer();
-}
-
-// ── REVIEW ────────────────────────────────────────────
-let reviewBenchId=null, reviewStars=0;
-const starHints=['','Mauvais 😕','Passable 😐','Correct 🙂','Bien 😊','Excellent ! 🤩'];
-
-function openReview(id){
-  reviewBenchId=id;
-  reviewStars=0;
-  const b=benches.find(x=>x.id===id);
-  document.getElementById('review-bench-name').textContent=b?('sur : '+b.name):'';
-  document.getElementById('review-comment').value='';
-  document.getElementById('star-hint').textContent='';
-  document.querySelectorAll('.bsb').forEach(s=>s.classList.remove('lit'));
-
-  // Pré-remplir le nom depuis localStorage
-  const savedName=localStorage.getItem('benchmark-username')||'Alexandre';
-  document.getElementById('review-author').value=savedName;
-  updateAuthorPreview(savedName);
-
-  // Pré-cocher les tags déjà présents sur ce banc
-  document.querySelectorAll('#review-sheet .tsel').forEach(el=>{
-    const tag=el.dataset.tag||el.textContent.trim();
-    el.classList.toggle('sel', b&&b.tags.some(t=>t===tag));
-  });
-
-  document.getElementById('overlay').classList.add('show');
-  document.getElementById('review-sheet').classList.add('open');
-  initPhotoGrid('rv');
-}
-
-function closeReview(){
-  document.getElementById('review-sheet').classList.remove('open');
-  if(!document.getElementById('bench-sheet').classList.contains('open'))
-    document.getElementById('overlay').classList.remove('show');
-  reviewBenchId=null; reviewStars=0;
-}
-
-function updateAuthorPreview(val){
-  const initials=val.trim().split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
-  document.getElementById('review-av-initials').textContent=initials;
-}
-
-function setBigStar(n){
-  reviewStars=n;
-  document.querySelectorAll('.bsb').forEach((s,i)=>s.classList.toggle('lit',i<n));
-  document.getElementById('star-hint').textContent=starHints[n]||'';
-}
-
-async function submitReview(){
-  if(!reviewStars){document.getElementById('star-hint').textContent='\u{1F446} Choisissez une note d\'abord';return;}
-  const authorRaw=document.getElementById('review-author').value.trim();
-  if(!authorRaw){document.getElementById('review-author').focus();showToast('Indiquez votre nom ou pseudo');return;}
-  localStorage.setItem('benchmark-username',authorRaw);
-  const comment=document.getElementById('review-comment').value.trim();
-  const b=benches.find(x=>x.id===reviewBenchId);
-  if(!b)return;
-  const selectedTags=[...document.querySelectorAll('#review-sheet .tsel.sel')].map(el=>el.dataset.tag||el.textContent.trim());
-  const submitBtn=document.querySelector('#review-sheet .submit-btn');
-  if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Publication…';}
-  try{
-    await db.from('reviews').insert({bench_id:b.id,author:authorRaw,rating:reviewStars,comment:comment||null});
-    const newUrls=[];
-    for(const dataUrl of photoStore['rv']){
-      const res=await fetch(dataUrl);const blob=await res.blob();
-      const ext=blob.type.split('/')[1]||'jpg';
-      const path=`${b.id}/${Date.now()}.${ext}`;
-      const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type});
-      if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);newUrls.push(pub.publicUrl);}
-    }
-    const allPhotos=[...(b.photos||[]),...newUrls];
-    const upd={};
-    if(selectedTags.length) upd.tags=[...new Set(selectedTags)];
-    if(allPhotos.length) upd.photos=allPhotos;
-    if(Object.keys(upd).length) await db.from('benches').update(upd).eq('id',b.id);
-    closeReview();
-    await loadBenches();
-    const updated=benches.find(x=>x.id===b.id);
-    if(updated)openBench(updated);
-    showToast('\u2713 Avis de '+authorRaw+' publié !');
-    const av=document.getElementById('s-avis');
-    if(av)av.textContent=parseInt(av.textContent)+1;
-    renderExplorer();
-  }catch(e){console.error(e);showToast('Erreur lors de la publication');}
-  finally{if(submitBtn){submitBtn.disabled=false;submitBtn.textContent='Publier mon avis';}}
-}
-
-
-function setStar(n){selectedStars=n;document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('lit',i<n));}
-
-async function submitBench(){
-  const name=document.getElementById('add-name').value.trim();
-  const inp=document.getElementById('add-name');
-  if(!name){inp.classList.add('err');inp.focus();showToast('Donnez un nom au banc !');return;}
-  inp.classList.remove('err');
-  if(!selectedStars){showToast('Sélectionnez une note ⭐');return;}
-  if(!pendingLat){showToast('Positionnez le banc sur la carte');return;}
-  const tags=[...document.querySelectorAll('#add-sheet .tsel.sel')].map(t=>t.textContent.trim());
-  const comment=document.getElementById('add-comment').value.trim();
-  const addrText=document.getElementById('loc-coords-text').textContent;
-  const author=localStorage.getItem('benchmark-username')||'Anonyme';
-  const btn=document.getElementById('submit-btn');
-  btn.disabled=true;btn.textContent='Publication…';
-  try{
-    const{data:nb,error:e1}=await db.from('benches').insert({
-      name,location:addrText,lat:pendingLat,lng:pendingLng,
-      description:comment||null,tags:tags.length?tags:['Calme'],
-      emoji:'🪑',rating:selectedStars,created_by:author
-    }).select().single();
-    if(e1)throw e1;
-    await db.from('reviews').insert({bench_id:nb.id,author,rating:selectedStars,comment:comment||null});
-    const photoUrls=[];
-    for(const dataUrl of photoStore['add']){
-      const res=await fetch(dataUrl);const blob=await res.blob();
-      const ext=blob.type.split('/')[1]||'jpg';
-      const path=`${nb.id}/${Date.now()}.${ext}`;
-      const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type});
-      if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);photoUrls.push(pub.publicUrl);}
-    }
-    if(photoUrls.length) await db.from('benches').update({photos:photoUrls}).eq('id',nb.id);
-    addedCount++;
-    if(tempPinMarker){tempPinMarker.remove();tempPinMarker=null;}
-    cancelAdd();
-    await loadBenches();
-    updateStats();
-    showToast('✓ "'+name+'" ajouté pour tout le monde !');
-  }catch(e){console.error(e);showToast('Erreur lors de l\'ajout');}
-  finally{btn.disabled=false;btn.textContent='Publier ce banc';}
-}
-
-// ── MULTI-PHOTO ───────────────────────────────────────
-const photoStore={add:[],rv:[]};
-const MAX_PHOTOS=5;
-
-function renderPhotoGrid(ns){
-  const grid=document.getElementById(ns+'-photo-grid');
-  const count=document.getElementById(ns+'-photo-count');
-  if(!grid)return;
-  const photos=photoStore[ns];
-  grid.innerHTML='';
-  photos.forEach((src,i)=>{
-    const thumb=document.createElement('div');
-    thumb.className='photo-thumb';
-    thumb.innerHTML=`<img src="${src}"><button class="del-btn" data-ns="${ns}" data-idx="${i}" onclick="removePhoto(this.dataset.ns,this.dataset.idx)">✕</button>`;
-    grid.appendChild(thumb);
-  });
-  if(photos.length<MAX_PHOTOS){
-    const add=document.createElement('div');
-    add.className='photo-add-btn';
-    add.innerHTML=`<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="#bbb" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 5l1.5-2.5h3L14 5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ajouter</span>`;
-    add.onclick=()=>document.getElementById(ns+'-photo-input').click();
-    grid.appendChild(add);
-  }
-  count.textContent=`${photos.length} / ${MAX_PHOTOS} photo${photos.length>1?'s':''}`;
-  count.style.color=photos.length>=MAX_PHOTOS?'var(--blue-mid)':'var(--muted)';
-}
-
-function addPhotos(input,ns){
-  const files=[...input.files];
-  const remaining=MAX_PHOTOS-photoStore[ns].length;
-  const toAdd=files.slice(0,remaining);
-  if(files.length>remaining) showToast(`Max ${MAX_PHOTOS} photos — ${files.length-remaining} ignorée${files.length-remaining>1?'s':''}`);
-  toAdd.forEach(f=>{
-    const reader=new FileReader();
-    reader.onload=e=>{photoStore[ns].push(e.target.result);renderPhotoGrid(ns);};
-    reader.readAsDataURL(f);
-  });
-  input.value='';
-}
-
-function removePhoto(ns,idx){
-  photoStore[ns].splice(parseInt(idx),1);
-  renderPhotoGrid(ns);
-}
-
-function initPhotoGrid(ns){
-  photoStore[ns]=[];
-  renderPhotoGrid(ns);
-}
-
-function resetForm(){
-  document.getElementById('add-name').value='';
-  document.getElementById('add-comment').value='';
-  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit'));
-  document.querySelectorAll('#add-sheet .tsel').forEach(t=>t.classList.remove('sel'));
-  selectedStars=0;
-  initPhotoGrid('add');
-}
-
-async function updateStats(){
-  const author = localStorage.getItem('benchmark-username')||'';
-  const fc = benches.filter(b=>b.fav).length;
-  let bancCount = 0;
-  let avisCount = 0;
-  if(author && db){
-    try{
-      const{data:myBancs} = await db.from('benches').select('id',{count:'exact'}).eq('created_by',author);
-      const{data:myAvis} = await db.from('reviews').select('id',{count:'exact'}).eq('author',author);
-      bancCount = myBancs?.length||0;
-      avisCount = myAvis?.length||0;
-    }catch(e){}
-  }
-  document.getElementById('s-bancs').textContent=bancCount;
-  document.getElementById('s-avis').textContent=avisCount;
-  document.getElementById('s-favs').textContent=fc;
-  document.getElementById('mi-contrib').textContent=`${bancCount} banc${bancCount>1?'s':''} ajouté${bancCount>1?'s':''} · ${avisCount} avis posté${avisCount>1?'s':''}`;
-  document.getElementById('mi-favs').textContent=`${fc} banc${fc>1?'s':''} sauvegardé${fc>1?'s':''}`;
-}
-
-// ── CONTRIBUTIONS ────────────────────────────────────
-let notifEnabled = localStorage.getItem('benchmark-notif') !== 'false';
-let currentContribTab = 'benches';
-
-function openContrib(type){
-  const sheet = document.getElementById('contrib-sheet');
-  const title = document.getElementById('contrib-title');
-  const tabsBar = document.getElementById('contrib-tabs-bar');
-
-  if(type === 'notifications'){
-    title.textContent = 'Notifications';
-    tabsBar.style.display = 'none';
-    renderNotifications();
   } else {
-    title.textContent = 'Mes contributions';
-    tabsBar.style.display = 'flex';
-    currentContribTab = 'benches';
-    document.querySelectorAll('.contrib-tab').forEach((t,i)=>t.classList.toggle('active',i===0));
-    renderContribBenches();
+    demoMap.setView([46.5, 2.5], 6);
   }
-  sheet.style.transform = 'translateX(0)';
-}
 
-function closeContrib(){
-  document.getElementById('contrib-sheet').style.transform = 'translateX(100%)';
-}
+  // Charger les bancs
+  const {data:benches} = await db.from('benches').select('*');
+  const {data:reviews} = await db.from('reviews').select('*');
 
-async function deleteBench(id){
-  if(!confirm('Supprimer ce banc définitivement ? Les avis associés seront aussi supprimés.')) return;
-  try{
-    await db.from('reviews').delete().eq('bench_id', id);
-    await db.from('benches').delete().eq('id', id);
-    showToast('🗑️ Banc supprimé');
-    await loadBenches();
-    renderContribBenches();
-  }catch(e){
-    console.error(e);
-    showToast('Erreur lors de la suppression');
-  }
-}
+  // Compteurs stats
+  animateCount('stat-benches', benches?.length || 0);
+  animateCount('stat-reviews', reviews?.length || 0);
 
-async function deleteReview(id){
-  if(!confirm('Supprimer cet avis définitivement ?')) return;
-  try{
-    await db.from('reviews').delete().eq('id', id);
-    showToast('🗑️ Avis supprimé');
-    await loadBenches();
-    renderContribReviews();
-  }catch(e){
-    console.error(e);
-    showToast('Erreur lors de la suppression');
-  }
-}
-
-function switchContribTab(tab, el){
-  currentContribTab = tab;
-  document.querySelectorAll('.contrib-tab').forEach(t=>t.classList.remove('active'));
-  el.classList.add('active');
-  if(tab === 'benches') renderContribBenches();
-  else renderContribReviews();
-}
-
-async function renderContribBenches(){
-  const body = document.getElementById('contrib-body');
-  const author = localStorage.getItem('benchmark-username')||'';
-  if(!author){ body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">👤</div><p>Connectez-vous pour voir vos contributions.</p></div>'; return; }
-  body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">⏳</div><p>Chargement…</p></div>';
-  try{
-    const{data:rows}=await db.from('benches').select('*').eq('created_by',author).order('created_at',{ascending:false});
-    if(!rows||!rows.length){
-      body.innerHTML=`<div class="contrib-empty"><div class="contrib-empty-icon">🪑</div><p>Pas encore de banc ajouté.</p></div>`;
-      return;
-    }
-    body.innerHTML = rows.map(b=>`
-      <div class="contrib-bench-card"><div class="contrib-card-header"><div>
-        <div class="contrib-bench-emoji">${b.emoji||'🪑'}</div>
-        <div class="contrib-bench-name">${b.name}</div>
-        <div class="contrib-bench-loc">${b.location||''}</div>
-      </div><button class="contrib-delete-btn" onclick="deleteBench(this.dataset.id)" data-id="${b.id}" title="Supprimer">🗑️</button></div>
-      <div class="contrib-bench-meta">
-        <span style="color:var(--amber);font-size:12px">${'★'.repeat(b.rating||0)}</span>
-        <span style="font-size:11px;color:var(--muted)">${(b.tags||[]).slice(0,2).join(' · ')}</span>
-      </div></div>`).join('');
-  }catch(e){body.innerHTML=`<div class="contrib-empty"><p>Erreur de chargement.</p></div>`;}
-}
-
-async function renderContribReviews(){
-  const body = document.getElementById('contrib-body');
-  const author = localStorage.getItem('benchmark-username')||'';
-  if(!author){ body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">👤</div><p>Connectez-vous pour voir vos avis.</p></div>'; return; }
-  body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">⏳</div><p>Chargement…</p></div>';
-  try{
-    const{data:revs}=await db.from('reviews').select('*, benches(name,emoji)').eq('author',author).order('created_at',{ascending:false});
-    if(!revs||!revs.length){
-      body.innerHTML=`<div class="contrib-empty"><div class="contrib-empty-icon">✍️</div><p>Pas encore d'avis posté.</p></div>`;
-      return;
-    }
-    body.innerHTML = revs.map(r=>`
-      <div class="contrib-review-card"><div class="contrib-card-header"><div>
-        <div class="contrib-review-bench">${r.benches?.emoji||'🪑'} ${r.benches?.name||'Banc'}</div>
-        <div class="contrib-review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
-      </div><button class="contrib-delete-btn" onclick="deleteReview(this.dataset.id)" data-id="${r.id}" title="Supprimer">🗑️</button></div>
-      <div class="contrib-review-text">${r.comment||'Aucun commentaire.'}</div>
-      <div class="contrib-review-date">${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
-      </div>`).join('');
-  }catch(e){body.innerHTML=`<div class="contrib-empty"><p>Erreur de chargement.</p></div>`;}
-}
-
-function renderNotifications(){
-  const body = document.getElementById('contrib-body');
-  body.innerHTML=`
-    <div style="padding:8px 0">
-      <div class="notif-row">
-        <div><div class="notif-label">Nouveaux bancs près de moi</div><div class="notif-sub">Quand un banc est ajouté dans votre zone</div></div>
-        <button class="toggle ${notifEnabled?'on':''}" id="toggle-notif" onclick="toggleNotif()"></button>
-      </div>
-      <div class="notif-row">
-        <div><div class="notif-label">Réponses à mes avis</div><div class="notif-sub">Bientôt disponible</div></div>
-        <button class="toggle" style="opacity:.4;cursor:not-allowed"></button>
-      </div>
-    </div>`;
-}
-
-function toggleNotif(){
-  notifEnabled = !notifEnabled;
-  localStorage.setItem('benchmark-notif', notifEnabled);
-  const btn = document.getElementById('toggle-notif');
-  if(btn) btn.classList.toggle('on', notifEnabled);
-  const sub = document.getElementById('notif-sub');
-  if(sub) sub.textContent = notifEnabled ? 'Activées' : 'Désactivées';
-  showToast(notifEnabled ? '🔔 Notifications activées' : '🔕 Notifications désactivées');
-}
-
-// ── ADMIN ────────────────────────────────────────────
-function openAdminPanel(){
-  if(!window._isAdmin){showToast('Accès refusé');return;}
-  const sheet=document.getElementById('admin-sheet');
-  sheet.style.transform='translateX(0)';
-  loadAdminData();
-}
-
-function closeAdminPanel(){
-  document.getElementById('admin-sheet').style.transform='translateX(100%)';
-}
-
-async function loadAdminData(){
-  const body=document.getElementById('admin-body');
-  body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--muted)">Chargement...</div>`;
-  try{
-    const{data:allBenches}=await db.from('benches').select('*').order('created_at',{ascending:false});
-    const{data:allReviews}=await db.from('reviews').select('*, benches(name)').order('created_at',{ascending:false});
-
-    body.innerHTML=`
-      <div style="font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;">Tous les bancs (${allBenches?.length||0})</div>
-      ${(allBenches||[]).map(b=>`
-        <div style="background:var(--white);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-          <div>
-            <div style="font-size:14px;font-weight:500">${b.emoji||'🪑'} ${b.name}</div>
-            <div style="font-size:11px;color:var(--muted);margin-top:2px">Par : ${b.created_by||'anonyme'} · ${new Date(b.created_at).toLocaleDateString('fr-FR')}</div>
-          </div>
-          <button class="admin-delete" onclick="adminDeleteBench('${b.id}')">🗑️ Supprimer</button>
-        </div>`).join('')}
-      <div style="font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin:20px 0 8px;">Tous les avis (${allReviews?.length||0})</div>
-      ${(allReviews||[]).map(r=>`
-        <div style="background:var(--white);border-radius:var(--r);padding:12px 14px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;box-shadow:0 1px 4px rgba(0,0,0,.05)">
-          <div style="flex:1;min-width:0;margin-right:10px">
-            <div style="font-size:13px;font-weight:500">${r.benches?.name||'?'} — ${'★'.repeat(r.rating||0)}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px">Par : ${r.author} · ${new Date(r.created_at).toLocaleDateString('fr-FR')}</div>
-            <div style="font-size:12px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${r.comment||'(sans commentaire)'}</div>
-          </div>
-          <button class="admin-delete" onclick="adminDeleteReview('${r.id}')">🗑️</button>
-        </div>`).join('')}`;
-  }catch(e){
-    body.innerHTML=`<div style="text-align:center;padding:30px;color:var(--red)">Erreur de chargement</div>`;
-  }
-}
-
-async function adminDeleteBench(id){
-  if(!window._isAdmin){showToast('Accès refusé');return;}
-  if(!confirm('Supprimer ce banc et tous ses avis ?')) return;
-  await db.from('reviews').delete().eq('bench_id',id);
-  await db.from('benches').delete().eq('id',id);
-  showToast('🗑️ Banc supprimé');
-  await loadBenches();
-  loadAdminData();
-}
-
-async function adminDeleteReview(id){
-  if(!window._isAdmin){showToast('Accès refusé');return;}
-  if(!confirm('Supprimer cet avis ?')) return;
-  await db.from('reviews').delete().eq('id',id);
-  showToast('🗑️ Avis supprimé');
-  await loadBenches();
-  loadAdminData();
-}
-
-function handleBenchCardClick(el){
-  const id = el.dataset.id;
-  const bench = benches.find(x=>String(x.id)===String(id));
-  if(!bench) return;
-  goPage('map', document.getElementById('nav-map'));
-  setTimeout(()=>openBench(bench), 200);
-}
-
-// ── UTILS ─────────────────────────────────────────────
-function showToast(msg){
-  const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2600);
-}
-function closeSheet(){document.getElementById('bench-sheet').classList.remove('open');document.getElementById('overlay').classList.remove('show');}
-function closeAll(){
-  if(pinMode)return;
-  document.getElementById('overlay').classList.remove('show');
-  document.getElementById('bench-sheet').classList.remove('open');
-  document.getElementById('add-sheet').classList.remove('open');
-}
-function goPage(name,el){
-  if(pinMode)exitPinMode();
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  el.classList.add('active');
-  closeAll();
-  if(name==='map'&&mapInstance)setTimeout(()=>mapInstance.invalidateSize(),60);
-  if(name==='favorites')renderFavorites();
-}
-function locateMe(){if(mapInstance)mapInstance.setView([window._userLat||47.4742,window._userLng||-0.5536],14);}
-
-// Exposer toutes les fonctions globalement pour les onclick inline
-window.togglePinMode=togglePinMode;
-window.locateMe=locateMe;
-window.setFilter=setFilter;
-window.handleSearch=handleSearch;
-window.searchCity=searchCity;
-window.openBench=openBench;
-window.openReview=openReview;
-window.closeReview=closeReview;
-window.setBigStar=setBigStar;
-window.submitReview=submitReview;
-window.updateAuthorPreview=updateAuthorPreview;
-function openAdd(){togglePinMode();}
-window.openAdd=openAdd;
-window.cancelAdd=cancelAdd;
-window.submitBench=submitBench;
-window.setStar=setStar;
-window.toggleFav=toggleFav;
-window.goPage=goPage;
-window.saveWelcomeName=saveWelcomeName;
-window.editUsername=editUsername;
-window.handleAuthBtn=handleAuthBtn;
-window.loginWithGoogle=loginWithGoogle;
-window.openItineraire=openItineraire;
-window.openLightbox=openLightbox;
-window.closeLightbox=closeLightbox;
-window.addPhotos=addPhotos;
-window.removePhoto=removePhoto;
-window.closeAll=closeAll;
-window.sortList=sortList;
-window.openContrib=openContrib;
-window.closeContrib=closeContrib;
-window.switchContribTab=switchContribTab;
-window.toggleNotif=toggleNotif;
-window.deleteBench=deleteBench;
-window.deleteReview=deleteReview;
-window.openAdminPanel=openAdminPanel;
-window.closeAdminPanel=closeAdminPanel;
-window.adminDeleteBench=adminDeleteBench;
-window.adminDeleteReview=adminDeleteReview;
-window.updateCountPill=updateCountPill;
-window.handleBenchCardClick=handleBenchCardClick;
-</script>
-<script>
-// Sécurité : ré-exposer toutes les fonctions après chargement complet
-document.addEventListener('DOMContentLoaded', function() {
-  var fns = ['togglePinMode','locateMe','setFilter','handleSearch','searchCity',
-    'openBench','openReview','closeReview','setBigStar','submitReview',
-    'updateAuthorPreview','openAdd','cancelAdd','submitBench','setStar',
-    'toggleFav','openItineraire','openLightbox','closeLightbox','addPhotos',
-    'removePhoto','closeAll','goPage','saveWelcomeName','editUsername',
-    'handleAuthBtn','loginWithGoogle','sortList','openContrib','closeContrib',
-    'switchContribTab','toggleNotif','deleteBench','deleteReview',
-    'openAdminPanel','closeAdminPanel','adminDeleteBench','adminDeleteReview',
-    'updateCountPill','handleBenchCardClick','closeContrib','openContrib'];
-  fns.forEach(function(fn) {
-    if (typeof window[fn] === 'undefined' && typeof eval(fn) === 'function') {
-      window[fn] = eval(fn);
-    }
+  // Construire map avis par banc
+  const revMap = {};
+  (reviews||[]).forEach(r => {
+    if(!revMap[r.bench_id]) revMap[r.bench_id] = [];
+    revMap[r.bench_id].push(r);
   });
-  console.log('BenchMark: fonctions exposées OK');
-});
+
+  // Placer les marqueurs
+  (benches||[]).forEach(b => {
+    const avis = revMap[b.id] || [];
+    const avg = avis.length
+      ? (avis.reduce((s,a)=>s+a.rating,0)/avis.length).toFixed(1)
+      : '—';
+
+    const avgN = parseFloat(avg)||0;
+    const mc = avgN>=4.7?'#0C447C':avgN>=4.0?'#378ADD':avgN>=3.0?'#1D9E75':avgN>=2.5?'#EF9F27':'#E24B4A';
+    const benchSvg = `<svg width="32" height="46" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="${mc}" stroke="white" stroke-width="2"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>`;
+    const icon = L.divIcon({
+      html: benchSvg,
+      className:'', iconSize:[32,46], iconAnchor:[16,44]
+    });
+
+    const tags = (b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:50px">${t}</span>`).join('');
+
+    L.marker([b.lat, b.lng], {icon}).addTo(demoMap).bindPopup(`
+      <div style="font-family:'DM Sans',sans-serif;min-width:180px">
+        <div style="font-weight:500;font-size:14px;margin-bottom:3px">${b.name}</div>
+        <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
+        <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
+        <a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l'app →</a>
+      </div>
+    `, {maxWidth:220});
+  });
+}
+
+loadDemoMap();
 </script>
 </body>
 </html>
