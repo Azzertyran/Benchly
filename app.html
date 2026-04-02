@@ -1121,14 +1121,7 @@ function renderFavorites(){
   const el=document.getElementById('fav-list');
   document.getElementById('fav-sub').textContent=`${favs.length} banc${favs.length!==1?'s':''} sauvegardé${favs.length!==1?'s':''}`;
   if(!favs.length){el.innerHTML=`<div class="empty-state"><div class="empty-icon">🤍</div><h3>Aucun favori encore</h3><p>Appuyez sur le cœur sur la fiche d'un banc pour le sauvegarder ici.</p></div>`;return;}
-  el.innerHTML=favs.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)">openBench(benches.find(x=>x.id===${b.id})),200)">
-    <div class="bc-img">${b.emoji}</div>
-    <div class="bc-info">
-      <div class="bc-name">${b.name}</div>
-      <div class="bc-loc">${b.loc}</div>
-      <div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews})</span><span class="bc-tag">${b.tags[0]}</span></div>
-      <div class="bc-dist">📍 ${b.dist} km</div>
-    </div></div>`).join('');
+  el.innerHTML=favs.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)"><div class="bc-img">${b.emoji}</div><div class="bc-info"><div class="bc-name">${b.name}</div><div class="bc-loc">${b.loc}</div><div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews})</span><span class="bc-tag">${b.tags[0]||''}</span></div><div class="bc-dist">📍 ${b.dist} km</div></div></div>`).join('');
 }
 
 // ── EXPLORER ──────────────────────────────────────────
@@ -1138,14 +1131,7 @@ function renderExplorer(){
   else if(currentSort==='dist')list.sort((a,b)=>a.dist-b.dist);
   else list.sort((a,b)=>b.reviews-a.reviews);
   document.getElementById('exp-sub').textContent=`${list.length} banc${list.length>1?'s':''} autour de vous`;
-  document.getElementById('bench-list').innerHTML=list.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)">openBench(benches.find(x=>x.id===${b.id})),200)">
-    <div class="bc-img">${b.emoji}</div>
-    <div class="bc-info">
-      <div class="bc-name">${b.name}</div>
-      <div class="bc-loc">${b.loc}</div>
-      <div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews} avis)</span><span class="bc-tag">${b.tags[0]}</span></div>
-      <div class="bc-dist">📍 ${b.dist} km</div>
-    </div></div>`).join('');
+  document.getElementById('bench-list').innerHTML=list.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)"><div class="bc-img">${b.emoji}</div><div class="bc-info"><div class="bc-name">${b.name}</div><div class="bc-loc">${b.loc}</div><div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews} avis)</span><span class="bc-tag">${b.tags[0]||''}</span></div><div class="bc-dist">📍 ${b.dist} km</div></div></div>`).join('');
 }
 function sortList(key,el){
   currentSort=key;
@@ -1618,6 +1604,26 @@ window.adminDeleteBench=adminDeleteBench;
 window.adminDeleteReview=adminDeleteReview;
 window.updateCountPill=updateCountPill;
 window.handleBenchCardClick=handleBenchCardClick;
+</script>
+<script>
+// Sécurité : ré-exposer toutes les fonctions après chargement complet
+document.addEventListener('DOMContentLoaded', function() {
+  var fns = ['togglePinMode','locateMe','setFilter','handleSearch','searchCity',
+    'openBench','openReview','closeReview','setBigStar','submitReview',
+    'updateAuthorPreview','openAdd','cancelAdd','submitBench','setStar',
+    'toggleFav','openItineraire','openLightbox','closeLightbox','addPhotos',
+    'removePhoto','closeAll','goPage','saveWelcomeName','editUsername',
+    'handleAuthBtn','loginWithGoogle','sortList','openContrib','closeContrib',
+    'switchContribTab','toggleNotif','deleteBench','deleteReview',
+    'openAdminPanel','closeAdminPanel','adminDeleteBench','adminDeleteReview',
+    'updateCountPill','handleBenchCardClick'];
+  fns.forEach(function(fn) {
+    if (typeof window[fn] === 'undefined' && typeof eval(fn) === 'function') {
+      window[fn] = eval(fn);
+    }
+  });
+  console.log('BenchMark: fonctions exposées OK');
+});
 </script>
 </body>
 </html>
