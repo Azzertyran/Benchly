@@ -831,7 +831,12 @@ window.addEventListener('DOMContentLoaded',async()=>{
   // Forcer fermeture de tous les sheets au démarrage
   ['bench-sheet','review-sheet','add-sheet'].forEach(id=>{
     const el=document.getElementById(id);
-    if(el){el.classList.remove('open');el.style.transform='';}
+    if(el){
+      el.classList.remove('open');
+      el.style.transform='translateY(100%)';
+      el.style.transition='none';
+      setTimeout(()=>{ if(el) el.style.transition=''; }, 100);
+    }
   });
   ['contrib-sheet','admin-sheet'].forEach(id=>{
     const el=document.getElementById(id);
