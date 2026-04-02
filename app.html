@@ -1453,9 +1453,8 @@ async function renderContribBenches(){
       return;
     }
     body.innerHTML = rows.map(b=>`
-      <div class="contrib-bench-card"><div class="contrib-card-header"><div>
       <div class="contrib-bench-card"><div class="contrib-card-header"><div style="display:flex;align-items:center;gap:10px;">
-        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${b.photos&&b.photos.length>0?`<img src="${b.photos[0]}" style="width:100%;height:100%;object-fit:cover;">`:"<svg width="24" height="24" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>"}</div>
+        <div style="width:44px;height:44px;border-radius:10px;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;">${b.photos&&b.photos.length>0?'<img src="'+b.photos[0]+'" style="width:100%;height:100%;object-fit:cover;">':`<svg width="24" height="24" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>`}</div>
         <div><div class="contrib-bench-name">${b.name}</div>
         <div class="contrib-bench-loc">${b.location||''}</div></div>
       <div class="contrib-bench-meta">
@@ -1478,7 +1477,7 @@ async function renderContribReviews(){
     }
     body.innerHTML = revs.map(r=>`
       <div class="contrib-review-card"><div class="contrib-card-header"><div>
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><div style="width:32px;height:32px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0;"><svg width="24" height="24" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg></div><div class="contrib-review-bench">${r.benches?.name||'Banc'}</div></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;"><div style="width:32px;height:32px;border-radius:8px;background:var(--blue-light);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="16" height="22" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg></div><div class="contrib-review-bench">${r.benches?.name||'Banc'}</div></div>
         <div class="contrib-review-stars">${'★'.repeat(r.rating||0)}${'☆'.repeat(5-(r.rating||0))}</div>
       </div><div class="contrib-card-actions"><button class="contrib-edit-btn" data-id="${r.id}" onclick="editReview(this.dataset.id)" title="Modifier">✏️</button><button class="contrib-delete-btn" onclick="deleteReview(this.dataset.id)" data-id="${r.id}" title="Supprimer">🗑️</button></div></div>
       <div class="contrib-review-text">${r.comment||'Aucun commentaire.'}</div>
@@ -1752,25 +1751,6 @@ window.closeEditModal=closeEditModal;
 window.saveEdit=saveEdit;
 window.setEditStar=setEditStar;
 </script>
-<script>
-// Sécurité : ré-exposer toutes les fonctions après chargement complet
-document.addEventListener('DOMContentLoaded', function() {
-  var fns = ['togglePinMode','locateMe','setFilter','handleSearch','searchCity',
-    'openBench','openReview','closeReview','setBigStar','submitReview',
-    'updateAuthorPreview','openAdd','cancelAdd','submitBench','setStar',
-    'toggleFav','openItineraire','openLightbox','closeLightbox','addPhotos',
-    'removePhoto','closeAll','goPage','saveWelcomeName','editUsername',
-    'handleAuthBtn','loginWithGoogle','sortList','openContrib','closeContrib',
-    'switchContribTab','toggleNotif','deleteBench','deleteReview',
-    'openAdminPanel','closeAdminPanel','adminDeleteBench','adminDeleteReview',
-    'updateCountPill','handleBenchCardClick','closeContrib','openContrib','editBench','editReview','closeEditModal','saveEdit','setEditStar'];
-  fns.forEach(function(fn) {
-    if (typeof window[fn] === 'undefined' && typeof eval(fn) === 'function') {
-      window[fn] = eval(fn);
-    }
-  });
-  console.log('BenchMark: fonctions exposées OK');
-});
-</script>
+<!-- fonctions exposées via window.xxx dans le script principal -->
 </body>
 </html>
