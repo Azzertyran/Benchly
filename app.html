@@ -283,9 +283,9 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .contrib-card-actions{display:flex;gap:2px;flex-shrink:0;}
 
 /* EDIT MODAL */
-#edit-modal{position:fixed;inset:0;z-index:5000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
+#edit-modal{position:absolute;inset:0;z-index:5000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
 #edit-modal.show{opacity:1;pointer-events:all;}
-.edit-card{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:100%;padding:24px 20px 40px;transform:translateY(60px);transition:transform .4s cubic-bezier(.32,.72,0,1);max-height:85vh;overflow-y:auto;}
+.edit-card{background:var(--white);border-radius:24px 24px 0 0;width:100%;padding:24px 20px 40px;transform:translateY(100%);transition:transform .4s cubic-bezier(.32,.72,0,1);max-height:80vh;overflow-y:auto;}
 #edit-modal.show .edit-card{transform:translateY(0);}
 .edit-card h3{font-family:'DM Serif Display',serif;font-size:18px;margin-bottom:16px;}
 .edit-field{margin-bottom:14px;}
@@ -647,7 +647,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
   </div>
 
   <!-- EDIT MODAL -->
-  <div id="edit-modal">
+  <div id="edit-modal" onclick="if(event.target===this)closeEditModal()">
     <div class="edit-card">
       <h3 id="edit-modal-title">Modifier</h3>
       <div id="edit-modal-body"></div>
