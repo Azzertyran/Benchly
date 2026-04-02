@@ -377,11 +377,13 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 
   <!-- PAGE EXPLORER -->
   <div class="page" id="page-explorer">
-    <div class="page-head"><h2>Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
-    <div class="sort-row">
+    <div style="position:sticky;top:0;z-index:10;background:var(--white);">
+      <div class="page-head"><h2>Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
+      <div class="sort-row">
       <button class="sort-chip active" onclick="sortList('note',this)">⭐ Mieux notés</button>
       <button class="sort-chip" onclick="sortList('dist',this)">📍 Plus proches</button>
       <button class="sort-chip" onclick="sortList('avis',this)">💬 Plus d'avis</button>
+      </div>
     </div>
     <div class="bench-list" id="bench-list"></div>
   </div>
