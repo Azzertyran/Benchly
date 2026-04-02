@@ -818,10 +818,9 @@ function saveWelcomeName(){
 // INIT
 // Enregistrement du Service Worker (PWA)
 if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then(() => console.log('SW enregistré'))
-      .catch(e => console.log('SW erreur:', e));
+  // Désinscrire tous les anciens service workers pour forcer le rechargement
+  navigator.serviceWorker.getRegistrations().then(regs => {
+    regs.forEach(reg => reg.unregister());
   });
 }
 
@@ -833,9 +832,8 @@ window.addEventListener('DOMContentLoaded',async()=>{
     const el=document.getElementById(id);
     if(el){
       el.classList.remove('open');
-      el.style.transform='translateY(100%)';
-      el.style.transition='none';
-      setTimeout(()=>{ if(el) el.style.transition=''; }, 100);
+      el.style.transform='';
+      el.style.transition='';
     }
   });
   ['contrib-sheet','admin-sheet'].forEach(id=>{
