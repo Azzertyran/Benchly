@@ -681,7 +681,7 @@ async function loadBenches(){
         desc:r.description||'',photos:r.photos||[],avis,fav:favSet.has(r.id)};
     });
   }catch(e){console.error(e);showToast('Erreur de connexion');}
-  renderMarkers();renderExplorer();renderFavorites();
+  renderMarkers();renderExplorer();renderFavorites();updateStats();
 }
 
 
@@ -1326,11 +1326,23 @@ function resetForm(){
   initPhotoGrid('add');
 }
 
-function updateStats(){
-  const fc=benches.filter(b=>b.fav).length;
-  document.getElementById('s-bancs').textContent=addedCount;
+async function updateStats(){
+  const author = localStorage.getItem('benchmark-username')||'';
+  const fc = benches.filter(b=>b.fav).length;
+  let bancCount = 0;
+  let avisCount = 0;
+  if(author && db){
+    try{
+      const{data:myBancs} = await db.from('benches').select('id',{count:'exact'}).eq('created_by',author);
+      const{data:myAvis} = await db.from('reviews').select('id',{count:'exact'}).eq('author',author);
+      bancCount = myBancs?.length||0;
+      avisCount = myAvis?.length||0;
+    }catch(e){}
+  }
+  document.getElementById('s-bancs').textContent=bancCount;
+  document.getElementById('s-avis').textContent=avisCount;
   document.getElementById('s-favs').textContent=fc;
-  document.getElementById('mi-contrib').textContent=`${addedCount} banc${addedCount>1?'s':''} ajouté${addedCount>1?'s':''} · 3 avis postés`;
+  document.getElementById('mi-contrib').textContent=`${bancCount} banc${bancCount>1?'s':''} ajouté${bancCount>1?'s':''} · ${avisCount} avis posté${avisCount>1?'s':''}`;
   document.getElementById('mi-favs').textContent=`${fc} banc${fc>1?'s':''} sauvegardé${fc>1?'s':''}`;
 }
 
