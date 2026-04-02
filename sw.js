@@ -1,18 +1,11 @@
-const CACHE = 'benchly-v1';
-const ASSETS = [
-  '/',
-  '/index.html'
-];
+const CACHE = 'benchmark-v2';
+const ASSETS = ['/', '/index.html', '/app.html'];
 
-// Installation : mise en cache des assets de base
 self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE).then(cache => cache.addAll(ASSETS))
-  );
+  e.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
   self.skipWaiting();
 });
 
-// Activation : nettoyage des vieux caches
 self.addEventListener('activate', e => {
   e.waitUntil(
     caches.keys().then(keys =>
@@ -22,11 +15,10 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// Fetch : network first, fallback cache
 self.addEventListener('fetch', e => {
-  // Ne pas intercepter les requêtes Supabase et externes
   if (e.request.url.includes('supabase.co') ||
       e.request.url.includes('openstreetmap.org') ||
+      e.request.url.includes('maptiler.com') ||
       e.request.url.includes('unpkg.com') ||
       e.request.url.includes('fonts.googleapis.com')) {
     return;
