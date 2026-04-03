@@ -421,7 +421,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
       <div class="menu-lbl">Application</div>
       <div class="menu-card">
         <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
-        <div class="menu-item"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Prototype</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="openContrib('apropos')" style="cursor:pointer;"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Contact</div></div><span class="mi-arrow">›</span></div>
       </div>
     </div>
     <div class="menu-section" id="admin-section" style="display:none">
@@ -1404,7 +1404,28 @@ function openContrib(type){
   const title = document.getElementById('contrib-title');
   const tabsBar = document.getElementById('contrib-tabs-bar');
 
-  if(type === 'notifications'){
+  if(type === 'apropos'){
+    title.textContent = 'À propos';
+    tabsBar.style.display = 'none';
+    document.getElementById('contrib-body').innerHTML = `
+      <div style="padding:8px 0;">
+        <div style="background:var(--white);border-radius:var(--r);padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05);text-align:center;margin-bottom:12px;">
+          <div style="margin-bottom:12px;">
+            <svg width="48" height="68" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>
+          </div>
+          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:4px;">BenchMark</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Version 1.0 · Fait avec ❤️ à Angers</div>
+          <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">
+            BenchMark est une app communautaire pour trouver, noter et partager les meilleurs bancs autour de vous.<br><br>
+            Créée par <strong>Philippe Auger</strong>, Angevin passionné de flânerie.
+          </div>
+          <div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">
+            <div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">Un bug ? Une suggestion ?</div>
+            <a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a>
+          </div>
+        </div>
+      </div>`;
+  } else if(type === 'notifications'){
     title.textContent = 'Notifications';
     tabsBar.style.display = 'none';
     renderNotifications();
