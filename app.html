@@ -550,12 +550,20 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
     <div class="add-body">
 
       <!-- Localisation preview -->
+      <div style="display:flex;gap:8px;margin-bottom:4px;margin-top:14px;">
+        <button onclick="useMyLocation()" style="flex:1;padding:10px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" fill="white"/><circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+          Utiliser ma position
+        </button>
+        <button onclick="cancelAdd()" style="padding:10px 14px;background:var(--sand);color:var(--muted);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">
+          Repositionner
+        </button>
+      </div>
       <div class="loc-preview">
         <div id="mini-map"></div>
         <div class="loc-info">
           <div class="loc-dot"></div>
           <div class="loc-coords" id="loc-coords-text">Chargement…<span id="loc-coords-sub"></span></div>
-          <button class="loc-change" onclick="cancelAdd()">Repositionner</button>
         </div>
       </div>
 
@@ -1752,7 +1760,51 @@ window.setBigStar=setBigStar;
 window.submitReview=submitReview;
 window.updateAuthorPreview=updateAuthorPreview;
 function openAdd(){togglePinMode();}
+
+function useMyLocation(){
+  if(!navigator.geolocation){
+    showToast('Géolocalisation non disponible sur cet appareil');
+    return;
+  }
+  const coordsEl = document.getElementById('loc-coords-text');
+  if(coordsEl) coordsEl.textContent = 'Localisation en cours…';
+  
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      const lat = pos.coords.latitude;
+      const lng = pos.coords.longitude;
+      pendingLat = lat;
+      pendingLng = lng;
+      
+      // Mettre à jour la mini-map
+      if(miniMap){
+        miniMap.setView([lat, lng], 17);
+        if(miniMarker) miniMarker.remove();
+        const icon = L.divIcon({html:`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`,className:'',iconSize:[24,32],iconAnchor:[12,32]});
+        miniMarker = L.marker([lat, lng], {icon}).addTo(miniMap);
+      }
+      
+      // Géocodage inverse
+      if(coordsEl) coordsEl.textContent = lat.toFixed(5) + ', ' + lng.toFixed(5);
+      fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
+        .then(r=>r.json())
+        .then(d=>{
+          const addr = d.display_name||'Adresse inconnue';
+          const short = addr.split(',').slice(0,3).join(', ');
+          if(coordsEl) coordsEl.textContent = short;
+        }).catch(()=>{});
+      
+      showToast('📍 Position récupérée !');
+    },
+    err => {
+      showToast('Impossible de récupérer ta position — place le banc manuellement');
+      if(coordsEl) coordsEl.textContent = 'Position manuelle';
+    },
+    {timeout:8000, enableHighAccuracy:true}
+  );
+}
 window.openAdd=openAdd;
+window.useMyLocation=useMyLocation;
 window.cancelAdd=cancelAdd;
 window.submitBench=submitBench;
 window.setStar=setStar;
