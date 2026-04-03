@@ -1187,7 +1187,9 @@ function openBench(b){
         <button class="act-btn" onclick="openItineraire(window._cb.lat,window._cb.lng)">📍 Itinéraire</button>
         <button class="act-btn" id="fav-act-btn" onclick="toggleFav(window._cb.id)">${b.fav?'❤️ Favori':'⭐ Favori'}</button>
         <button class="act-btn primary" onclick="openReview(window._cb.id)">✍️ Mon avis</button>
+        <button class="act-btn" onclick="shareBench(window._cb)">🔗 Partager</button>
         ${b._raw?.created_by===localStorage.getItem('benchmark-username')?`<button class="act-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteBench(window._cb.id)">🗑️</button>`:''}
+        <button class="act-btn" style="color:var(--muted)" onclick="reportBench(window._cb)">🚩 Signaler</button>
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
       ${b.avis.map(a=>`<div class="review-card"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div></div></div>`).join('')}
