@@ -348,10 +348,10 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
     <div id="map"></div>
     <div id="topbar">
       <div class="top-row">
-        <div class="logo">
+        <a class="logo" href="/" style="text-decoration:none;">
           <div class="logo-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg></div>
           <span class="logo-text">BenchMark</span>
-        </div>
+        </a>
         <div class="search-pill">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M11 11l3 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/></svg>
           <input type="text" placeholder="Quartier, ville…" id="search-input" oninput="handleSearch(this.value)" onkeydown="if(event.key==='Enter')searchCity(this.value)">
