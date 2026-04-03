@@ -24,6 +24,22 @@
   --border:rgba(0,0,0,0.08);--white:#fff;--r:16px;--rs:10px;
   --amber:#F5A623;--red:#E24B4A;--green:#1D9E75;
 }
+@media(prefers-color-scheme:dark){
+  :root{
+    --sand:#1a1a2e;--ink:#f0f0f0;--muted:#9a9a9a;
+    --border:rgba(255,255,255,0.1);--white:#16213e;
+    --blue-light:#1a2a3a;--sky:#1a2a3a;
+  }
+  html,body{background:#0f0f1a;}
+  #app{background:#16213e;}
+  .logo,.search-pill,.chip,.count-pill,.map-ctrl-btn{background:#1e2a3a!important;color:#f0f0f0!important;}
+  .chip.active{background:var(--blue)!important;color:white!important;}
+  #bench-sheet,#review-sheet,#add-sheet,#contrib-sheet,.edit-card,.add-choice-card,.welcome-card{background:#16213e!important;}
+  .bench-card,.contrib-bench-card,.contrib-review-card,.menu-card,.menu-item,.notif-row{background:#1e2a3a!important;}
+  .page-head,.sort-row,.review-head,.add-head,.stats-row{background:#16213e!important;}
+  #page-explorer,#page-favorites,#page-profile{background:#0f0f1a!important;}
+  #bottom-nav{background:#16213e!important;border-color:rgba(255,255,255,0.1)!important;}
+}
 html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webkit-font-smoothing:antialiased;overflow:hidden;}
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%;background:var(--white);position:relative;overflow:hidden;}
 .page{position:absolute;inset:0;bottom:64px;overflow-y:auto;display:none;flex-direction:column;}
@@ -115,7 +131,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .act-btn.primary{background:var(--blue);border-color:var(--blue);color:white;}
 .sec-label{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-top:14px;border-top:1px solid var(--border);}
 .review-card{display:flex;gap:9px;margin-bottom:12px;}
-.av{width:30px;height:30px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:var(--blue-mid);flex-shrink:0;}
+.av{width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0;}
 .rv-name{font-size:12px;font-weight:500;color:var(--ink);}
 .rv-stars{color:var(--amber);font-size:10px;}
 .rv-text{font-size:12px;line-height:1.5;color:var(--muted);margin-top:1px;}
@@ -245,7 +261,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 /* PROFILE */
 #page-profile{background:var(--sand);}
 .profile-hero{background:linear-gradient(160deg,var(--blue-deep),var(--blue));padding:52px 20px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;}
-.profile-av{width:70px;height:70px;border-radius:50%;background:var(--sky);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;color:var(--blue-deep);margin-bottom:10px;border:3px solid rgba(255,255,255,.3);}
+.profile-av{width:70px;height:70px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;color:white;margin-bottom:10px;border:3px solid rgba(255,255,255,.3);}
 .profile-name{font-family:'DM Serif Display',serif;font-size:20px;color:white;margin-bottom:2px;}
 .profile-sub{font-size:12px;color:rgba(255,255,255,.7);}
 .stats-row{display:flex;background:var(--white);border-bottom:1px solid var(--border);}
@@ -397,6 +413,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
       <button class="sort-chip active" onclick="sortList('note',this)">⭐ Mieux notés</button>
       <button class="sort-chip" onclick="sortList('dist',this)">📍 Plus proches</button>
       <button class="sort-chip" onclick="sortList('avis',this)">💬 Plus d'avis</button>
+      <button class="sort-chip" onclick="sortList('recent',this)">🆕 Plus récents</button>
       </div>
     </div>
     <div class="bench-list" id="bench-list"></div>
@@ -1227,7 +1244,8 @@ function renderExplorer(){
   let list=[...getFilteredBenches()];
   if(currentSort==='note')list.sort((a,b)=>b.rating-a.rating);
   else if(currentSort==='dist')list.sort((a,b)=>a.dist-b.dist);
-  else list.sort((a,b)=>b.reviews-a.reviews);
+  else if(currentSort==='avis')list.sort((a,b)=>b.reviews-a.reviews);
+  else list.sort((a,b)=>b.id>a.id?1:-1);
   document.getElementById('exp-sub').textContent=`${list.length} banc${list.length>1?'s':''} autour de vous`;
   document.getElementById('bench-list').innerHTML=list.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)"><div class="bc-img" style="overflow:hidden;display:flex;align-items:center;justify-content:center;">${b.photos&&b.photos.length>0?`<img src="${b.photos[0]}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">`:`<svg width="36" height="36" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>`}</div><div class="bc-info"><div class="bc-name">${b.name}</div><div class="bc-loc">${b.loc}</div><div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews} avis)</span><span class="bc-tag">${b.tags[0]||''}</span></div><div class="bc-dist">📍 ${b.dist} km</div></div></div>`).join('');
 }
@@ -1764,6 +1782,33 @@ async function saveEdit(){
   }
 }
 
+// ── PARTAGE & SIGNALEMENT ────────────────────────────
+async function shareBench(b){
+  const url = `https://www.benchmap.app/app#bench-${b.id}`;
+  const text = `Découvre ce banc sur BenchMark : ${b.name}`;
+  if(navigator.share){
+    try{
+      await navigator.share({title:'BenchMark · '+b.name, text, url});
+    }catch(e){}
+  } else {
+    await navigator.clipboard.writeText(url);
+    showToast('🔗 Lien copié !');
+  }
+}
+
+function reportBench(b){
+  const subject = encodeURIComponent(`[BenchMark] Signalement : ${b.name}`);
+  const body = encodeURIComponent(`Bonjour Philippe,
+
+Je signale un problème sur le banc "${b.name}" (ID: ${b.id}).
+
+Raison du signalement :
+[Décrivez le problème ici]
+
+Merci.`);
+  window.open(`mailto:pilipog49@gmail.com?subject=${subject}&body=${body}`);
+}
+
 // ── UTILS ─────────────────────────────────────────────
 function showToast(msg){
   const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');
@@ -1890,6 +1935,8 @@ window.openAddChoice=openAddChoice;
 window.closeAddChoice=closeAddChoice;
 window.addByMap=addByMap;
 window.addByGPS=addByGPS;
+window.shareBench=shareBench;
+window.reportBench=reportBench;
 window.cancelAdd=cancelAdd;
 window.submitBench=submitBench;
 window.setStar=setStar;
