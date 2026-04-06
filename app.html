@@ -758,13 +758,15 @@ function goPage(name,el){
   if(pg) pg.classList.add('active');
   if(el) el.classList.add('active');
   if(typeof closeAll === 'function') closeAll();
-  // Fermer aussi contrib-sheet et admin-sheet
-  var contrib = document.getElementById('contrib-sheet');
-  if(contrib) contrib.style.transform='translateX(100%)';
-  var admin = document.getElementById('admin-sheet');
-  if(admin) admin.style.transform='translateX(100%)';
+  // Fermer contrib-sheet, admin-sheet, edit-modal, add-choice-modal
+  ['contrib-sheet','admin-sheet'].forEach(function(id){
+    var el2 = document.getElementById(id);
+    if(el2) el2.style.transform='translateX(100%)';
+  });
   var editModal = document.getElementById('edit-modal');
   if(editModal) editModal.classList.remove('show');
+  var choiceModal = document.getElementById('add-choice-modal');
+  if(choiceModal) choiceModal.classList.remove('show');
   if(name==='map' && typeof mapInstance !== 'undefined' && mapInstance) setTimeout(function(){mapInstance.invalidateSize();},60);
   if(name==='favorites' && typeof renderFavorites === 'function') renderFavorites();
 }
@@ -1205,7 +1207,7 @@ function openBench(b){
       <div class="sh-loc">${b.loc}</div>
       <div class="rating-row"><span class="stars-disp">${S(Math.round(b.rating))}</span><span class="rnum">${b.rating.toFixed(1)}</span><span class="rcnt">${b.reviews} avis</span></div>
       <div class="tag-row">${b.tags.map(t=>`<span class="btag">${t}</span>`).join('')}</div>
-      <div class="sh-desc">${b.desc}</div>
+
       <div class="act-row">
         <button class="act-btn" onclick="openItineraire(window._cb.lat,window._cb.lng)">📍 Itinéraire</button>
         <button class="act-btn" id="fav-act-btn" onclick="toggleFav(window._cb.id)">${b.fav?'❤️ Favori':'⭐ Favori'}</button>
@@ -1884,7 +1886,21 @@ function goPage(name,el){
   if(name==='map'&&mapInstance)setTimeout(()=>mapInstance.invalidateSize(),60);
   if(name==='favorites')renderFavorites();
 }
-function locateMe(){if(mapInstance)mapInstance.setView([window._userLat||47.4742,window._userLng||-0.5536],14);}
+function locateMe(){
+  if(!mapInstance) return;
+  if(navigator.geolocation){
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const {latitude:lat, longitude:lng} = pos.coords;
+        mapInstance.setView([lat,lng], 15);
+        window._userLat = lat;
+        window._userLng = lng;
+      },
+      () => showToast('Impossible de récupérer ta position'),
+      {timeout:6000, enableHighAccuracy:true}
+    );
+  }
+}
 
 // Exposer toutes les fonctions globalement pour les onclick inline
 window.togglePinMode=togglePinMode;
