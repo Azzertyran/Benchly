@@ -353,7 +353,19 @@ function closeAllPanels(){
   var cm=document.getElementById('add-choice-modal');
   if(cm) cm.classList.remove('show');
 }
+function goPage(name,el){
+  closeAllPanels();
+  document.querySelectorAll('.page').forEach(function(p){p.classList.remove('active');});
+  document.querySelectorAll('.nav-item').forEach(function(n){n.classList.remove('active');});
+  var pg=document.getElementById('page-'+name);
+  if(pg) pg.classList.add('active');
+  if(el) el.classList.add('active');
+  if(typeof closeAll==='function') closeAll();
+  if(name==='map'&&typeof mapInstance!=='undefined'&&mapInstance) setTimeout(function(){mapInstance.invalidateSize();},60);
+  if(name==='favorites'&&typeof renderFavorites==='function') renderFavorites();
+}
 window.closeAllPanels=closeAllPanels;
+window.goPage=goPage;
 </script>
 <div id="app">
 
@@ -798,7 +810,7 @@ const TRANSLATIONS = {
     // Contributions
     myContribTitle:'Mes contributions', back:'← Retour',
     benchesTab:'🪑 Bancs ajoutés', reviewsTab:'✍️ Avis postés',
-    noBenchAdded:'${t('noBenchAdded')}',
+    noBenchAdded:'Pas encore de banc ajouté. Appuyez sur + pour commencer !',
     noReviewPosted:'Pas encore d\'avis posté. Cliquez sur un banc pour commencer !',
     // Notifications
     notifTitle:'Notifications', notifNearby:'${t('notifNearby')}',
