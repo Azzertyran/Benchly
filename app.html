@@ -881,6 +881,41 @@ const TRANSLATIONS = {
     gpsLoading: '📍 Getting location…',
     gpsError: 'Unable to get your location',
     gpsDone: '📍 Location found!',
+    addByGPSBtn: "I'm sitting on this bench",
+    addByGPSDescBtn: 'Use my GPS position automatically',
+    addByMapBtn: 'Place on map',
+    addByMapDescBtn: 'Zoom and drop the pin manually',
+    cancelBtn: 'Cancel',
+    newBench: 'New bench',
+    posConfirmed: 'Position confirmed · click "Reposition" to change',
+    reposition: 'Reposition',
+    useMyPos: 'Use my position',
+    benchName: 'Bench name',
+    benchNamePlaceholder: 'e.g. Park bench…',
+    yourRating: 'Your rating',
+    comment: 'Comment',
+    commentPlaceholder: 'Atmosphere, view, comfort, ideal time…',
+    characteristics: 'Characteristics',
+    environment: 'Environment',
+    atmosphere: 'Atmosphere',
+    accessibility: 'Accessibility',
+    materials: 'Materials',
+    photos: 'Photos',
+    publishBench: 'Publish this bench',
+    myAccount: 'My account',
+    application: 'Application',
+    administration: 'Administration',
+    myName: 'My displayed name',
+    myContribMenu: 'My contributions',
+    favoritesMenu: 'Favorites',
+    notifMenu: 'Notifications',
+    notifOn: 'Enabled',
+    aboutMenu: 'About BenchMark',
+    adminMenu: 'Admin panel',
+    adminSub: 'Manage all benches and reviews',
+    modify: 'Edit',
+    memberSince: 'BenchMark member',
+    connectedAs: 'Connected',
   }
 };
 
@@ -935,6 +970,68 @@ function applyTranslations(){
   if(langBtn) langBtn.textContent = _lang === 'fr' ? '🌐 English' : '🌐 Français';
   // Count pill
   updateCountPill();
+
+  // Add choice modal buttons
+  const btns = document.querySelectorAll('.add-choice-btn .add-choice-label');
+  const descs = document.querySelectorAll('.add-choice-btn .add-choice-desc');
+  if(btns[0]) btns[0].textContent = t('addByGPSBtn');
+  if(btns[1]) btns[1].textContent = t('addByMapBtn');
+  if(descs[0]) descs[0].textContent = t('addByGPSDescBtn');
+  if(descs[1]) descs[1].textContent = t('addByMapDescBtn');
+  const cancelBtns = document.querySelectorAll('.add-choice-cancel');
+  cancelBtns.forEach(b => b.textContent = t('cancelBtn'));
+
+  // Profile menu labels
+  const menuTitles = document.querySelectorAll('.mi-title');
+  const menuLabels = {
+    'Mon nom affiché': 'myName',
+    'My displayed name': 'myName',
+    'Mes contributions': 'myContribMenu',
+    'My contributions': 'myContribMenu',
+    'Favoris': 'favoritesMenu',
+    'Favorites': 'favoritesMenu',
+    'Notifications': 'notifMenu',
+    'À propos de BenchMark': 'aboutMenu',
+    'About BenchMark': 'aboutMenu',
+    'Panneau admin': 'adminMenu',
+    'Admin panel': 'adminMenu',
+  };
+  menuTitles.forEach(el => {
+    const key = menuLabels[el.textContent.trim()];
+    if(key) el.textContent = t(key);
+  });
+
+  // Section labels MON COMPTE / APPLICATION / ADMINISTRATION
+  document.querySelectorAll('.menu-lbl').forEach(el => {
+    if(el.textContent.trim() === 'Mon compte' || el.textContent.trim() === 'My account') el.textContent = t('myAccount');
+    if(el.textContent.trim() === 'Application') el.textContent = t('application');
+    if(el.textContent.trim() === 'Administration') el.textContent = t('administration');
+  });
+
+  // Add form labels
+  const addTitle = document.querySelector('.add-title');
+  if(addTitle) addTitle.textContent = t('newBench');
+  document.querySelectorAll('.fl').forEach(el => {
+    const txt = el.textContent.trim();
+    if(txt === 'Nom du lieu' || txt === 'Bench name') el.textContent = t('benchName');
+    if(txt === 'Votre note' || txt === 'Your rating') el.textContent = t('yourRating');
+    if(txt === 'Commentaire' || txt === 'Comment') el.textContent = t('comment');
+    if(txt === 'Caractéristiques' || txt === 'Characteristics') el.textContent = t('characteristics');
+  });
+  document.querySelectorAll('.tag-group-label').forEach(el => {
+    const txt = el.textContent.trim();
+    if(txt === 'Environnement' || txt === 'Environment') el.textContent = t('environment');
+    if(txt === 'Ambiance' || txt === 'Atmosphere') el.textContent = t('atmosphere');
+    if(txt === 'Accessibilité' || txt === 'Accessibility') el.textContent = t('accessibility');
+    if(txt === 'Matériaux' || txt === 'Materials') el.textContent = t('materials');
+  });
+  const submitBtn = document.getElementById('submit-btn');
+  if(submitBtn && !submitBtn.disabled) submitBtn.textContent = t('publishBench');
+
+  // Modifier button
+  document.querySelectorAll('.mi-arrow').forEach(el => {
+    if(el.textContent.trim() === 'Modifier' || el.textContent.trim() === 'Edit') el.textContent = t('modify');
+  });
 }
 
 window.setLang = setLang;
