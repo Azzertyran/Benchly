@@ -749,6 +749,183 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 </div>
 
 <script>
+// ── TRADUCTIONS FR/EN ─────────────────────────────
+const TRANSLATIONS = {
+  fr: {
+    searchPlaceholder: 'Quartier, ville…',
+    filterAll: 'Tous',
+    filterTop: '⭐ Mieux notés',
+    filterNear: '📍 Proches',
+    filterPhotos: '📸 Avec photos',
+    filterPanorama: '🌅 Panoramique',
+    filterShaded: '🌳 Ombragé',
+    filterQuiet: '🔇 Calme',
+    filterSunny: '☀️ Ensoleillé',
+    filterShelter: '🌧️ Abrité',
+    filterDogs: '🐶 Chiens',
+    sortBest: '⭐ Mieux notés',
+    sortNear: '📍 Plus proches',
+    sortReviews: '💬 Plus d'avis',
+    sortRecent: '🆕 Plus récents',
+    explorerTitle: 'Explorer',
+    explorerSub: 'bancs autour de vous',
+    favoritesTitle: 'Mes favoris',
+    favoritesSub: 'Vos bancs sauvegardés',
+    noFavorites: 'Aucun favori encore',
+    noFavoritesDesc: 'Appuyez sur le cœur sur la fiche d'un banc pour le sauvegarder ici.',
+    profileTitle: 'Mon compte',
+    benchesAdded: 'Bancs ajoutés',
+    reviewsPosted: 'Avis postés',
+    favorites: 'Favoris',
+    btnItinerary: '📍 Itinéraire',
+    btnFavorite: '⭐ Favori',
+    btnFavorited: '❤️ Favori',
+    btnReview: '✍️ Mon avis',
+    btnShare: '🔗 Partager',
+    btnReport: '🚩 Signaler',
+    reviewsLabel: 'Avis',
+    addBenchTitle: 'Ajouter un banc',
+    addBenchSub: 'Comment veux-tu le localiser ?',
+    addByGPS: 'Je suis assis sur ce banc',
+    addByGPSDesc: 'Utilise ta position GPS automatiquement',
+    addByMap: 'Placer sur la carte',
+    addByMapDesc: 'Zoom et pose la pin manuellement',
+    cancel: 'Annuler',
+    publish: 'Publier ce banc',
+    publishReview: 'Publier mon avis',
+    bancsZone: 'banc dans cette zone',
+    bancsZonePlural: 'bancs dans cette zone',
+    noBenchZone: 'Aucun banc dans cette zone',
+    myContrib: 'Mes contributions',
+    benchesTab: '🪑 Bancs ajoutés',
+    reviewsTab: '✍️ Avis postés',
+    back: '← Retour',
+    notifications: 'Notifications',
+    about: 'À propos de BenchMark',
+    signIn: 'Se connecter avec Google',
+    signOut: 'Se déconnecter',
+    connected: 'Connecté',
+    pinBanner: 'Appuyez sur la carte pour placer le banc',
+    gpsLoading: '📍 Localisation en cours…',
+    gpsError: 'Impossible de récupérer ta position',
+    gpsDone: '📍 Position récupérée !',
+  },
+  en: {
+    searchPlaceholder: 'Neighborhood, city…',
+    filterAll: 'All',
+    filterTop: '⭐ Top rated',
+    filterNear: '📍 Nearby',
+    filterPhotos: '📸 With photos',
+    filterPanorama: '🌅 Panoramic',
+    filterShaded: '🌳 Shaded',
+    filterQuiet: '🔇 Quiet',
+    filterSunny: '☀️ Sunny',
+    filterShelter: '🌧️ Sheltered',
+    filterDogs: '🐶 Dogs welcome',
+    sortBest: '⭐ Top rated',
+    sortNear: '📍 Nearest',
+    sortReviews: '💬 Most reviewed',
+    sortRecent: '🆕 Most recent',
+    explorerTitle: 'Explore',
+    explorerSub: 'benches around you',
+    favoritesTitle: 'My favorites',
+    favoritesSub: 'Your saved benches',
+    noFavorites: 'No favorites yet',
+    noFavoritesDesc: 'Tap the heart on a bench to save it here.',
+    profileTitle: 'My account',
+    benchesAdded: 'Benches added',
+    reviewsPosted: 'Reviews posted',
+    favorites: 'Favorites',
+    btnItinerary: '📍 Directions',
+    btnFavorite: '⭐ Save',
+    btnFavorited: '❤️ Saved',
+    btnReview: '✍️ My review',
+    btnShare: '🔗 Share',
+    btnReport: '🚩 Report',
+    reviewsLabel: 'Reviews',
+    addBenchTitle: 'Add a bench',
+    addBenchSub: 'How do you want to locate it?',
+    addByGPS: 'I'm sitting on this bench',
+    addByGPSDesc: 'Use my GPS position automatically',
+    addByMap: 'Place on map',
+    addByMapDesc: 'Zoom and drop the pin manually',
+    cancel: 'Cancel',
+    publish: 'Publish this bench',
+    publishReview: 'Publish my review',
+    bancsZone: 'bench in this area',
+    bancsZonePlural: 'benches in this area',
+    noBenchZone: 'No bench in this area',
+    myContrib: 'My contributions',
+    benchesTab: '🪑 Benches added',
+    reviewsTab: '✍️ Reviews posted',
+    back: '← Back',
+    notifications: 'Notifications',
+    about: 'About BenchMark',
+    signIn: 'Sign in with Google',
+    signOut: 'Sign out',
+    connected: 'Connected',
+    pinBanner: 'Tap on the map to place the bench',
+    gpsLoading: '📍 Getting location…',
+    gpsError: 'Unable to get your location',
+    gpsDone: '📍 Location found!',
+  }
+};
+
+let _lang = localStorage.getItem('benchmark-lang') || 
+  (navigator.language.startsWith('fr') ? 'fr' : 'en');
+
+function t(key){ return TRANSLATIONS[_lang][key] || TRANSLATIONS['fr'][key] || key; }
+
+function setLang(lang){
+  _lang = lang;
+  localStorage.setItem('benchmark-lang', lang);
+  applyTranslations();
+}
+
+function applyTranslations(){
+  // Search
+  const si = document.getElementById('search-input');
+  if(si) si.placeholder = t('searchPlaceholder');
+  // Filters
+  const chips = document.querySelectorAll('.chip');
+  const filterKeys = ['filterAll','filterTop','filterNear','filterPhotos','filterPanorama','filterShaded','filterQuiet','filterSunny','filterShelter','filterDogs'];
+  chips.forEach((c,i)=>{ if(filterKeys[i]) c.textContent = t(filterKeys[i]); });
+  // Sort chips
+  const sorts = document.querySelectorAll('.sort-chip');
+  ['sortBest','sortNear','sortReviews','sortRecent'].forEach((k,i)=>{ if(sorts[i]) sorts[i].textContent = t(k); });
+  // Explorer
+  const expTitle = document.querySelector('#page-explorer .page-head h2');
+  if(expTitle) expTitle.textContent = t('explorerTitle');
+  // Favorites
+  const favTitle = document.querySelector('#page-favorites .page-head h2');
+  if(favTitle) favTitle.textContent = t('favoritesTitle');
+  // Profile stats
+  const sbancs = document.querySelector('#s-bancs + .stat-label');
+  const savis = document.querySelector('#s-avis + .stat-label');
+  const sfavs = document.querySelector('#s-favs + .stat-label');
+  if(sbancs) sbancs.textContent = t('benchesAdded');
+  if(savis) savis.textContent = t('reviewsPosted');
+  if(sfavs) sfavs.textContent = t('favorites');
+  // Pin banner
+  const banner = document.querySelector('.pin-banner-inner');
+  if(banner) banner.innerHTML = '<div class="pin-pulse"></div>' + t('pinBanner');
+  // Add choice modal
+  const actitle = document.getElementById('add-choice-modal');
+  if(actitle){
+    const h = actitle.querySelector('.add-choice-title');
+    const s = actitle.querySelector('.add-choice-sub');
+    if(h) h.textContent = t('addBenchTitle');
+    if(s) s.textContent = t('addBenchSub');
+  }
+  // Lang button
+  const langBtn = document.getElementById('lang-btn');
+  if(langBtn) langBtn.textContent = _lang === 'fr' ? '🌐 English' : '🌐 Français';
+  // Count pill
+  updateCountPill();
+}
+
+window.setLang = setLang;
+
 // Fonctions de navigation disponibles immédiatement
 function closeAllPanels(){
   var ids = ['contrib-sheet','admin-sheet'];
@@ -1024,6 +1201,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
   // Auth Google
   await initAuth();
+  applyTranslations();
 
   // Valider avec Entrée
   document.getElementById('welcome-name').addEventListener('keydown', e=>{
@@ -1124,8 +1302,8 @@ function countLabel(){
   if(!mapInstance) return '';
   const bounds = mapInstance.getBounds();
   const list = getFilteredBenches().filter(b => bounds.contains([b.lat, b.lng]));
-  if(!list.length) return 'Aucun banc dans cette zone';
-  return `${list.length} banc${list.length>1?'s':''} dans cette zone`;
+  if(!list.length) return t('noBenchZone');
+  return `${list.length} ${list.length>1?t('bancsZonePlural'):t('bancsZone')}`;
 }
 
 function updateCountPill(){
@@ -1557,6 +1735,10 @@ function openContrib(type){
           <div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">
             <div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">Un bug ? Une suggestion ?</div>
             <a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a>
+          </div>
+          <div style="background:var(--sand);border-radius:var(--rs);padding:14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:13px;color:var(--ink);font-weight:500;">Langue / Language</div>
+            <button id="lang-btn" onclick="setLang(_lang==='fr'?'en':'fr')" style="background:var(--blue);color:white;border:none;border-radius:50px;padding:8px 16px;font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">🌐 English</button>
           </div>
         </div>
       </div>`;
