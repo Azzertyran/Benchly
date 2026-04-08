@@ -343,6 +343,172 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 </head>
 <body>
 <script>
+var I18N={fr:{
+navMap:"Carte",
+navExplorer:"Explorer",
+navFavorites:"Favoris",
+searchPH:"Quartier, ville...",
+all:"Tous",
+top:"⭐ Mieux notés",
+near:"Proches",
+photos:"Avec photos",
+panoramic:"Panoramique",
+shaded:"Ombragé",
+quiet:"Calme",
+sunny:"Ensoleilé",
+shelter:"Abrité",
+dogs:"Chiens",
+sortBest:"⭐ Mieux notés",
+sortNear:"Plus proches",
+sortReviews:"Plus d’avis",
+sortRecent:"Plus récents",
+explorerTitle:"Explorer",
+explorerSub:" bancs autour de vous",
+explorerSubOne:" banc autour de vous",
+favoritesTitle:"Mes favoris",
+favoritesSub:"Vos bancs sauvegardés",
+noFav:"Aucun favori encore",
+noFavDesc:"Appuyez sur le coeur sur la fiche d’un banc pour le sauvegarder.",
+myName:"Mon nom affiché",
+myContrib:"Mes contributions",
+favoritesMenu:"Favoris",
+notifications:"Notifications",
+about:"À propos de BenchMark",
+adminPanel:"Panneau admin",
+adminSub:"Gérer tous les bancs et avis",
+myAccount:"Mon compte",
+application:"Application",
+administration:"Administration",
+benchesAdded:"Bancs ajoutés",
+reviewsPosted:"Avis postés",
+favoritesStats:"Favoris",
+signIn:"Se connecter avec Google",
+signOut:"Se déconnecter",
+edit:"Modifier",
+back:"← Retour",
+benchesTab:"Bancs ajoutés",
+reviewsTab:"Avis postés",
+addTitle:"Ajouter un banc",
+addSub:"Comment veux-tu le localiser ?",
+addByGPS:"Je suis assis sur ce banc",
+addByGPSDesc:"Utilise ta position GPS automatiquement",
+addByMap:"Placer sur la carte",
+addByMapDesc:"Zoom et pose la pin manuellement",
+cancel:"Annuler",
+save:"Enregistrer",
+pinBanner:"Appuyez sur la carte pour placer le banc",
+noBench:"Aucun banc dans cette zone",
+benchZone:" bancs dans cette zone",
+benchZoneOne:" banc dans cette zone",
+noBenchAdded:"'+i18n('noBenchAdded')+'",
+noReview:"'+i18n('noReview')+'",
+notifNearby:"Nouveaux bancs près de moi",
+notifNearbySub:"Quand un banc est ajouté dans votre zone",
+notifReplies:"Réponses à mes avis",
+notifRepliesSub:"Bientôt disponible",
+notifOn:"Activées",
+notifOff:"Désactivées",
+aboutDesc:"App communautaire pour trouver, noter et partager les meilleurs bancs.",
+aboutCreator:"Créée par Philippe Auger, Angevin passionné de flânerie.",
+aboutBug:"Un bug ? Une suggestion ?",
+langSwitch:"English",
+gpsLoading:"Localisation en cours...",
+gpsDone:"Position récupérée !",
+gpsError:"Impossible de récupérer ta position"
+},en:{
+navMap:"Map",
+navExplorer:"Explore",
+navFavorites:"Favorites",
+searchPH:"Neighborhood, city...",
+all:"All",
+top:"Top rated",
+near:"Nearby",
+photos:"With photos",
+panoramic:"Panoramic",
+shaded:"Shaded",
+quiet:"Quiet",
+sunny:"Sunny",
+shelter:"Sheltered",
+dogs:"Dogs welcome",
+sortBest:"Top rated",
+sortNear:"Nearest",
+sortReviews:"Most reviewed",
+sortRecent:"Most recent",
+explorerTitle:"Explore",
+explorerSub:" benches around you",
+explorerSubOne:" bench around you",
+favoritesTitle:"My favorites",
+favoritesSub:"Your saved benches",
+noFav:"No favorites yet",
+noFavDesc:"Tap the heart on a bench to save it here.",
+myName:"My displayed name",
+myContrib:"My contributions",
+favoritesMenu:"Favorites",
+notifications:"Notifications",
+about:"About BenchMark",
+adminPanel:"Admin panel",
+adminSub:"Manage all benches and reviews",
+myAccount:"My account",
+application:"Application",
+administration:"Administration",
+benchesAdded:"Benches added",
+reviewsPosted:"Reviews posted",
+favoritesStats:"Favorites",
+signIn:"Sign in with Google",
+signOut:"Sign out",
+edit:"Edit",
+back:"← Back",
+benchesTab:"Benches added",
+reviewsTab:"Reviews posted",
+addTitle:"Add a bench",
+addSub:"How do you want to locate it?",
+addByGPS:"I am sitting on this bench",
+addByGPSDesc:"Use my GPS position automatically",
+addByMap:"Place on map",
+addByMapDesc:"Zoom and drop the pin manually",
+cancel:"Cancel",
+save:"Save",
+pinBanner:"Tap on the map to place the bench",
+noBench:"No bench in this area",
+benchZone:" benches in this area",
+benchZoneOne:" bench in this area",
+noBenchAdded:"No bench added yet. Tap + to get started!",
+noReview:"No review posted yet.",
+notifNearby:"New benches near me",
+notifNearbySub:"When a bench is added in your area",
+notifReplies:"Replies to my reviews",
+notifRepliesSub:"Coming soon",
+notifOn:"Enabled",
+notifOff:"Disabled",
+aboutDesc:"Community app to find, rate and share the best benches around you.",
+aboutCreator:"Created by Philippe Auger, from Angers, France.",
+aboutBug:"A bug? A suggestion?",
+langSwitch:"Français",
+gpsLoading:"Getting location...",
+gpsDone:"Location found!",
+gpsError:"Unable to get your location"
+}};
+var _lang=localStorage.getItem("bm-lang")||(navigator.language.startsWith("fr")?"fr":"en");
+function i18n(k){return(I18N[_lang]||I18N.fr)[k]||I18N.fr[k]||k;}
+function setLang(lang){
+  _lang=lang;localStorage.setItem("bm-lang",lang);applyI18n();
+  if(typeof renderExplorer==="function")renderExplorer();
+  if(typeof renderFavorites==="function")renderFavorites();
+  if(typeof updateCountPill==="function")updateCountPill();
+}
+window.setLang=setLang;
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(function(el){
+    el.textContent=i18n(el.dataset.i18n);
+  });
+  var si=document.getElementById("search-input");if(si)si.placeholder=i18n("searchPH");
+  var lb=document.getElementById("lang-btn");if(lb)lb.textContent=i18n("langSwitch");
+  var ec=document.querySelector(".edit-cancel");if(ec)ec.textContent=i18n("cancel");
+  var es=document.querySelector(".edit-save");if(es)es.textContent=i18n("save");
+  if(typeof updateCountPill==="function")updateCountPill();
+}
+window.applyI18n=applyI18n;
+
 function closeAllPanels(){
   ['contrib-sheet','admin-sheet'].forEach(function(id){
     var el=document.getElementById(id);
@@ -384,16 +550,16 @@ window.goPage=goPage;
         </div>
       </div>
       <div class="filter-scroll">
-        <button class="chip active" onclick="setFilter('all',this)">Tous</button>
-        <button class="chip" onclick="setFilter('top',this)">⭐ Mieux notés</button>
-        <button class="chip" onclick="setFilter('near',this)">📍 Proches</button>
-        <button class="chip" onclick="setFilter('photos',this)">📸 Avec photos</button>
-        <button class="chip" onclick="setFilter('🌅 Vue panoramique',this)">🌅 Panoramique</button>
-        <button class="chip" onclick="setFilter('🌳 Ombragé',this)">🌳 Ombragé</button>
-        <button class="chip" onclick="setFilter('🔇 Calme',this)">🔇 Calme</button>
-        <button class="chip" onclick="setFilter('☀️ Ensoleillé',this)">☀️ Ensoleillé</button>
-        <button class="chip" onclick="setFilter('🌧️ Abrité pluie',this)">🌧️ Abrité</button>
-        <button class="chip" onclick="setFilter('🐶 Chiens bienvenus',this)">🐶 Chiens</button>
+        <button class="chip active" onclick="setFilter('all',this)" data-i18n="all">Tous</button>
+        <button class="chip" onclick="setFilter('top',this)" data-i18n="top" data-i18n="sortBest">⭐ Mieux notés</button>
+        <button class="chip" onclick="setFilter('near',this)" data-i18n="near">📍 Proches</button>
+        <button class="chip" onclick="setFilter('photos',this)" data-i18n="photos">📸 Avec photos</button>
+        <button class="chip" onclick="setFilter('🌅 Vue panoramique',this)" data-i18n="panoramic">🌅 Panoramique</button>
+        <button class="chip" onclick="setFilter('🌳 Ombragé',this)" data-i18n="shaded">🌳 Ombragé</button>
+        <button class="chip" onclick="setFilter('🔇 Calme',this)" data-i18n="quiet">🔇 Calme</button>
+        <button class="chip" onclick="setFilter('☀️ Ensoleillé',this)" data-i18n="sunny">☀️ Ensoleillé</button>
+        <button class="chip" onclick="setFilter('🌧️ Abrité pluie',this)" data-i18n="shelter">🌧️ Abrité</button>
+        <button class="chip" onclick="setFilter('🐶 Chiens bienvenus',this)" data-i18n="dogs">🐶 Chiens</button>
       </div>
     </div>
     <div class="count-pill" id="count-pill">5 bancs dans cette zone</div>
@@ -418,12 +584,12 @@ window.goPage=goPage;
   <!-- PAGE EXPLORER -->
   <div class="page" id="page-explorer">
     <div style="position:sticky;top:0;z-index:10;background:var(--white);">
-      <div class="page-head"><h2>Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
+      <div class="page-head"><h2 data-i18n="explorerTitle">Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
       <div class="sort-row">
       <button class="sort-chip active" onclick="sortList('note',this)">⭐ Mieux notés</button>
-      <button class="sort-chip" onclick="sortList('dist',this)">📍 Plus proches</button>
-      <button class="sort-chip" onclick="sortList('avis',this)">💬 Plus d'avis</button>
-      <button class="sort-chip" onclick="sortList('recent',this)">🆕 Plus récents</button>
+      <button class="sort-chip" onclick="sortList('dist',this)" data-i18n="sortNear">📍 Plus proches</button>
+      <button class="sort-chip" onclick="sortList('avis',this)" data-i18n="sortReviews">💬 Plus d'avis</button>
+      <button class="sort-chip" onclick="sortList('recent',this)" data-i18n="sortRecent">🆕 Plus récents</button>
       </div>
     </div>
     <div class="bench-list" id="bench-list"></div>
@@ -431,7 +597,7 @@ window.goPage=goPage;
 
   <!-- PAGE FAVORIS -->
   <div class="page" id="page-favorites">
-    <div class="page-head"><h2>Mes favoris</h2><p id="fav-sub">Vos bancs sauvegardés</p></div>
+    <div class="page-head"><h2 data-i18n="favoritesTitle">Mes favoris</h2><p id="fav-sub" data-i18n="favoritesSub">Vos bancs sauvegardés</p></div>
     <div id="fav-list" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 
@@ -443,32 +609,32 @@ window.goPage=goPage;
       </div>
       <div class="profile-name" id="profile-name">—</div>
       <div class="profile-sub" id="profile-sub">Membre BenchMark</div>
-      <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:14px;padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">Se connecter avec Google</button>
+      <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:14px;padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;" data-i18n="signIn">Se connecter avec Google</button>
     </div>
     <div class="stats-row">
-      <div class="stat-item" onclick="openContrib('contributions')" style="cursor:pointer;"><div class="stat-num" id="s-bancs">0</div><div class="stat-label">Bancs ajoutés</div></div>
-      <div class="stat-item" onclick="openContrib('contributions');setTimeout(()=>switchContribTab('reviews',document.querySelectorAll('.contrib-tab')[1]),100)" style="cursor:pointer;"><div class="stat-num" id="s-avis">3</div><div class="stat-label">Avis postés</div></div>
-      <div class="stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;"><div class="stat-num" id="s-favs">0</div><div class="stat-label">Favoris</div></div>
+      <div class="stat-item" onclick="openContrib('contributions')" style="cursor:pointer;"><div class="stat-num" id="s-bancs">0</div><div class="stat-label" data-i18n="benchesAdded">Bancs ajoutés</div></div>
+      <div class="stat-item" onclick="openContrib('contributions');setTimeout(()=>switchContribTab('reviews',document.querySelectorAll('.contrib-tab')[1]),100)" style="cursor:pointer;"><div class="stat-num" id="s-avis">3</div><div class="stat-label" data-i18n="reviewsPosted">Avis postés</div></div>
+      <div class="stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;"><div class="stat-num" id="s-favs">0</div><div class="stat-label" data-i18n="favoritesStats">Favoris</div></div>
     </div>
     <div class="menu-section">
       <div class="menu-lbl">Mon compte</div>
       <div class="menu-card">
-        <div class="menu-item" onclick="editUsername()"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="#185FA5" stroke-width="1.4"/><path d="M2 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Mon nom affiché</div><div class="mi-sub" id="mi-username">—</div></div><span class="mi-arrow" style="color:var(--blue);font-size:13px;">Modifier</span></div>
-        <div class="menu-item" onclick="openContrib('contributions')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#185FA5" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">Mes contributions</div><div class="mi-sub" id="mi-contrib">0 banc ajouté · 3 avis postés</div></div><span class="mi-arrow">›</span></div>
-        <div class="menu-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2C5.686 2 3 4.686 3 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.314-2.686-6-6-6z" stroke="#185FA5" stroke-width="1.4"/><circle cx="9" cy="8" r="2" stroke="#185FA5" stroke-width="1.4"/></svg></div><div class="mi-text"><div class="mi-title">Favoris</div><div class="mi-sub" id="mi-favs">0 banc sauvegardé</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="editUsername()"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="6" r="3.5" stroke="#185FA5" stroke-width="1.4"/><path d="M2 17c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="myName">Mon nom affiché</div><div class="mi-sub" id="mi-username">—</div></div><span class="mi-arrow" style="color:var(--blue);font-size:13px;" data-i18n="edit">Modifier</span></div>
+        <div class="menu-item" onclick="openContrib('contributions')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#185FA5" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="myContrib">Mes contributions</div><div class="mi-sub" id="mi-contrib">0 banc ajouté · 3 avis postés</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2C5.686 2 3 4.686 3 8c0 4.5 6 10 6 10s6-5.5 6-10c0-3.314-2.686-6-6-6z" stroke="#185FA5" stroke-width="1.4"/><circle cx="9" cy="8" r="2" stroke="#185FA5" stroke-width="1.4"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="favoritesMenu">Favoris</div><div class="mi-sub" id="mi-favs">0 banc sauvegardé</div></div><span class="mi-arrow">›</span></div>
       </div>
     </div>
     <div class="menu-section">
       <div class="menu-lbl">Application</div>
       <div class="menu-card">
-        <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
-        <div class="menu-item" onclick="openContrib('apropos')" style="cursor:pointer;"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Contact</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="notifications">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="openContrib('apropos')" style="cursor:pointer;"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="about">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Contact</div></div><span class="mi-arrow">›</span></div>
       </div>
     </div>
     <div class="menu-section" id="admin-section" style="display:none">
       <div class="menu-lbl" style="color:var(--red)">Administration</div>
       <div class="menu-card">
-        <div class="menu-item" onclick="openAdminPanel()"><div class="mi-icon" style="background:#FCEBEB"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#E24B4A" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" style="color:var(--red)">Panneau admin</div><div class="mi-sub">Gérer tous les bancs et avis</div></div><span class="mi-arrow">›</span></div>
+        <div class="menu-item" onclick="openAdminPanel()"><div class="mi-icon" style="background:#FCEBEB"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><path d="M9 2l2 5h5l-4 3 1.5 5L9 12l-4.5 3L6 10 2 7h5z" stroke="#E24B4A" stroke-width="1.3" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" style="color:var(--red)" data-i18n="adminPanel">Panneau admin</div><div class="mi-sub" data-i18n="adminSub">Gérer tous les bancs et avis</div></div><span class="mi-arrow">›</span></div>
       </div>
     </div>
     <div class="menu-section" style="display:none">
@@ -684,7 +850,7 @@ window.goPage=goPage;
   <!-- ADMIN PANEL -->
   <div id="admin-sheet" style="position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:64px;background:var(--sand);z-index:3000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;">
     <div style="background:var(--white);padding:52px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;">
-      <button onclick="closeAdminPanel()" style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--red);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0 0 10px;">← Retour</button>
+      <button onclick="closeAdminPanel()" style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--red);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0 0 10px;" data-i18n="back">← Retour</button>
       <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--red);">Panneau admin 🔐</div>
       <div style="font-size:12px;color:var(--muted);margin-top:4px;">Tous les bancs et avis · accès restreint</div>
     </div>
@@ -703,11 +869,11 @@ window.goPage=goPage;
   <!-- CONTRIBUTIONS SHEET -->
   <div id="contrib-sheet">
     <div class="contrib-head">
-      <button class="contrib-back" onclick="document.getElementById('contrib-sheet').style.transform='translateX(100%)'">← Retour</button>
+      <button class="contrib-back" onclick="document.getElementById('contrib-sheet').style.transform='translateX(100%)'" data-i18n="back">← Retour</button>
       <div class="contrib-title" id="contrib-title">Mes contributions</div>
       <div class="contrib-tabs" id="contrib-tabs-bar">
-        <button class="contrib-tab active" onclick="switchContribTab('benches',this)">🪑 Bancs ajoutés</button>
-        <button class="contrib-tab" onclick="switchContribTab('reviews',this)">✍️ Avis postés</button>
+        <button class="contrib-tab active" onclick="switchContribTab('benches',this)" data-i18n="benchesTab">🪑 Bancs ajoutés</button>
+        <button class="contrib-tab" onclick="switchContribTab('reviews',this)" data-i18n="reviewsTab">✍️ Avis postés</button>
       </div>
     </div>
     <div class="contrib-body" id="contrib-body"></div>
@@ -728,15 +894,15 @@ window.goPage=goPage;
   <!-- CHOIX MODE AJOUT -->
   <div id="add-choice-modal" onclick="if(event.target===this)closeAddChoice()">
     <div class="add-choice-card">
-      <div class="add-choice-title">Ajouter un banc</div>
-      <div class="add-choice-sub">Comment veux-tu le localiser ?</div>
+      <div class="add-choice-title" data-i18n="addTitle">Ajouter un banc</div>
+      <div class="add-choice-sub" data-i18n="addSub">Comment veux-tu le localiser ?</div>
       <button class="add-choice-btn" style="background:var(--blue-light);" onclick="addByGPS()">
         <div class="add-choice-icon" style="background:var(--blue);">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" fill="white"/><circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
         </div>
         <div>
-          <div class="add-choice-label" style="color:var(--blue-deep);">Je suis assis sur ce banc</div>
-          <div class="add-choice-desc" style="color:var(--blue-mid);">Utilise ta position GPS automatiquement</div>
+          <div class="add-choice-label" style="color:var(--blue-deep);" data-i18n="addByGPS">Je suis assis sur ce banc</div>
+          <div class="add-choice-desc" style="color:var(--blue-mid);" data-i18n="addByGPSDesc">Utilise ta position GPS automatiquement</div>
         </div>
       </button>
       <button class="add-choice-btn" style="background:var(--sand);" onclick="addByMap()">
@@ -744,11 +910,11 @@ window.goPage=goPage;
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 5 6 10 6 10s6-5 6-10c0-3.314-2.686-6-6-6z" fill="white"/><circle cx="10" cy="8" r="2" fill="var(--ink)"/></svg>
         </div>
         <div>
-          <div class="add-choice-label" style="color:var(--ink);">Placer sur la carte</div>
-          <div class="add-choice-desc" style="color:var(--muted);">Zoom et pose la pin manuellement</div>
+          <div class="add-choice-label" style="color:var(--ink);" data-i18n="addByMap">Placer sur la carte</div>
+          <div class="add-choice-desc" style="color:var(--muted);" data-i18n="addByMapDesc">Zoom et pose la pin manuellement</div>
         </div>
       </button>
-      <button class="add-choice-cancel" onclick="closeAddChoice()">Annuler</button>
+      <button class="add-choice-cancel" onclick="closeAddChoice()" data-i18n="cancel">Annuler</button>
     </div>
   </div>
 
@@ -756,15 +922,15 @@ window.goPage=goPage;
   <div id="bottom-nav">
     <button class="nav-item active" id="nav-map" onclick="closeAllPanels();goPage('map',this)">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2C6.686 2 4 4.686 4 8c0 5 6 10 6 10s6-5 6-10c0-3.314-2.686-6-6-6z" fill="currentColor"/><circle cx="10" cy="8" r="2" fill="white"/></svg>
-      Carte
+      <span data-i18n="navMap">Carte</span>
     </button>
     <button class="nav-item" id="nav-explorer" onclick="closeAllPanels();goPage('explorer',this)">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="3" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="3" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/><rect x="11" y="11" width="6" height="6" rx="1.5" stroke="currentColor" stroke-width="1.4"/></svg>
-      Explorer
+      <span data-i18n="navExplorer">Explorer</span>
     </button>
     <button class="nav-item" id="nav-favorites" onclick="closeAllPanels();goPage('favorites',this)">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2l2.4 4.8 5.6.8-4 3.9.9 5.5L10 14.5l-4.9 2.7.9-5.5-4-3.9 5.6-.8z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
-      Favoris
+      <span data-i18n="navFavorites">Favoris</span>
     </button>
     <button class="nav-item" id="nav-profile" onclick="closeAllPanels();goPage('profile',this)">
       <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.4"/><path d="M3 18c0-3.314 3.134-6 7-6s7 2.686 7 6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
@@ -836,7 +1002,7 @@ async function loadBenches(){
       const{data:revs}=await db.from('reviews').select('*').in('bench_id',ids);
       (revs||[]).forEach(r=>{if(!revMap[r.bench_id])revMap[r.bench_id]=[];revMap[r.bench_id].push(r);});
     }
-    const favSet=new Set(benches.filter(b=>b.fav).map(b=>b.id));
+    const favSet=new Set(getFavIds());
     benches=rows.map(r=>{
       const avis=(revMap[r.id]||[]).map(rv=>({u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||''}));
       const avg=avis.length?Math.round(avis.reduce((s,a)=>s+a.s,0)/avis.length*10)/10:(r.rating||0);
@@ -1050,6 +1216,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
 
   // Auth Google
   await initAuth();
+  applyI18n();
 
   // Valider avec Entrée
   document.getElementById('welcome-name').addEventListener('keydown', e=>{
@@ -1150,8 +1317,8 @@ function countLabel(){
   if(!mapInstance) return '';
   const bounds = mapInstance.getBounds();
   const list = getFilteredBenches().filter(b => bounds.contains([b.lat, b.lng]));
-  if(!list.length) return 'Aucun banc dans cette zone';
-  return `${list.length} banc${list.length>1?'s':''} dans cette zone`;
+  if(!list.length) return i18n('noBench');
+  return list.length+(list.length>1?i18n('benchZone'):i18n('benchZoneOne'));
 }
 
 function updateCountPill(){
@@ -1296,9 +1463,17 @@ function closeLightbox(){
   document.getElementById('lightbox').classList.remove('open');
 }
 
+function getFavIds(){
+  try{return JSON.parse(localStorage.getItem('bm-favs')||'[]');}catch(e){return [];}
+}
+function saveFavIds(){
+  const ids=benches.filter(b=>b.fav).map(b=>b.id);
+  localStorage.setItem('bm-favs',JSON.stringify(ids));
+}
 function toggleFav(id){
   const b=benches.find(x=>x.id===id);if(!b)return;
   b.fav=!b.fav;
+  saveFavIds();
   document.querySelectorAll('.fav-badge').forEach(el=>el.textContent=b.fav?'❤️':'🤍');
   const act=document.getElementById('fav-act-btn');if(act)act.textContent=b.fav?'❤️ Favori':'⭐ Favori';
   renderFavorites();updateStats();
@@ -1321,7 +1496,7 @@ function renderExplorer(){
   else if(currentSort==='dist')list.sort((a,b)=>a.dist-b.dist);
   else if(currentSort==='avis')list.sort((a,b)=>b.reviews-a.reviews);
   else list.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
-  document.getElementById('exp-sub').textContent=`${list.length} banc${list.length>1?'s':''} autour de vous`;
+  document.getElementById('exp-sub').textContent=list.length+(list.length>1?i18n('explorerSub'):i18n('explorerSubOne'));
   document.getElementById('bench-list').innerHTML=list.map(b=>`<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)"><div class="bc-img" style="overflow:hidden;display:flex;align-items:center;justify-content:center;">${b.photos&&b.photos.length>0?`<img src="${b.photos[0]}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">`:`<svg width="36" height="36" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>`}</div><div class="bc-info"><div class="bc-name">${b.name}</div><div class="bc-loc">${b.loc}</div><div class="bc-meta"><span class="bc-stars">${S(Math.round(b.rating))}</span><span class="bc-rnum">${b.rating.toFixed(1)}</span><span class="bc-rcnt">(${b.reviews} avis)</span><span class="bc-tag">${b.tags[0]||''}</span></div><div class="bc-dist">📍 ${b.dist} km</div></div></div>`).join('');
 }
 function sortList(key,el){
@@ -1566,27 +1741,22 @@ function openContrib(type){
   const tabsBar = document.getElementById('contrib-tabs-bar');
 
   if(type === 'apropos'){
-    title.textContent = 'À propos';
-    tabsBar.style.display = 'none';
-    document.getElementById('contrib-body').innerHTML = `
-      <div style="padding:8px 0;">
-        <div style="background:var(--white);border-radius:var(--r);padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05);text-align:center;margin-bottom:12px;">
-          <div style="margin-bottom:12px;">
-            <svg width="48" height="68" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>
-          </div>
-          <div style="font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:4px;">BenchMark</div>
-          <div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Version 1.0 · Fait avec ❤️ à Angers</div>
-          <div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">
-            BenchMark est une app communautaire pour trouver, noter et partager les meilleurs bancs autour de vous.<br><br>
-            Créée par <strong>Philippe Auger</strong>, Angevin passionné de flânerie.
-          </div>
-          <div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">
-            <div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">Un bug ? Une suggestion ?</div>
-            <a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a>
-          </div>
-
-        </div>
-      </div>`;
+    title.textContent=i18n('about');
+    tabsBar.style.display='none';
+    var ab='<div style="padding:8px 0;">';
+    ab+='<div style="background:var(--white);border-radius:var(--r);padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05);text-align:center;margin-bottom:12px;">';
+    ab+='<div style="margin-bottom:12px;"><svg width="48" height="68" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg></div>';
+    ab+='<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink);margin-bottom:4px;">BenchMark</div>';
+    ab+='<div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Version 1.0 · Fait avec ❤️ à Angers</div>';
+    ab+='<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">'+i18n('aboutDesc')+'<br><br>'+i18n('aboutCreator')+'</div>';
+    ab+='<div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">';
+    ab+='<div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">'+i18n('aboutBug')+'</div>';
+    ab+='<a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a></div>';
+    ab+='<div style="background:var(--sand);border-radius:var(--rs);padding:14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;">';
+    ab+='<div style="font-size:13px;color:var(--ink);font-weight:500;">Langue / Language</div>';
+    ab+='<button id="lang-btn" onclick="setLang(_lang===\'fr\'?\'en\':\'fr\')" style="background:var(--blue);color:white;border:none;border-radius:50px;padding:8px 16px;font-family:\'DM Sans\',sans-serif;font-size:13px;cursor:pointer;">'+i18n('langSwitch')+'</button></div>';
+    ab+='</div></div>';
+    document.getElementById('contrib-body').innerHTML=ab;
   } else if(type === 'notifications'){
     title.textContent = 'Notifications';
     tabsBar.style.display = 'none';
@@ -1648,7 +1818,7 @@ async function renderContribBenches(){
   try{
     const{data:rows}=await db.from('benches').select('*').eq('created_by',author).order('created_at',{ascending:false});
     if(!rows||!rows.length){
-      body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">🪑</div><p>'+'Pas encore de banc ajouté. Appuyez sur + pour commencer !'+'</p></div>';
+      body.innerHTML='<div class="contrib-empty"><div class="contrib-empty-icon">🪑</div><p>'+''+i18n('noBenchAdded')+''+'</p></div>';
       return;
     }
     body.innerHTML = rows.map(b=>`
@@ -1670,7 +1840,7 @@ async function renderContribReviews(){
   try{
     const{data:revs}=await db.from('reviews').select('*, benches(name,emoji)').eq('author',author).order('created_at',{ascending:false});
     if(!revs||!revs.length){
-      body.innerHTML=`<div class="contrib-empty"><div class="contrib-empty-icon">✍️</div><p>Pas encore d'avis posté.</p></div>`;
+      body.innerHTML=`<div class="contrib-empty"><div class="contrib-empty-icon">✍️</div><p>'+i18n('noReview')+'`;
       return;
     }
     body.innerHTML = revs.map(r=>`
@@ -1685,18 +1855,18 @@ async function renderContribReviews(){
 }
 
 function renderNotifications(){
-  const body = document.getElementById('contrib-body');
-  body.innerHTML=`
-    <div style="padding:8px 0">
-      <div class="notif-row">
-        <div><div class="notif-label">Nouveaux bancs près de moi</div><div class="notif-sub">Quand un banc est ajouté dans votre zone</div></div>
-        <button class="toggle ${notifEnabled?'on':''}" id="toggle-notif" onclick="toggleNotif()"></button>
-      </div>
-      <div class="notif-row">
-        <div><div class="notif-label">Réponses à mes avis</div><div class="notif-sub">Bientôt disponible</div></div>
-        <button class="toggle" style="opacity:.4;cursor:not-allowed"></button>
-      </div>
-    </div>`;
+  var body=document.getElementById('contrib-body');
+  var html='<div style="padding:8px 0">';
+  html+='<div class="notif-row"><div>';
+  html+='<div class="notif-label">'+i18n('notifNearby')+'</div>';
+  html+='<div class="notif-sub">'+i18n('notifNearbySub')+'</div>';
+  html+='</div><button class="toggle '+(notifEnabled?'on':'')+'" id="toggle-notif" onclick="toggleNotif()"></button></div>';
+  html+='<div class="notif-row"><div>';
+  html+='<div class="notif-label">'+i18n('notifReplies')+'</div>';
+  html+='<div class="notif-sub">'+i18n('notifRepliesSub')+'</div>';
+  html+='</div><button class="toggle" style="opacity:.4;cursor:not-allowed"></button></div>';
+  html+='</div>';
+  body.innerHTML=html;
 }
 function toggleNotif(){
   notifEnabled = !notifEnabled;
@@ -1704,8 +1874,8 @@ function toggleNotif(){
   const btn = document.getElementById('toggle-notif');
   if(btn) btn.classList.toggle('on', notifEnabled);
   const sub = document.getElementById('notif-sub');
-  if(sub) sub.textContent = notifEnabled ? 'Activées' : 'Désactivées';
-  showToast(notifEnabled ? '🔔 Notifications activées' : '🔕 Notifications désactivées');
+  if(sub) sub.textContent = notifEnabled?i18n('notifOn'):i18n('notifOff');
+  showToast(i18n(notifEnabled?'notifOn':'notifOff'));
 }
 
 // ── ADMIN ────────────────────────────────────────────
@@ -1935,7 +2105,7 @@ function locateMe(){
         window._userLat = lat;
         window._userLng = lng;
       },
-      () => showToast('Impossible de récupérer ta position'),
+      () => showToast(i18n('gpsError')),
       {timeout:6000, enableHighAccuracy:true}
     );
   }
@@ -1989,7 +2159,7 @@ function addByGPS(){
       openAddForm(lat, lng);
     },
     err => {
-      showToast('Impossible de récupérer ta position');
+      showToast(i18n('gpsError'));
     },
     {timeout:8000, enableHighAccuracy:true}
   );
@@ -2050,6 +2220,8 @@ window.cancelAdd=cancelAdd;
 window.submitBench=submitBench;
 window.setStar=setStar;
 window.toggleFav=toggleFav;
+window.getFavIds=getFavIds;
+window.saveFavIds=saveFavIds;
 window.goPage=goPage;
 window.saveWelcomeName=saveWelcomeName;
 window.editUsername=editUsername;
