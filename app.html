@@ -1741,22 +1741,19 @@ function openContrib(type){
   const tabsBar = document.getElementById('contrib-tabs-bar');
 
   if(type === 'apropos'){
-    title.textContent=i18n('about');
-    tabsBar.style.display='none';
-    var ab='<div style="padding:8px 0;">';
-    ab+='<div style="background:var(--white);border-radius:var(--r);padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05);text-align:center;margin-bottom:12px;">';
-    ab+='<div style="margin-bottom:12px;"><svg width="48" height="68" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg></div>';
-    ab+='<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink);margin-bottom:4px;">BenchMark</div>';
-    ab+='<div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Version 1.0 · Fait avec ❤️ à Angers</div>';
-    ab+='<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">'+i18n('aboutDesc')+'<br><br>'+i18n('aboutCreator')+'</div>';
-    ab+='<div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">';
-    ab+='<div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">'+i18n('aboutBug')+'</div>';
-    ab+='<a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a></div>';
-    ab+='<div style="background:var(--sand);border-radius:var(--rs);padding:14px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;">';
-    ab+='<div style="font-size:13px;color:var(--ink);font-weight:500;">Langue / Language</div>';
-    ab+='<button id="lang-btn" onclick="setLang(_lang===\'fr\'?\'en\':\'fr\')" style="background:var(--blue);color:white;border:none;border-radius:50px;padding:8px 16px;font-family:\'DM Sans\',sans-serif;font-size:13px;cursor:pointer;">'+i18n('langSwitch')+'</button></div>';
-    ab+='</div></div>';
-    document.getElementById('contrib-body').innerHTML=ab;
+    title.textContent = 'À propos';
+    tabsBar.style.display = 'none';
+    var ab = '<div style="padding:8px 0;">';
+    ab += '<div style="background:var(--white);border-radius:var(--r);padding:20px;box-shadow:0 1px 6px rgba(0,0,0,.05);text-align:center;margin-bottom:12px;">';
+    ab += '<div style="margin-bottom:12px;"><svg width="48" height="68" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg></div>';
+    ab += '<div style="font-family:\'DM Serif Display\',serif;font-size:22px;color:var(--ink);margin-bottom:4px;">BenchMark</div>';
+    ab += '<div style="font-size:12px;color:var(--muted);margin-bottom:16px;">Version 1.0 · Fait avec ❤️ à Angers</div>';
+    ab += '<div style="font-size:13px;color:var(--muted);line-height:1.7;margin-bottom:20px;">BenchMark est une app communautaire pour trouver, noter et partager les meilleurs bancs autour de vous.<br><br>Créée par Philippe Auger, Angevin passionné de flânerie.</div>';
+    ab += '<div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">';
+    ab += '<div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">Un bug ? Une suggestion ?</div>';
+    ab += '<a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a></div>';
+    ab += '</div></div>';
+    document.getElementById('contrib-body').innerHTML = ab;
   } else if(type === 'notifications'){
     title.textContent = 'Notifications';
     tabsBar.style.display = 'none';
