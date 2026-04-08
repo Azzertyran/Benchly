@@ -23,7 +23,7 @@ html{scroll-behavior:smooth;}
 body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,box-shadow .3s;}
+nav{position:fixed;top:0;left:0;right:0;z-index:9999;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;transition:background .3s,box-shadow .3s;}
 nav.scrolled{background:rgba(255,255,255,.95);backdrop-filter:blur(12px);box-shadow:0 1px 0 rgba(0,0,0,.06);}
 .nav-logo{display:flex;align-items:center;gap:9px;text-decoration:none;}
 .nav-logo-mark{width:32px;height:32px;background:var(--blue);border-radius:10px;display:flex;align-items:center;justify-content:center;}
@@ -114,7 +114,7 @@ h1 em{font-style:italic;color:var(--sky);}
 .map-demo-dots{display:flex;gap:6px;}
 .map-demo-dot{width:10px;height:10px;border-radius:50%;}
 .map-demo-url{flex:1;background:rgba(255,255,255,.08);border-radius:6px;padding:5px 12px;font-size:12px;color:rgba(255,255,255,.5);}
-#demo-map{height:420px;}
+#demo-map{height:420px;z-index:1;position:relative;}
 
 /* ── HOW IT WORKS ── */
 .how-section{padding:100px 32px;background:white;}
@@ -138,6 +138,9 @@ h1 em{font-style:italic;color:var(--sky);}
 
 /* ── FOOTER ── */
 footer{background:var(--ink);padding:40px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
+.footer-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
+.footer-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;transition:color .2s;}
+.footer-link:hover{color:white;}
 .footer-logo{display:flex;align-items:center;gap:8px;text-decoration:none;}
 .footer-logo-mark{width:26px;height:26px;background:var(--blue);border-radius:7px;display:flex;align-items:center;justify-content:center;}
 .footer-logo-text{font-family:'DM Serif Display',serif;font-size:16px;color:white;}
@@ -275,7 +278,7 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
 </section>
 
 <!-- CARTE DEMO -->
-<section class="map-section" id="demo">
+<section class="map-section" id="demo" style="isolation:isolate;position:relative;z-index:1;">
   <div class="map-section-grid"></div>
   <div class="map-section-inner">
     <div>
@@ -369,6 +372,10 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
     </div>
     <span class="footer-logo-text">BenchMark</span>
   </a>
+  <div class="footer-links">
+    <a href="mailto:pilipog49@gmail.com" class="footer-link">✉️ pilipog49@gmail.com</a>
+    <a href="https://x.com/BenchMapp" target="_blank" class="footer-link">𝕏 @BenchMapp</a>
+  </div>
   <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
 </footer>
 
