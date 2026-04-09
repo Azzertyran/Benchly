@@ -310,6 +310,26 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .badge-new{position:relative;}
 .badge-new::after{content:"NEW";position:absolute;top:-4px;right:-4px;background:var(--red);color:white;font-size:7px;font-weight:700;padding:1px 4px;border-radius:4px;}
 
+/* LIKES SUR AVIS */
+.review-like-btn{background:none;border:1px solid var(--border);border-radius:50px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-top:6px;transition:all .15s;}
+.review-like-btn:hover{border-color:var(--blue);color:var(--blue);}
+.review-like-btn.liked{background:var(--blue-light);border-color:var(--blue);color:var(--blue-mid);}
+
+/* CLASSEMENT */
+.leaderboard-section{padding:16px 16px 0;}
+.leaderboard-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+.leaderboard-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid var(--border);}
+.leaderboard-row:last-child{border-bottom:none;}
+.leaderboard-rank{width:22px;font-size:13px;font-weight:500;color:var(--muted);text-align:center;flex-shrink:0;}
+.leaderboard-rank.gold{color:#F5A623;}
+.leaderboard-rank.silver{color:#9E9E9E;}
+.leaderboard-rank.bronze{color:#A05C34;}
+.leaderboard-av{width:32px;height:32px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:white;flex-shrink:0;}
+.leaderboard-name{flex:1;font-size:13px;font-weight:500;color:var(--ink);}
+.leaderboard-name.me{color:var(--blue-mid);}
+.leaderboard-score{font-size:12px;color:var(--muted);}
+.leaderboard-my-rank{background:var(--blue-light);border-radius:var(--rs);padding:8px 12px;margin-top:8px;font-size:12px;color:var(--blue-mid);text-align:center;}
+
 /* EDIT MODAL */
 #edit-modal{position:absolute;inset:0;z-index:5000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
 #edit-modal.show{opacity:1;pointer-events:all;}
@@ -630,6 +650,7 @@ window.goPage=goPage;
       <div class="stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;"><div class="stat-num" id="s-favs">0</div><div class="stat-label" data-i18n="favoritesStats">Favoris</div></div>
     </div>
       <div class="badges-section" id="badges-container"></div>
+      <div class="leaderboard-section" id="leaderboard-container"></div>
     <div class="menu-section">
       <div class="menu-lbl">Mon compte</div>
       <div class="menu-card">
@@ -991,6 +1012,7 @@ function goPage(name,el){
   if(name==='profile'){
     const author = localStorage.getItem('benchmark-username')||'';
     if(author && typeof renderBadges === 'function') renderBadges(author);
+    if(typeof renderLeaderboard === 'function') renderLeaderboard();
   }
 }
 window.goPage = goPage;
@@ -1022,7 +1044,7 @@ async function loadBenches(){
     }
     const favSet=new Set(getFavIds());
     benches=rows.map(r=>{
-      const avis=(revMap[r.id]||[]).map(rv=>({u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||''}));
+      const avis=(revMap[r.id]||[]).map(rv=>({id:rv.id,u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||''}));
       const avg=avis.length?Math.round(avis.reduce((s,a)=>s+a.s,0)/avis.length*10)/10:(r.rating||0);
       return{id:r.id,lat:r.lat,lng:r.lng,name:r.name,loc:r.location||'',dist:calcDist(r.lat,r.lng),
         rating:avg,reviews:avis.length,tags:r.tags||[],emoji:r.emoji||'🪑',
@@ -1102,7 +1124,10 @@ async function initAuth(){
     localStorage.setItem('benchmark-username',name);
     applyUsername(name,photo);
     // Charger les badges avec le bon author (created_by = name dans Supabase)
-    setTimeout(()=>{ if(typeof renderBadges==='function') renderBadges(name); }, 500);
+    setTimeout(()=>{
+      if(typeof renderBadges==='function') renderBadges(name);
+      if(typeof renderLeaderboard==='function') renderLeaderboard();
+    }, 500);
     const btn=document.getElementById('auth-btn');
     if(btn){btn.textContent='Se déconnecter';}
     const sub=document.getElementById('profile-sub');
@@ -1445,7 +1470,7 @@ function openBench(b){
         <button class="act-btn" style="color:var(--muted)" onclick="reportBench(window._cb)">🚩 Signaler</button>
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
-      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div></div></div>`).join('')}
+      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
     </div>`;
   mapInstance.panTo([b.lat,b.lng]);
 }
@@ -2170,6 +2195,105 @@ async function renderBadges(author){
   }).join('');
 }
 window.renderBadges = renderBadges;
+
+// ── LIKES ─────────────────────────────────────────────
+async function toggleLike(reviewId, btn){
+  const userId = window._session?.user?.id || localStorage.getItem('benchmark-username');
+  if(!userId){ showToast('Connectez-vous pour liker'); return; }
+  
+  const isLiked = btn.classList.contains('liked');
+  const countEl = btn.querySelector('.like-count');
+  const count = parseInt(countEl.textContent)||0;
+  
+  if(isLiked){
+    btn.classList.remove('liked');
+    countEl.textContent = Math.max(0, count-1);
+    await db.from('review_likes').delete().eq('review_id',reviewId).eq('user_id',userId);
+  } else {
+    btn.classList.add('liked');
+    countEl.textContent = count+1;
+    await db.from('review_likes').upsert({review_id:reviewId, user_id:userId});
+  }
+}
+window.toggleLike = toggleLike;
+
+async function getLikesForReviews(reviewIds){
+  if(!reviewIds.length) return {};
+  try{
+    const{data} = await db.from('review_likes').select('review_id, user_id').in('review_id', reviewIds);
+    const userId = window._session?.user?.id || localStorage.getItem('benchmark-username');
+    const map = {};
+    (data||[]).forEach(l=>{
+      if(!map[l.review_id]) map[l.review_id]={count:0, liked:false};
+      map[l.review_id].count++;
+      if(l.user_id===userId) map[l.review_id].liked=true;
+    });
+    return map;
+  }catch(e){return {};}
+}
+
+// ── CLASSEMENT ─────────────────────────────────────────
+async function renderLeaderboard(){
+  const container = document.getElementById('leaderboard-container');
+  if(!container) return;
+  container.innerHTML = '<div class="leaderboard-title">🏆 Top contributeurs</div><div style="font-size:12px;color:var(--muted);padding:8px 0;">Chargement...</div>';
+  
+  try{
+    const myName = localStorage.getItem('benchmark-username')||'';
+    
+    // Charger tous les bancs et avis pour calculer les scores
+    const{data:allBenches} = await db.from('benches').select('created_by');
+    const{data:allReviews} = await db.from('reviews').select('author');
+    
+    // Calculer les scores par utilisateur
+    const scores = {};
+    (allBenches||[]).forEach(b=>{
+      if(!b.created_by) return;
+      scores[b.created_by] = (scores[b.created_by]||0) + 2; // 2 pts par banc
+    });
+    (allReviews||[]).forEach(r=>{
+      if(!r.author) return;
+      scores[r.author] = (scores[r.author]||0) + 1; // 1 pt par avis
+    });
+    
+    // Trier par score
+    const ranking = Object.entries(scores)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,10);
+    
+    const myRank = Object.entries(scores)
+      .sort((a,b)=>b[1]-a[1])
+      .findIndex(([name])=>name===myName) + 1;
+    
+    const rankIcons = ['🥇','🥈','🥉'];
+    const rankClasses = ['gold','silver','bronze'];
+    
+    const rows = ranking.map(([name, score], i) => {
+      const isMe = name === myName;
+      const initials = name.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+      const rankDisplay = rankIcons[i] || (i+1);
+      return '<div class="leaderboard-row">'
+        +'<div class="leaderboard-rank '+(rankClasses[i]||'')+'">'+rankDisplay+'</div>'
+        +'<div class="leaderboard-av">'+initials+'</div>'
+        +'<div class="leaderboard-name'+(isMe?' me':'')+'">'+name+(isMe?' (moi)':'')+'</div>'
+        +'<div class="leaderboard-score">'+score+' pts</div>'
+        +'</div>';
+    }).join('');
+    
+    const myRankHtml = myRank > 0 && myRank > 10
+      ? '<div class="leaderboard-my-rank">Ton rang : #'+myRank+' · '+(scores[myName]||0)+' pts</div>'
+      : '';
+    
+    container.innerHTML = '<div class="leaderboard-title">🏆 Top contributeurs</div>'
+      + rows
+      + myRankHtml;
+      
+  }catch(e){
+    console.error('leaderboard error', e);
+    container.innerHTML = '<div class="leaderboard-title">🏆 Top contributeurs</div><div style="font-size:12px;color:var(--muted);">Erreur de chargement</div>';
+  }
+}
+window.renderLeaderboard = renderLeaderboard;
 
 // ── UTILS ─────────────────────────────────────────────
 function showToast(msg){
