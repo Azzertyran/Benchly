@@ -629,6 +629,7 @@ window.goPage=goPage;
       <div class="stat-item" onclick="openContrib('contributions');setTimeout(()=>switchContribTab('reviews',document.querySelectorAll('.contrib-tab')[1]),100)" style="cursor:pointer;"><div class="stat-num" id="s-avis">3</div><div class="stat-label" data-i18n="reviewsPosted">Avis postés</div></div>
       <div class="stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;"><div class="stat-num" id="s-favs">0</div><div class="stat-label" data-i18n="favoritesStats">Favoris</div></div>
     </div>
+      <div class="badges-section" id="badges-container"></div>
     <div class="menu-section">
       <div class="menu-lbl">Mon compte</div>
       <div class="menu-card">
@@ -1100,6 +1101,8 @@ async function initAuth(){
     const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
     localStorage.setItem('benchmark-username',name);
     applyUsername(name,photo);
+    // Charger les badges avec le bon author (created_by = name dans Supabase)
+    setTimeout(()=>{ if(typeof renderBadges==='function') renderBadges(name); }, 500);
     const btn=document.getElementById('auth-btn');
     if(btn){btn.textContent='Se déconnecter';}
     const sub=document.getElementById('profile-sub');
@@ -1236,8 +1239,6 @@ window.addEventListener('DOMContentLoaded',async()=>{
   applyI18n();
   await loadFavsFromSupabase();
   // Charger les badges si connecté
-  const _initAuthor = localStorage.getItem('benchmark-username')||'';
-  if(_initAuthor && typeof renderBadges === 'function') renderBadges(_initAuthor);
 
   // Valider avec Entrée
   document.getElementById('welcome-name').addEventListener('keydown', e=>{
