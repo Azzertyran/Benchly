@@ -1142,9 +1142,22 @@ async function loginWithGoogle(){
 
 async function logout(){
   await db.auth.signOut();
-  localStorage.removeItem('benchmark-username');
-  window._justLoggedOut = true;
-  applyUsername('Anonyme', null);
+  sessionStorage.setItem("bm-logged-out","1");
+  window._session = null;
+  applyUsername('?', null);
+  // Reset stats
+  ['s-bancs','s-avis','s-favs'].forEach(function(id){
+    var el=document.getElementById(id);if(el)el.textContent='0';
+  });
+  var mc=document.getElementById('mi-contrib');if(mc)mc.textContent='';
+  var mf=document.getElementById('mi-favs');if(mf)mf.textContent='';
+  // Reset badges et classement
+  var bc=document.getElementById('badges-container');if(bc)bc.innerHTML='';
+  var lc=document.getElementById('leaderboard-container');if(lc)lc.innerHTML='';
+  // Reset notifs
+  var nb=document.getElementById('notif-badge');if(nb)nb.classList.remove('show');
+  var ns=document.getElementById('notif-strip');if(ns)ns.classList.remove('show');
+  // Reset profil
   const btn=document.getElementById('auth-btn');
   if(btn){btn.textContent='Se connecter avec Google';}
   const sub=document.getElementById('profile-sub');
@@ -1192,10 +1205,11 @@ async function initAuth(){
   } else {
     window._session=null;
     const saved=localStorage.getItem('benchmark-username');
-    if(saved){
-      applyUsername(saved,null);
+    if(saved || sessionStorage.getItem("bm-logged-out")){
+      // Utilisateur connu ou vient de se déconnecter - pas de modal
+      if(saved) applyUsername(saved,null);
     } else {
-      if(!window._justLoggedOut) setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
+      setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
     }
   }
   db.auth.onAuthStateChange(function(_event,session){
@@ -1211,7 +1225,7 @@ async function initAuth(){
       const sub=document.getElementById('profile-sub');
       if(sub) sub.textContent='Connecté · '+user.email;
       document.getElementById('welcome-modal').classList.remove('show');
-      window._justLoggedOut = false;
+      sessionStorage.removeItem("bm-logged-out");
     }
   });
 }
