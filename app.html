@@ -1173,75 +1173,61 @@ function handleAuthBtn(){
 async function initAuth(){
   const{data:{session}}=await db.auth.getSession();
   window._session=session;
+
   if(session&&session.user){
-    const user=session.user;
-    const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
-    const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
-    localStorage.setItem('benchmark-username',name);
-    applyUsername(name,photo);
-    // Charger les badges avec le bon author (created_by = name dans Supabase)
-    setTimeout(()=>{
-      if(typeof renderBadges==='function') renderBadges(name);
-      if(typeof renderLeaderboard==='function') renderLeaderboard();
-    }, 500);
-    const btn=document.getElementById('auth-btn');
-    if(btn){btn.textContent='Se déconnecter';}
-    const sub=document.getElementById('profile-sub');
-    if(sub) sub.textContent='Connecté · '+user.email;
-    document.getElementById('welcome-modal').classList.remove('show');
-    // Mode admin
-    window._isAdmin = user.email === 'pilipog49@gmail.com';
-    if(window._isAdmin){
-      const profName=document.getElementById('profile-name');
-      if(profName){
-        const badge=document.createElement('span');
-        badge.className='admin-badge';
-        badge.textContent='ADMIN';
-        profName.appendChild(badge);
-      }
-      const adminSection=document.getElementById('admin-section');
-      if(adminSection) adminSection.style.display='block';
-    }
+    _applyConnectedUser(session.user);
   } else {
     window._session=null;
-    const saved=localStorage.getItem('benchmark-username');
-    if(saved || sessionStorage.getItem("bm-logged-out")){
-      // Utilisateur connu ou vient de se déconnecter - pas de modal
-      if(saved) applyUsername(saved,null);
-    } else {
+    // Pas de session active - montrer la modal si premier visit
+    if(!sessionStorage.getItem("bm-logged-out") && !localStorage.getItem('benchmark-username')){
       setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
     }
   }
+
   db.auth.onAuthStateChange(function(_event,session){
     window._session=session;
     if(session&&session.user){
-      const user=session.user;
-      const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
-      const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
-      localStorage.setItem('benchmark-username',name);
-      applyUsername(name,photo);
-      const btn=document.getElementById('auth-btn');
-      if(btn){btn.textContent='Se déconnecter';}
-      const sub=document.getElementById('profile-sub');
-      if(sub) sub.textContent='Connecté · '+user.email;
-      document.getElementById('welcome-modal').classList.remove('show');
+      _applyConnectedUser(session.user);
       sessionStorage.removeItem("bm-logged-out");
-      // Recharger tout le profil après reconnexion
-      window._isAdmin = (user.email === "pilipog49@gmail.com");
-      // Afficher/masquer panneau admin
-      var adminSection = document.querySelector('.menu-section:last-child');
-      if(adminSection) adminSection.style.display = window._isAdmin ? '' : 'none';
-      // Recharger stats, badges, classement, notifs, favoris
-      setTimeout(function(){
-        if(typeof updateStats === 'function') updateStats();
-        if(typeof renderBadges === 'function') renderBadges(name);
-        if(typeof renderLeaderboard === 'function') renderLeaderboard();
-        if(typeof loadNotifications === 'function') loadNotifications();
-        if(typeof loadFavsFromSupabase === 'function') loadFavsFromSupabase();
-      }, 300);
     }
   });
 }
+
+function _applyConnectedUser(user){
+  const name=user.user_metadata&&user.user_metadata.full_name?user.user_metadata.full_name:user.email.split('@')[0];
+  const photo=user.user_metadata&&user.user_metadata.avatar_url?user.user_metadata.avatar_url:null;
+  localStorage.setItem('benchmark-username',name);
+  applyUsername(name,photo);
+  // Bouton déconnexion
+  const btn=document.getElementById('auth-btn');
+  if(btn) btn.textContent='Se d\u00e9connecter';
+  // Sous-titre
+  const sub=document.getElementById('profile-sub');
+  if(sub) sub.textContent='Connect\u00e9 \u00b7 '+user.email;
+  // Fermer modal
+  document.getElementById('welcome-modal').classList.remove('show');
+  // Admin
+  window._isAdmin=(user.email==='pilipog49@gmail.com');
+  const adminSection=document.getElementById('admin-section');
+  if(adminSection) adminSection.style.display=window._isAdmin?'block':'none';
+  if(window._isAdmin){
+    const profName=document.getElementById('profile-name');
+    if(profName&&!profName.querySelector('.admin-badge')){
+      const badge=document.createElement('span');
+      badge.className='admin-badge';badge.textContent='ADMIN';
+      profName.appendChild(badge);
+    }
+  }
+  // Charger données profil
+  setTimeout(function(){
+    if(typeof updateStats==='function') updateStats();
+    if(typeof renderBadges==='function') renderBadges(name);
+    if(typeof renderLeaderboard==='function') renderLeaderboard();
+    if(typeof loadNotifications==='function') loadNotifications();
+    if(typeof loadFavsFromSupabase==='function') loadFavsFromSupabase();
+  },300);
+}
+window._applyConnectedUser=_applyConnectedUser;
 
 function editUsername(){
   const current=localStorage.getItem('benchmark-username')||'';
