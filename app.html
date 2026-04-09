@@ -27,7 +27,7 @@
 
 html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sans',sans-serif;background:#dde3e8;-webkit-font-smoothing:antialiased;overflow:hidden;}
 #app{display:flex;flex-direction:column;height:100vh;height:100dvh;width:100%;background:var(--white);position:relative;overflow:hidden;}
-.page{position:absolute;inset:0;bottom:64px;overflow-y:auto;display:none;flex-direction:column;}
+.page{position:absolute;inset:0;bottom:64px;overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;}
 .page.active{display:flex;}
 .page::-webkit-scrollbar{display:none;}
 #page-map{background:#e8f0e4;}
@@ -244,7 +244,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .empty-state p{font-size:13px;line-height:1.6;color:var(--muted);}
 
 /* PROFILE */
-#page-profile{background:var(--sand);}
+#page-profile{background:var(--sand);overflow-x:hidden;}
 .profile-hero{background:linear-gradient(160deg,var(--blue-deep),var(--blue));padding:52px 20px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;}
 .profile-av{width:70px;height:70px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;color:white;margin-bottom:10px;border:3px solid rgba(255,255,255,.3);}
 .profile-name{font-family:'DM Serif Display',serif;font-size:20px;color:white;margin-bottom:2px;}
@@ -1131,7 +1131,7 @@ async function loginWithGoogle(){
   try{
     const{error}=await db.auth.signInWithOAuth({
       provider:'google',
-      options:{redirectTo:window.location.href}
+      options:{redirectTo:window.location.origin+'/app'}
     });
     if(error) throw error;
   }catch(e){
@@ -1172,6 +1172,13 @@ function handleAuthBtn(){
 }
 
 async function initAuth(){
+  // Détecter retour OAuth (hash contient access_token ou code)
+  if(window.location.hash && window.location.hash.includes('access_token')){
+    // Attendre que Supabase traite le token
+    await new Promise(r=>setTimeout(r,500));
+    // Nettoyer l'URL
+    history.replaceState(null,'',window.location.pathname);
+  }
   const{data:{session}}=await db.auth.getSession();
   window._session=session;
 
