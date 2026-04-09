@@ -2379,7 +2379,7 @@ function timeAgo(dateStr){
 }
 
 async function loadNotifications(){
-  const userId = window._session?.user?.email || localStorage.getItem('benchmark-username');
+  const userId = localStorage.getItem('benchmark-username') || window._session?.user?.email;
   if(!userId) return;
   try{
     const{data} = await db.from('notifications')
@@ -2429,7 +2429,7 @@ async function loadNotifications(){
 }
 
 async function markAllRead(){
-  const userId = window._session?.user?.email || localStorage.getItem('benchmark-username');
+  const userId = localStorage.getItem('benchmark-username') || window._session?.user?.email;
   if(!userId) return;
   try{
     await db.from('notifications').update({read_at:new Date().toISOString()})
