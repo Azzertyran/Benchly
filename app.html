@@ -1217,6 +1217,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   // Auth Google
   await initAuth();
   applyI18n();
+  await loadFavsFromSupabase();
 
   // Valider avec Entrée
   document.getElementById('welcome-name').addEventListener('keydown', e=>{
@@ -1470,7 +1471,21 @@ function saveFavIds(){
   const ids=benches.filter(b=>b.fav).map(b=>b.id);
   localStorage.setItem('bm-favs',JSON.stringify(ids));
 }
-function toggleFav(id){
+async function loadFavsFromSupabase(){
+  const userId = window._session?.user?.id || window._session?.user?.email;
+  if(!userId) return;
+  try{
+    const{data}=await db.from('favorites').select('bench_id').eq('user_id',userId);
+    if(data && data.length){
+      const ids = data.map(f=>f.bench_id);
+      localStorage.setItem('bm-favs', JSON.stringify(ids));
+      benches.forEach(b=>{ b.fav = ids.includes(b.id); });
+      renderFavorites();
+      updateStats();
+    }
+  }catch(e){console.error('loadFavs error',e);}
+}
+async function toggleFav(id){
   const b=benches.find(x=>x.id===id);if(!b)return;
   b.fav=!b.fav;
   saveFavIds();
@@ -1478,6 +1493,17 @@ function toggleFav(id){
   const act=document.getElementById('fav-act-btn');if(act)act.textContent=b.fav?'❤️ Favori':'⭐ Favori';
   renderFavorites();updateStats();
   showToast(b.fav?'❤️ Ajouté aux favoris':'Retiré des favoris');
+  // Sync Supabase si connecté
+  const userId = window._session?.user?.id || window._session?.user?.email;
+  if(userId){
+    try{
+      if(b.fav){
+        await db.from('favorites').upsert({user_id:userId, bench_id:id});
+      } else {
+        await db.from('favorites').delete().eq('user_id',userId).eq('bench_id',id);
+      }
+    }catch(e){console.error('toggleFav sync error',e);}
+  }
 }
 
 // ── FAVORITES ─────────────────────────────────────────
@@ -1580,6 +1606,7 @@ async function submitReview(){
     if(Object.keys(upd).length) await db.from('benches').update(upd).eq('id',b.id);
     closeReview();
     await loadBenches();
+    await loadFavsFromSupabase();
     const updated=benches.find(x=>x.id===b.id);
     if(updated)openBench(updated);
     showToast('\u2713 Avis de '+authorRaw+' publié !');
@@ -2219,6 +2246,7 @@ window.setStar=setStar;
 window.toggleFav=toggleFav;
 window.getFavIds=getFavIds;
 window.saveFavIds=saveFavIds;
+window.loadFavsFromSupabase=loadFavsFromSupabase;
 window.goPage=goPage;
 window.saveWelcomeName=saveWelcomeName;
 window.editUsername=editUsername;
