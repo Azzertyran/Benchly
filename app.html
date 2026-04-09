@@ -2280,7 +2280,7 @@ async function toggleLike(reviewId, btn){
     // Notifier l'auteur de l'avis
     try{
       const{data:rev} = await db.from('reviews').select('author').eq('id',reviewId).single();
-      if(rev) createNotification(rev.author, '👍', (localStorage.getItem('benchmark-username')||'Quelqu'un')+' a liké ton avis');
+      if(rev) createNotification(rev.author, '👍', (localStorage.getItem('benchmark-username')||'Quelqu’un')+' a liké ton avis');
     }catch(e){}
   }
 }
