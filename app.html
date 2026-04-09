@@ -1143,6 +1143,7 @@ async function loginWithGoogle(){
 async function logout(){
   await db.auth.signOut();
   localStorage.removeItem('benchmark-username');
+  window._justLoggedOut = true;
   applyUsername('Anonyme', null);
   const btn=document.getElementById('auth-btn');
   if(btn){btn.textContent='Se connecter avec Google';}
@@ -1194,7 +1195,7 @@ async function initAuth(){
     if(saved){
       applyUsername(saved,null);
     } else {
-      setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
+      if(!window._justLoggedOut) setTimeout(()=>document.getElementById('welcome-modal').classList.add('show'),800);
     }
   }
   db.auth.onAuthStateChange(function(_event,session){
@@ -1210,6 +1211,7 @@ async function initAuth(){
       const sub=document.getElementById('profile-sub');
       if(sub) sub.textContent='Connecté · '+user.email;
       document.getElementById('welcome-modal').classList.remove('show');
+      window._justLoggedOut = false;
     }
   });
 }
