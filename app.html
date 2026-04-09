@@ -1226,6 +1226,19 @@ async function initAuth(){
       if(sub) sub.textContent='Connecté · '+user.email;
       document.getElementById('welcome-modal').classList.remove('show');
       sessionStorage.removeItem("bm-logged-out");
+      // Recharger tout le profil après reconnexion
+      window._isAdmin = (user.email === "pilipog49@gmail.com");
+      // Afficher/masquer panneau admin
+      var adminSection = document.querySelector('.menu-section:last-child');
+      if(adminSection) adminSection.style.display = window._isAdmin ? '' : 'none';
+      // Recharger stats, badges, classement, notifs, favoris
+      setTimeout(function(){
+        if(typeof updateStats === 'function') updateStats();
+        if(typeof renderBadges === 'function') renderBadges(name);
+        if(typeof renderLeaderboard === 'function') renderLeaderboard();
+        if(typeof loadNotifications === 'function') loadNotifications();
+        if(typeof loadFavsFromSupabase === 'function') loadFavsFromSupabase();
+      }, 300);
     }
   });
 }
