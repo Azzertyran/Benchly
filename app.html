@@ -2412,7 +2412,7 @@ async function loadNotifications(){
     const body = document.getElementById('notif-panel-body');
     if(body){
       if(!notifs.length){
-        body.innerHTML = '<div class="notif-empty">Aucune notification pour l'instant</div>';
+        body.innerHTML = '<div class="notif-empty">Aucune notification pour l’instant</div>';
       } else {
         body.innerHTML = notifs.map(n=>'<div class="notif-item'+(n.read_at?'':' unread')+'">'
           +'<div class="notif-item-icon">'+n.icon+'</div>'
