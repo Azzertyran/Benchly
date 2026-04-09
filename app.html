@@ -1470,9 +1470,25 @@ function openBench(b){
         <button class="act-btn" style="color:var(--muted)" onclick="reportBench(window._cb)">🚩 Signaler</button>
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
-      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
+      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card" data-review-id="${a.id}"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
     </div>`;
   mapInstance.panTo([b.lat,b.lng]);
+  // Charger les likes depuis Supabase
+  const reviewIds = b.avis.filter(a=>a.id).map(a=>a.id);
+  if(reviewIds.length){
+    getLikesForReviews(reviewIds).then(likesMap=>{
+      const userId = window._session?.user?.id || localStorage.getItem('benchmark-username');
+      document.querySelectorAll('.review-like-btn').forEach(btn=>{
+        const reviewId = btn.closest('.review-card')?.dataset?.reviewId;
+        if(!reviewId) return;
+        const data = likesMap[reviewId];
+        if(data){
+          btn.querySelector('.like-count').textContent = data.count;
+          if(data.liked) btn.classList.add('liked');
+        }
+      });
+    });
+  }
 }
 
 function openItineraire(lat,lng){
