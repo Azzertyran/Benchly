@@ -555,6 +555,29 @@ function setLang(lang){
   if(typeof updateCountPill==="function")updateCountPill();
 }
 window.setLang=setLang;
+
+var _deferredPromptApp = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredPromptApp = e;
+});
+
+function installAppFromAbout(){
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if(isStandalone){ showToast('L’app est déjà installée !'); return; }
+  if(isIOS){
+    showToast('Safari → bouton Partager 📤 → Sur l’écran d’accueil');
+    return;
+  }
+  if(_deferredPromptApp){
+    _deferredPromptApp.prompt();
+    _deferredPromptApp.userChoice.then(function(){ _deferredPromptApp = null; });
+  } else {
+    showToast('Menu du navigateur → Installer l’app');
+  }
+}
+window.installAppFromAbout = installAppFromAbout;
 function applyI18n(){
   document.querySelectorAll("[data-i18n]").forEach(function(el){
     el.textContent=i18n(el.dataset.i18n);
@@ -1917,6 +1940,10 @@ function openContrib(type){
     ab += '<div style="background:var(--blue-light);border-radius:var(--rs);padding:14px;margin-top:8px;">';
     ab += '<div style="font-size:12px;color:var(--blue-mid);font-weight:500;margin-bottom:6px;">Un bug ? Une suggestion ?</div>';
     ab += '<a href="mailto:pilipog49@gmail.com" style="font-size:14px;color:var(--blue);font-weight:500;text-decoration:none;">pilipog49@gmail.com</a></div>';
+    ab += '<div style="background:var(--sand);border-radius:var(--rs);padding:14px;margin-top:10px;text-align:center;">';
+    ab += '<div style="font-size:12px;color:var(--muted);margin-bottom:8px;">Installer l’app sur votre téléphone</div>';
+    ab += '<button onclick="installAppFromAbout()" style="background:var(--blue);color:white;border:none;border-radius:50px;padding:10px 20px;font-family:\'DM Sans\',sans-serif;font-size:14px;cursor:pointer;">⬇️ Installer BenchMark</button>';
+    ab += '</div>';
     ab += '</div></div>';
     document.getElementById('contrib-body').innerHTML = ab;
   } else if(type === 'notifications'){
