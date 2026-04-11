@@ -373,13 +373,13 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
     <span class="footer-logo-text">BenchMark</span>
   </a>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#b0c0d9dcd9c0dfd78489f0d7ddd1d9dc9ed3dfdd" class="footer-link">✉️ <span class="__cf_email__" data-cfemail="b6c6dfdadfc6d9d1828ff6d1dbd7dfda98d5d9db">[email&#160;protected]</span></a>
+    <a href="mailto:pilipog49@gmail.com" class="footer-link">✉️ pilipog49@gmail.com</a>
     <a href="https://x.com/BenchMapp" target="_blank" class="footer-link">𝕏 @BenchMapp</a>
   </div>
   <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
 </footer>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 // Nav scroll effect
 window.addEventListener('scroll', () => {
@@ -461,95 +461,13 @@ async function loadDemoMap(){
         <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
         <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
-        <a href="/app" style"display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#378ADD;color:white;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;text-decoration:none;font-weight:500;">Voir le banc →</a>
+        <a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l'app →</a>
       </div>
-    `);
+    `, {maxWidth:220});
   });
 }
 
-// Carte démo
-const demoMap = L.map('demo-map', {
-  zoomControl: true,
-  attributionControl: false,
-  scrollWheelZoom: false
-}).setView([46.5, 2.5], 6);
-
-L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB', {
-  maxZoom: 20
-}).addTo(demoMap);
-
 loadDemoMap();
-
-// Nav scroll
-window.addEventListener('scroll', () => {
-  const nav = document.querySelector('nav');
-  if (window.scrollY > 20) {
-    nav.style.background = 'rgba(255,255,255,0.95)';
-    nav.style.boxShadow = '0 2px 20px rgba(0,0,0,0.08)';
-  } else {
-    nav.style.background = 'transparent';
-    nav.style.boxShadow = 'none';
-  }
-});
 </script>
-
-<!-- MODAL INSTALL -->
-<div id="ios-modal" onclick="if(event.target===this)closeIosModal()" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.6);display:none;align-items:flex-end;justify-content:center;">
-  <div style="background:white;border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:28px 24px 40px;text-align:center;">
-    <h3 style="font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:8px;color:#1a1a1a;">Installer BenchMark</h3>
-    <p style="font-size:14px;color:#666;line-height:1.6;margin-bottom:20px;">Guide selon votre appareil</p>
-    <div id="ios-steps-content" style="text-align:left;background:#f7f5f0;border-radius:12px;padding:16px;margin-bottom:20px;"></div>
-    <button onclick="closeIosModal()" style="width:100%;padding:12px;background:#378ADD;color:white;border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:15px;cursor:pointer;">Compris !</button>
-  </div>
-</div>
-
-<script>
-var _dp = null;
-window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); _dp = e; });
-
-function installApp(){
-  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  var android = /android/i.test(navigator.userAgent);
-  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if(standalone){ alert("L’app est déjà installée !"); return; }
-  if(_dp){ _dp.prompt(); _dp.userChoice.then(function(){ _dp = null; }); return; }
-  var steps = document.getElementById('ios-steps-content');
-  if(ios){
-    steps.innerHTML = '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><span>Ouvrez dans <strong>Safari</strong></span></div>'
-      +'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><span>Bouton <strong>Partager</strong> en bas</span></div>'
-      +'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><span><strong>"Sur l’écran d’accueil"</strong></span></div>'
-      +'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div><span><strong>Ajouter</strong></span></div>';
-  } else if(android){
-    steps.innerHTML = '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><span>Menu <strong>⋮</strong> dans Chrome</span></div>'
-      +'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><span><strong>"Ajouter à l’écran d’accueil"</strong></span></div>'
-      +'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div><span><strong>Ajouter</strong></span></div>';
-  } else {
-    steps.innerHTML = '<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div><span>Icône <strong>⬕</strong> dans la barre Chrome</span></div>'
-      +'<div style="display:flex;align-items:center;gap:12px;padding:8px 0;font-size:14px;"><div style="width:24px;height:24px;border-radius:50%;background:#378ADD;color:white;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div><span>Ou menu ⋮ → <strong>Installer BenchMark</strong></span></div>';
-  }
-  document.getElementById('ios-modal').style.display = 'flex';
-}
-function closeIosModal(){ document.getElementById('ios-modal').style.display = 'none'; }
-</script>
-
-<footer>
-  <a class="footer-logo" href="#">
-    <div class="footer-logo-mark">
-      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-        <rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/>
-        <rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
-        <rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
-        <rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/>
-      </svg>
-    </div>
-    <span class="footer-logo-text">BenchMark</span>
-  </a>
-  <div class="footer-links">
-    <a href="mailto:pilipog49@gmail.com" class="footer-link">✉️ pilipog49@gmail.com</a>
-    <a href="https://x.com/BenchMapp" target="_blank" class="footer-link">𝕏 @BenchMapp</a>
-  </div>
-  <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
-</footer>
-
 </body>
 </html>
