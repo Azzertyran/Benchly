@@ -137,12 +137,6 @@ h1 em{font-style:italic;color:var(--sky);}
 .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;}
 
 /* ── FOOTER ── */
-.stats-bar{padding:50px 32px;background:var(--white);border-top:1px solid rgba(0,0,0,.06);}
-.stats-bar-inner{display:flex;justify-content:center;gap:64px;flex-wrap:wrap;}
-.stat-item-land{text-align:center;}
-.stat-num-land{font-family:'DM Serif Display',serif;font-size:44px;color:var(--blue);line-height:1;display:block;}
-.stat-lbl-land{font-size:14px;color:var(--muted);margin-top:4px;}
-@media(max-width:600px){.stats-bar-inner{gap:32px;}.stat-num-land{font-size:36px;}}
 footer{background:var(--ink);padding:40px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
 .footer-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
 .footer-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;transition:color .2s;}
@@ -386,23 +380,6 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
 </section>
 
 <!-- FOOTER -->
-<section class="stats-bar">
-  <div class="stats-bar-inner">
-    <div class="stat-item-land">
-      <span class="stat-num-land" id="stat-bancs">0</span>
-      <div class="stat-lbl-land">bancs répertoriés</div>
-    </div>
-    <div class="stat-item-land">
-      <span class="stat-num-land" id="stat-avis">0</span>
-      <div class="stat-lbl-land">avis partagés</div>
-    </div>
-    <div class="stat-item-land">
-      <span class="stat-num-land">100%</span>
-      <div class="stat-lbl-land">gratuit</div>
-    </div>
-  </div>
-</section>
-
 <footer>
   <a class="footer-logo" href="#">
     <div class="footer-logo-mark">
@@ -431,7 +408,7 @@ window.addEventListener('scroll', () => {
 
 // Carte démo Leaflet
 const demoMap = L.map('demo-map', {zoomControl:true, attributionControl:false}).setView([47.474,-0.554],13);
-L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{maxZoom:20,attribution:''}).addTo(demoMap);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(demoMap);
 
 // Charger les bancs depuis Supabase
 const SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
@@ -504,14 +481,13 @@ async function loadDemoMap(){
         <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
         <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
-        <a href="/app" style" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#378ADD;color:white;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;text-decoration:none;font-weight:500;">Voir le banc</a>
+        <a href="/app" style" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#378ADD;color:white;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;text-decoration:none;font-weight:500;">Ouvrir la fiche</a>
         </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- FOOTER -->
 <footer>
   <a class="footer-logo" href="#">
     <div class="footer-logo-mark">
@@ -531,7 +507,7 @@ async function loadDemoMap(){
   <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
 </footer>
 
-<!-- MODAL IOS INSTALL -->
+<!-- MODAL INSTALL -->
 <div id="ios-modal" onclick="if(event.target===this)closeIosModal()">
   <div class="ios-card">
     <h3>Installer BenchMark</h3>
@@ -544,96 +520,79 @@ async function loadDemoMap(){
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-var _dp = null;
-window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); _dp = e; });
-
-function installApp(){
-  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
-  var android = /android/i.test(navigator.userAgent);
-  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if(standalone){ alert("L’app est déjà installée !"); return; }
-  if(_dp){ _dp.prompt(); _dp.userChoice.then(function(){ _dp=null; }); return; }
-  var steps = document.getElementById('ios-steps-content');
-  if(ios){
-    steps.innerHTML = '<div class="ios-step"><div class="ios-step-num">1</div><span>Ouvrez <strong>benchmap.app</strong> dans <strong>Safari</strong></span></div>'
-      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Appuyez sur <strong>Partager</strong> en bas</span></div>'
-      +'<div class="ios-step"><div class="ios-step-num">3</div><span>Appuyez sur <strong>"Sur l’écran d’accueil"</strong></span></div>'
-      +'<div class="ios-step"><div class="ios-step-num">4</div><span>Appuyez sur <strong>Ajouter</strong></span></div>';
-  } else if(android){
-    steps.innerHTML = '<div class="ios-step"><div class="ios-step-num">1</div><span>Menu <strong>⋮</strong> en haut à droite dans Chrome</span></div>'
-      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Appuyez sur <strong>"Ajouter à l’écran d’accueil"</strong></span></div>'
-      +'<div class="ios-step"><div class="ios-step-num">3</div><span>Appuyez sur <strong>Ajouter</strong></span></div>';
-  } else {
-    steps.innerHTML = '<div class="ios-step"><div class="ios-step-num">1</div><span>Cliquez sur <strong>⬕</strong> dans la barre d’adresse Chrome</span></div>'
-      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Ou menu <strong>⋮</strong> → <strong>Installer BenchMark</strong></span></div>';
-  }
-  document.getElementById('ios-modal').classList.add('show');
-}
-function closeIosModal(){ document.getElementById('ios-modal').classList.remove('show'); }
-
-// Nav scroll effect
+// Nav scroll
 window.addEventListener('scroll',function(){
   var nav=document.querySelector('nav');
   if(window.scrollY>20){nav.style.background='rgba(255,255,255,.95)';nav.style.boxShadow='0 2px 20px rgba(0,0,0,.08)';}
   else{nav.style.background='transparent';nav.style.boxShadow='none';}
 });
 
-// Demo map
+// Install PWA
+var _dp=null;
+window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();_dp=e;});
+function installApp(){
+  var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
+  var android=/android/i.test(navigator.userAgent);
+  var standalone=window.matchMedia('(display-mode: standalone)').matches||window.navigator.standalone;
+  if(standalone){alert("L’app est déjà installée !");return;}
+  if(_dp){_dp.prompt();_dp.userChoice.then(function(){_dp=null;});return;}
+  var steps=document.getElementById('ios-steps-content');
+  if(ios){
+    steps.innerHTML='<div class="ios-step"><div class="ios-step-num">1</div><span>Ouvrez <strong>benchmap.app</strong> dans <strong>Safari</strong></span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Appuyez sur <strong>Partager</strong> en bas</span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">3</div><span><strong>"Sur l’écran d’accueil"</strong></span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">4</div><span><strong>Ajouter</strong></span></div>';
+  } else if(android){
+    steps.innerHTML='<div class="ios-step"><div class="ios-step-num">1</div><span>Menu <strong>⋮</strong> en haut à droite dans Chrome</span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">2</div><span><strong>"Ajouter à l’écran d’accueil"</strong></span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">3</div><span><strong>Ajouter</strong></span></div>';
+  } else {
+    steps.innerHTML='<div class="ios-step"><div class="ios-step-num">1</div><span>Cliquez sur <strong>⬕</strong> dans la barre d’adresse Chrome</span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Ou menu ⋮ → <strong>Installer BenchMark</strong></span></div>';
+  }
+  document.getElementById('ios-modal').classList.add('show');
+}
+function closeIosModal(){document.getElementById('ios-modal').classList.remove('show');}
+
+// Supabase + carte + stats
 var SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzNDM3NjksImV4cCI6MjA1ODkxOTc2OX0.p9CFnHCXmx-e-l5FsI5lFNavOhaTdPgb4G4o3GfTdIM';
-// Charger les stats depuis Supabase
-(async function(){
-  try{
-    var db2 = supabase.createClient(
-      'https://utcaqpnoupizlfzxppwt.supabase.co',
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzNDM3NjksImV4cCI6MjA1ODkxOTc2OX0.p9CFnHCXmx-e-l5FsI5lFNavOhaTdPgb4G4o3GfTdIM'
-    );
-    var r1 = await db2.from('benches').select('id', {count:'exact',head:true});
-    var r2 = await db2.from('reviews').select('id', {count:'exact',head:true});
-    var nBancs = r1.count || 0;
-    var nAvis = r2.count || 0;
-    
-    function animCount(el, target){
-      var start = 0;
-      var duration = 1500;
-      var step = target / (duration / 16);
-      var timer = setInterval(function(){
-        start += step;
-        if(start >= target){ start = target; clearInterval(timer); }
-        el.textContent = Math.floor(start);
-      }, 16);
-    }
-    
-    // Lancer animation quand la section est visible
-    var observer = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          animCount(document.getElementById('stat-bancs'), nBancs);
-          animCount(document.getElementById('stat-avis'), nAvis);
-
-          observer.disconnect();
-        }
-      });
-    }, {threshold: 0.3});
-    
-    var statsEl = document.querySelector('.stats-bar');
-    if(statsEl) observer.observe(statsEl);
-  }catch(e){ console.error('stats error', e); }
-})();
 
 document.addEventListener('DOMContentLoaded',function(){
   var db=supabase.createClient(SUPA_URL,SUPA_KEY);
-  var map=L.map('demo-map',{zoomControl:true,attributionControl:false,dragging:false,scrollWheelZoom:false}).setView([47.47,-0.55],13);
+
+  // Carte démo
+  var map=L.map('demo-map',{zoomControl:true,attributionControl:false,dragging:false,scrollWheelZoom:false}).setView([47.474,-0.554],13);
   L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{maxZoom:20}).addTo(map);
+  
+  // Charger les bancs sur la carte démo
   db.from('benches').select('*').then(function(res){
-    var benches=res.data||[];
-    benches.forEach(function(b){
+    (res.data||[]).forEach(function(b){
       if(!b.lat||!b.lng) return;
       var color=b.rating>=4.7?'#0C447C':b.rating>=4?'#378ADD':b.rating>=3?'#1D9E75':b.rating>=2.5?'#F5A623':'#E24B4A';
-      var svg='<svg width="32" height="46" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="'+color+'"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>';
-      var icon=L.divIcon({html:svg,className:'',iconSize:[32,46],iconAnchor:[16,46]});
+      var svg='<svg width="28" height="40" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="'+color+'"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>';
+      var icon=L.divIcon({html:svg,className:'',iconSize:[28,40],iconAnchor:[14,40]});
       L.marker([b.lat,b.lng],{icon:icon}).addTo(map);
     });
+  });
+
+  // Stats animées
+  function animCount(el,target){
+    var start=0;var step=target/60;
+    var timer=setInterval(function(){
+      start+=step;
+      if(start>=target){start=target;clearInterval(timer);}
+      el.textContent=Math.floor(start);
+    },16);
+  }
+
+  db.from('benches').select('id',{count:'exact',head:true}).then(function(r){
+    var el=document.getElementById('stat-benches');
+    if(el&&r.count) animCount(el,r.count);
+  });
+  db.from('reviews').select('id',{count:'exact',head:true}).then(function(r){
+    var el=document.getElementById('stat-reviews');
+    if(el&&r.count) animCount(el,r.count);
   });
 });
 </script>
