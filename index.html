@@ -137,6 +137,12 @@ h1 em{font-style:italic;color:var(--sky);}
 .cta-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative;}
 
 /* ── FOOTER ── */
+.stats-bar{padding:50px 32px;background:var(--white);border-top:1px solid rgba(0,0,0,.06);}
+.stats-bar-inner{display:flex;justify-content:center;gap:64px;flex-wrap:wrap;}
+.stat-item-land{text-align:center;}
+.stat-num-land{font-family:'DM Serif Display',serif;font-size:44px;color:var(--blue);line-height:1;display:block;}
+.stat-lbl-land{font-size:14px;color:var(--muted);margin-top:4px;}
+@media(max-width:600px){.stats-bar-inner{gap:32px;}.stat-num-land{font-size:36px;}}
 footer{background:var(--ink);padding:40px 32px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;}
 .footer-links{display:flex;gap:20px;align-items:center;flex-wrap:wrap;}
 .footer-link{color:rgba(255,255,255,.6);text-decoration:none;font-size:13px;transition:color .2s;}
@@ -380,6 +386,23 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
 </section>
 
 <!-- FOOTER -->
+<section class="stats-bar">
+  <div class="stats-bar-inner">
+    <div class="stat-item-land">
+      <span class="stat-num-land" id="stat-bancs">0</span>
+      <div class="stat-lbl-land">bancs répertoriés</div>
+    </div>
+    <div class="stat-item-land">
+      <span class="stat-num-land" id="stat-avis">0</span>
+      <div class="stat-lbl-land">avis partagés</div>
+    </div>
+    <div class="stat-item-land">
+      <span class="stat-num-land">100%</span>
+      <div class="stat-lbl-land">gratuit</div>
+    </div>
+  </div>
+</section>
+
 <footer>
   <a class="footer-logo" href="#">
     <div class="footer-logo-mark">
@@ -393,7 +416,7 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
     <span class="footer-logo-text">BenchMark</span>
   </a>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#e4948d888d948b83d0dda48389858d88ca878b89" class="footer-link">✉️ <span class="__cf_email__" data-cfemail="4b3b2227223b242c7f720b2c262a222765282426">[email&#160;protected]</span></a>
+    <a href="mailto:pilipog49@gmail.com" class="footer-link">✉️ pilipog49@gmail.com</a>
     <a href="https://x.com/BenchMapp" target="_blank" class="footer-link">𝕏 @BenchMapp</a>
   </div>
   <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
@@ -408,7 +431,7 @@ window.addEventListener('scroll', () => {
 
 // Carte démo Leaflet
 const demoMap = L.map('demo-map', {zoomControl:true, attributionControl:false}).setView([47.474,-0.554],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(demoMap);
+L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{maxZoom:20,attribution:''}).addTo(demoMap);
 
 // Charger les bancs depuis Supabase
 const SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
@@ -558,6 +581,46 @@ window.addEventListener('scroll',function(){
 // Demo map
 var SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
 var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzNDM3NjksImV4cCI6MjA1ODkxOTc2OX0.p9CFnHCXmx-e-l5FsI5lFNavOhaTdPgb4G4o3GfTdIM';
+// Charger les stats depuis Supabase
+(async function(){
+  try{
+    var db2 = supabase.createClient(
+      'https://utcaqpnoupizlfzxppwt.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzNDM3NjksImV4cCI6MjA1ODkxOTc2OX0.p9CFnHCXmx-e-l5FsI5lFNavOhaTdPgb4G4o3GfTdIM'
+    );
+    var r1 = await db2.from('benches').select('id', {count:'exact',head:true});
+    var r2 = await db2.from('reviews').select('id', {count:'exact',head:true});
+    var nBancs = r1.count || 0;
+    var nAvis = r2.count || 0;
+    
+    function animCount(el, target){
+      var start = 0;
+      var duration = 1500;
+      var step = target / (duration / 16);
+      var timer = setInterval(function(){
+        start += step;
+        if(start >= target){ start = target; clearInterval(timer); }
+        el.textContent = Math.floor(start);
+      }, 16);
+    }
+    
+    // Lancer animation quand la section est visible
+    var observer = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          animCount(document.getElementById('stat-bancs'), nBancs);
+          animCount(document.getElementById('stat-avis'), nAvis);
+
+          observer.disconnect();
+        }
+      });
+    }, {threshold: 0.3});
+    
+    var statsEl = document.querySelector('.stats-bar');
+    if(statsEl) observer.observe(statsEl);
+  }catch(e){ console.error('stats error', e); }
+})();
+
 document.addEventListener('DOMContentLoaded',function(){
   var db=supabase.createClient(SUPA_URL,SUPA_KEY);
   var map=L.map('demo-map',{zoomControl:true,attributionControl:false,dragging:false,scrollWheelZoom:false}).setView([47.47,-0.55],13);
