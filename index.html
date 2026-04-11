@@ -481,4 +481,98 @@ async function loadDemoMap(){
         <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
         <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
-        <a href="/app" style
+        <a href="/app" style" style="display:inline-flex;align-items:center;gap:8px;padding:10px 18px;background:#378ADD;color:white;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:13px;text-decoration:none;font-weight:500;">Voir le banc</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <a class="footer-logo" href="#">
+    <div class="footer-logo-mark">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/>
+        <rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/>
+        <rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/>
+      </svg>
+    </div>
+    <span class="footer-logo-text">BenchMark</span>
+  </a>
+  <div class="footer-links">
+    <a href="mailto:pilipog49@gmail.com" class="footer-link">✉️ pilipog49@gmail.com</a>
+    <a href="https://x.com/BenchMapp" target="_blank" class="footer-link">𝕏 @BenchMapp</a>
+  </div>
+  <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
+</footer>
+
+<!-- MODAL IOS INSTALL -->
+<div id="ios-modal" onclick="if(event.target===this)closeIosModal()">
+  <div class="ios-card">
+    <h3>Installer BenchMark</h3>
+    <p>Guide d’installation selon votre appareil</p>
+    <div class="ios-steps" id="ios-steps-content"></div>
+    <button class="ios-close" onclick="closeIosModal()">Compris !</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+var _dp = null;
+window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); _dp = e; });
+
+function installApp(){
+  var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var android = /android/i.test(navigator.userAgent);
+  var standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if(standalone){ alert("L’app est déjà installée !"); return; }
+  if(_dp){ _dp.prompt(); _dp.userChoice.then(function(){ _dp=null; }); return; }
+  var steps = document.getElementById('ios-steps-content');
+  if(ios){
+    steps.innerHTML = '<div class="ios-step"><div class="ios-step-num">1</div><span>Ouvrez <strong>benchmap.app</strong> dans <strong>Safari</strong></span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Appuyez sur <strong>Partager</strong> en bas</span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">3</div><span>Appuyez sur <strong>"Sur l’écran d’accueil"</strong></span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">4</div><span>Appuyez sur <strong>Ajouter</strong></span></div>';
+  } else if(android){
+    steps.innerHTML = '<div class="ios-step"><div class="ios-step-num">1</div><span>Menu <strong>⋮</strong> en haut à droite dans Chrome</span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Appuyez sur <strong>"Ajouter à l’écran d’accueil"</strong></span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">3</div><span>Appuyez sur <strong>Ajouter</strong></span></div>';
+  } else {
+    steps.innerHTML = '<div class="ios-step"><div class="ios-step-num">1</div><span>Cliquez sur <strong>⬕</strong> dans la barre d’adresse Chrome</span></div>'
+      +'<div class="ios-step"><div class="ios-step-num">2</div><span>Ou menu <strong>⋮</strong> → <strong>Installer BenchMark</strong></span></div>';
+  }
+  document.getElementById('ios-modal').classList.add('show');
+}
+function closeIosModal(){ document.getElementById('ios-modal').classList.remove('show'); }
+
+// Nav scroll effect
+window.addEventListener('scroll',function(){
+  var nav=document.querySelector('nav');
+  if(window.scrollY>20){nav.style.background='rgba(255,255,255,.95)';nav.style.boxShadow='0 2px 20px rgba(0,0,0,.08)';}
+  else{nav.style.background='transparent';nav.style.boxShadow='none';}
+});
+
+// Demo map
+var SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
+var SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDMzNDM3NjksImV4cCI6MjA1ODkxOTc2OX0.p9CFnHCXmx-e-l5FsI5lFNavOhaTdPgb4G4o3GfTdIM';
+document.addEventListener('DOMContentLoaded',function(){
+  var db=supabase.createClient(SUPA_URL,SUPA_KEY);
+  var map=L.map('demo-map',{zoomControl:true,attributionControl:false,dragging:false,scrollWheelZoom:false}).setView([47.47,-0.55],13);
+  L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{maxZoom:20}).addTo(map);
+  db.from('benches').select('*').then(function(res){
+    var benches=res.data||[];
+    benches.forEach(function(b){
+      if(!b.lat||!b.lng) return;
+      var color=b.rating>=4.7?'#0C447C':b.rating>=4?'#378ADD':b.rating>=3?'#1D9E75':b.rating>=2.5?'#F5A623':'#E24B4A';
+      var svg='<svg width="32" height="46" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="'+color+'"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>';
+      var icon=L.divIcon({html:svg,className:'',iconSize:[32,46],iconAnchor:[16,46]});
+      L.marker([b.lat,b.lng],{icon:icon}).addTo(map);
+    });
+  });
+});
+</script>
+</body>
+</html>
