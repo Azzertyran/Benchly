@@ -46,6 +46,8 @@ h1 em{font-style:italic;color:var(--sky);}
 .btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25);}
 .btn-ghost{background:transparent;color:rgba(255,255,255,.8);border:1px solid rgba(255,255,255,.25);border-radius:50px;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;text-decoration:none;transition:all .15s;}
 .btn-ghost:hover{background:rgba(255,255,255,.08);color:white;}
+.btn-install{background:rgba(255,255,255,.15);color:white;border:1px solid rgba(255,255,255,.3);border-radius:50px;padding:16px 32px;font-family:'DM Sans',sans-serif;font-size:16px;cursor:pointer;transition:all .15s;backdrop-filter:blur(8px);}
+.btn-install:hover{background:rgba(255,255,255,.25);}
 .hero-scroll{position:absolute;bottom:32px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;color:rgba(255,255,255,.4);font-size:11px;letter-spacing:.1em;text-transform:uppercase;animation:fadeUp .6s .5s ease both;}
 .scroll-line{width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,.4),transparent);animation:scrollPulse 2s infinite;}
 @keyframes scrollPulse{0%,100%{transform:scaleY(1);}50%{transform:scaleY(.6);}}
@@ -188,6 +190,7 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
   <div class="hero-btns">
     <a class="btn-primary" href="/app">Découvrir les bancs</a>
     <a class="btn-ghost" href="#demo">Voir la démo</a>
+    <button class="btn-install" onclick="installApp()">⬇️ Installer l'app</button>
   </div>
   <div class="hero-scroll">
     <span>Découvrir</span>
@@ -379,7 +382,7 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
   <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
 </footer>
 
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 // Nav scroll effect
 window.addEventListener('scroll', () => {
@@ -461,13 +464,113 @@ async function loadDemoMap(){
         <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
         <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
         <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
-        <a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l'app →</a>
+        <a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l’app →</a>
       </div>
     `, {maxWidth:220});
   });
 }
 
 loadDemoMap();
+</script>
+
+<!-- MODAL INSTALL -->
+<style>
+#install-modal{position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,.55);display:none;align-items:flex-end;justify-content:center;padding:0;}
+#install-modal.show{display:flex;}
+.install-card{background:white;border-radius:28px 28px 0 0;width:100%;max-width:500px;padding:32px 28px 48px;animation:slideUp .35s cubic-bezier(.32,.72,0,1);}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.install-card-title{font-family:'DM Serif Display',serif;font-size:22px;color:#0a1628;margin-bottom:6px;text-align:center;}
+.install-card-sub{font-size:14px;color:#5a7a9a;text-align:center;margin-bottom:24px;line-height:1.5;}
+.install-steps{display:flex;flex-direction:column;gap:0;background:#F7F5F0;border-radius:16px;overflow:hidden;margin-bottom:20px;}
+.install-step{display:flex;align-items:center;gap:14px;padding:14px 18px;border-bottom:1px solid rgba(0,0,0,.06);}
+.install-step:last-child{border-bottom:none;}
+.install-step-num{width:28px;height:28px;border-radius:50%;background:#378ADD;color:white;font-size:13px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.install-step-text{font-size:14px;color:#0a1628;line-height:1.4;}
+.install-step-text strong{color:#0C447C;}
+.install-step-icon{font-size:20px;margin-left:auto;flex-shrink:0;}
+.install-close{width:100%;padding:14px;background:#378ADD;color:white;border:none;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:16px;font-weight:500;cursor:pointer;transition:background .15s;}
+.install-close:hover{background:#185FA5;}
+.install-already{text-align:center;font-size:13px;color:#5a7a9a;margin-top:12px;}
+</style>
+
+<div id="install-modal" onclick="if(event.target===this)closeInstall()">
+  <div class="install-card">
+    <div style="text-align:center;margin-bottom:16px;font-size:32px;">🪑</div>
+    <div class="install-card-title">Installer BenchMark</div>
+    <div class="install-card-sub" id="install-sub">Ajoutez l'app sur votre écran d'accueil</div>
+    <div class="install-steps" id="install-steps"></div>
+    <button class="install-close" onclick="closeInstall()">Compris !</button>
+    <div class="install-already" id="install-already" style="display:none;">L'app est déjà installée sur cet appareil ✓</div>
+  </div>
+</div>
+
+<script>
+var _deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', function(e){
+  e.preventDefault();
+  _deferredPrompt = e;
+});
+
+function installApp(){
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  var isAndroid = /android/i.test(navigator.userAgent);
+  var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  var steps = document.getElementById('install-steps');
+  var sub = document.getElementById('install-sub');
+  var already = document.getElementById('install-already');
+  var closeBtn = document.querySelector('.install-close');
+
+  // Déjà installé
+  if(isStandalone){
+    steps.style.display = 'none';
+    closeBtn.style.display = 'none';
+    already.style.display = 'block';
+    sub.textContent = '';
+    document.getElementById('install-modal').classList.add('show');
+    return;
+  }
+
+  // Android/PC avec prompt natif disponible
+  if(_deferredPrompt){
+    _deferredPrompt.prompt();
+    _deferredPrompt.userChoice.then(function(r){
+      _deferredPrompt = null;
+      if(r.outcome === 'accepted') closeInstall();
+    });
+    return;
+  }
+
+  // iPhone / iPad — guide Safari
+  if(isIOS){
+    sub.textContent = 'Suivez ces étapes dans Safari :';
+    steps.innerHTML =
+      '<div class="install-step"><div class="install-step-num">1</div><div class="install-step-text">Ouvrez <strong>benchmap.app</strong> dans <strong>Safari</strong></div></div>' +
+      '<div class="install-step"><div class="install-step-num">2</div><div class="install-step-text">Appuyez sur le bouton <strong>Partager</strong></div><div class="install-step-icon">⬆️</div></div>' +
+      '<div class="install-step"><div class="install-step-num">3</div><div class="install-step-text">Choisissez <strong>"Sur l'écran d'accueil"</strong></div></div>' +
+      '<div class="install-step"><div class="install-step-num">4</div><div class="install-step-text">Appuyez sur <strong>Ajouter</strong></div></div>';
+  }
+  // Android sans prompt
+  else if(isAndroid){
+    sub.textContent = 'Dans Chrome :';
+    steps.innerHTML =
+      '<div class="install-step"><div class="install-step-num">1</div><div class="install-step-text">Appuyez sur le menu <strong>⋮</strong> en haut à droite</div></div>' +
+      '<div class="install-step"><div class="install-step-num">2</div><div class="install-step-text">Appuyez sur <strong>"Ajouter à l'écran d'accueil"</strong></div></div>' +
+      '<div class="install-step"><div class="install-step-num">3</div><div class="install-step-text">Appuyez sur <strong>Ajouter</strong></div></div>';
+  }
+  // PC
+  else{
+    sub.textContent = 'Dans Chrome ou Edge :';
+    steps.innerHTML =
+      '<div class="install-step"><div class="install-step-num">1</div><div class="install-step-text">Cliquez sur l'icône <strong>⊕</strong> dans la barre d'adresse</div></div>' +
+      '<div class="install-step"><div class="install-step-num">2</div><div class="install-step-text">Ou menu <strong>⋮</strong> → <strong>Installer BenchMark</strong></div></div>';
+  }
+
+  document.getElementById('install-modal').classList.add('show');
+}
+
+function closeInstall(){
+  document.getElementById('install-modal').classList.remove('show');
+}
 </script>
 </body>
 </html>
