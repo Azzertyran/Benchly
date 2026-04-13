@@ -376,7 +376,7 @@ footer p{font-size:13px;color:rgba(255,255,255,.35);}
     <span class="footer-logo-text">BenchMark</span>
   </a>
   <div class="footer-links">
-    <a href="/cdn-cgi/l/email-protection#c7b7aeabaeb7a8a0f3fe87a0aaa6aeabe9a4a8aa" class="footer-link">✉️ <span class="__cf_email__" data-cfemail="22524b4e4b524d45161b62454f434b4e0c414d4f">[email&#160;protected]</span></a>
+    <a href="#" id="footer-mail" class="footer-link" onclick="this.href='mailto:'+fm();return true;">✉️ <span id="footer-mail-txt"></span></a>
     <a href="https://x.com/BenchMapp" target="_blank" class="footer-link">𝕏 @BenchMapp</a>
   </div>
   <p>© 2026 BenchMark · Créé par Philippe Auger · Fait avec ❤️ à Angers</p>
@@ -551,6 +551,12 @@ function installApp(){
 
   modal.classList.add("show");
 }
+
+function fm(){ return "pilipog49" + "@" + "gmail.com"; }
+document.addEventListener("DOMContentLoaded", function(){
+  var el = document.getElementById("footer-mail-txt");
+  if(el) el.textContent = fm();
+});
 
 function closeInstall(){
   document.getElementById("install-modal").classList.remove("show");
