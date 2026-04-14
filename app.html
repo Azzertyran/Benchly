@@ -355,6 +355,20 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .notif-item-time{font-size:11px;color:var(--muted);margin-top:2px;}
 .notif-empty{padding:40px 20px;text-align:center;color:var(--muted);font-size:13px;}
 
+/* MODAL DON */
+#don-modal{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.5);display:none;align-items:flex-end;justify-content:center;}
+#don-modal.show{display:flex;}
+.don-card{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:500px;padding:20px 24px 24px;animation:slideUp .35s cubic-bezier(.32,.72,0,1);}
+.don-emoji{text-align:center;font-size:30px;margin-bottom:8px;}
+.don-title{font-family:'DM Serif Display',serif;font-size:20px;color:var(--ink);text-align:center;margin-bottom:8px;}
+.don-text{font-size:14px;color:var(--muted);text-align:center;line-height:1.5;margin-bottom:16px;}
+.don-btns{display:flex;flex-direction:column;gap:8px;}
+.don-btn{display:flex;align-items:center;justify-content:center;gap:10px;padding:12px;border-radius:50px;font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;text-decoration:none;transition:opacity .15s;}
+.don-btn:hover{opacity:.85;}
+.don-btn-kofi{background:#FF5E5B;color:white;}
+.don-btn-paypal{background:#003087;color:white;}
+.don-close{margin-top:10px;width:100%;padding:10px;background:none;border:1px solid var(--border);border-radius:50px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--muted);cursor:pointer;}
+
 /* EDIT MODAL */
 #edit-modal{position:absolute;inset:0;z-index:5000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,.5);opacity:0;pointer-events:none;transition:opacity .3s;}
 #edit-modal.show{opacity:1;pointer-events:all;}
@@ -704,6 +718,7 @@ window.goPage=goPage;
       <div class="menu-card">
         <div class="menu-item" onclick="openContrib('notifications')"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><circle cx="9" cy="9" r="2.5" stroke="#185FA5" stroke-width="1.4"/><path d="M9 1v2M9 15v2M1 9h2M15 9h2" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="notifications">Notifications</div><div class="mi-sub" id="notif-sub">Activées</div></div><span class="mi-arrow">›</span></div>
         <div class="menu-item" onclick="openContrib('apropos')" style="cursor:pointer;"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 18 18" fill="none"><rect x="2" y="2" width="14" height="14" rx="3" stroke="#185FA5" stroke-width="1.4"/><path d="M6 9l2 2 4-4" stroke="#185FA5" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title" data-i18n="about">À propos de BenchMark</div><div class="mi-sub">Version 1.0 · Contact</div></div><span class="mi-arrow">›</span></div>
+      <div class="menu-item" onclick="openDon()" style="cursor:pointer;"><div class="mi-icon"><svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M10 17s-7-4.5-7-9a5 5 0 0 1 7-4.58A5 5 0 0 1 17 8c0 4.5-7 9-7 9z" stroke="#185FA5" stroke-width="1.4" stroke-linejoin="round"/></svg></div><div class="mi-text"><div class="mi-title">☕ Soutenir BenchMark</div><div class="mi-sub">Offrir un café à l’équipe</div></div><span class="mi-arrow">›</span></div>
       </div>
     </div>
     <div class="menu-section" id="admin-section" style="display:none">
@@ -2690,6 +2705,33 @@ window.addEventListener('load', function() {
     }
   });
 });
+</script>
+
+<!-- MODAL DON -->
+<div id="don-modal" onclick="if(event.target===this)closeDon()">
+  <div class="don-card">
+    <div class="don-emoji">☕️</div>
+    <div class="don-title">Soutenir BenchMark</div>
+    <div class="don-text">BenchMark est gratuit et le restera.<br>Si l’app vous plaît, vous pouvez offrir un café à l’équipe — c’est facultatif et toujours apprécié !</div>
+    <div class="don-btns">
+      <a href="https://ko-fi.com/benchmark" target="_blank" class="don-btn don-btn-kofi">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M23.881 8.948c-.773-4.085-4.859-4.593-4.859-4.593H.723c-.604 0-.679.798-.679.798s-.082 7.324-.022 11.822c.164 2.424 2.586 2.672 2.586 2.672s8.267-.023 11.966-.049c2.438-.426 2.683-2.566 2.658-3.734 4.352.24 7.422-2.831 6.649-6.916zm-11.062 3.511c-1.246 1.453-4.011 3.976-4.011 3.976s-.121.119-.31.023c-.076-.057-.108-.09-.108-.09-.443-.441-3.368-3.049-4.034-3.954-.709-.965-1.041-2.7-.091-3.71.951-1.01 3.005-1.086 4.038.371h.038c1.034-1.457 3.086-1.381 4.037-.371.9.979.561 2.71-.559 3.755z"/></svg>
+        Ko-fi
+      </a>
+      <a href="https://paypal.me/BenchMapp" target="_blank" class="don-btn don-btn-paypal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M7.076 21.337H2.47a.641.641 0 0 1-.633-.74L4.944.901C5.026.382 5.474 0 5.998 0h7.46c2.57 0 4.578.543 5.69 1.81 1.01 1.15 1.304 2.42 1.012 4.287-.023.143-.047.288-.077.437-.983 5.05-4.349 6.797-8.647 6.797h-2.19c-.524 0-.968.382-1.05.9l-1.12 7.106zm14.146-14.42a3.35 3.35 0 0 0-.607-.541c-.013.076-.026.175-.041.254-.59 3.025-2.566 4.643-5.813 4.643h-1.52c-.524 0-.968.382-1.05.9l-1.12 7.106H7.076l-.896 5.682h3.337c.457 0 .845-.333.917-.784l.038-.196.728-4.617.047-.254a.926.926 0 0 1 .917-.784h.578c3.741 0 6.671-1.52 7.524-5.913.358-1.832.173-3.362-.644-4.496z"/></svg>
+        PayPal
+      </a>
+    </div>
+    <button class="don-close" onclick="closeDon()">Peut-être une prochaine fois</button>
+  </div>
+</div>
+
+<script>
+function openDon(){ document.getElementById('don-modal').classList.add('show'); }
+function closeDon(){ document.getElementById('don-modal').classList.remove('show'); }
+window.openDon = openDon;
+window.closeDon = closeDon;
 </script>
 </body>
 </html>
