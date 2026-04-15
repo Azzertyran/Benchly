@@ -1778,7 +1778,7 @@ async function submitReview(){
   if(!b)return;
   const selectedTags=[...document.querySelectorAll('#review-sheet .tsel.sel:not(.etat-rv)')].map(el=>el.dataset.tag||el.textContent.trim());
   const etatEl=document.querySelector('.etat-rv.sel');
-  const etat=etatEl?etatEl.textContent.trim().split(' ').slice(1).join(' '):null;
+  const etat=etatEl?etatEl.textContent.trim():null;
   const submitBtn=document.querySelector('#review-sheet .submit-btn');
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Publication…';}
   try{
@@ -1820,7 +1820,7 @@ function setStar(n){selectedStars=n;document.querySelectorAll('.sb').forEach((b,
 function selectEtat(el, val){
   document.querySelectorAll('.etat-sel').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
-  selectedEtat=val;
+  selectedEtat=el.textContent.trim();
 }
 
 async function submitBench(){
@@ -2236,7 +2236,7 @@ async function editReview(id){
       <div class="edit-label">État du banc</div>
       <div class="tsel-wrap" id="edit-etat-wrap">
         ${[['✨','Comme neuf'],['👍','Bon état'],['😐','Passable'],['⚠️','Dégradé'],['🚨','Dangereux']].map(([emoji,val])=>
-          `<span class="tsel etat-sel-edit ${currentEtat===val?'sel':''}" onclick="selectEditEtat(this,'${val}')">${emoji} ${val}</span>`
+          `<span class="tsel etat-sel-edit ${currentEtat===emoji+' '+val||currentEtat===val?'sel':''}" onclick="selectEditEtat(this,'${val}')">${emoji} ${val}</span>`
         ).join('')}
       </div>
     </div>
@@ -2277,7 +2277,7 @@ async function saveEdit(){
   } else if(_editType==='review'){
     const comment = document.getElementById('edit-comment').value.trim();
     const etatEl = document.querySelector('.etat-sel-edit.sel');
-    const etat = etatEl ? etatEl.textContent.trim().split(' ').slice(1).join(' ') : null;
+    const etat = etatEl ? etatEl.textContent.trim() : null;
     if(!_editStars){showToast('Choisissez une note');return;}
     try{
       await db.from('reviews').update({rating:_editStars,comment,etat}).eq('id',_editId);
