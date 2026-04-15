@@ -925,6 +925,15 @@ window.goPage=goPage;
         </div>
       </div>
 
+      <div class="tag-group-label">État du banc</div>
+      <div class="tsel-wrap" id="etat-wrap">
+        <span class="tsel etat-sel" onclick="selectEtat(this,'Comme neuf')">✨ Comme neuf</span>
+        <span class="tsel etat-sel" onclick="selectEtat(this,'Bon état')">👍 Bon état</span>
+        <span class="tsel etat-sel" onclick="selectEtat(this,'Passable')">😐 Passable</span>
+        <span class="tsel etat-sel" onclick="selectEtat(this,'Dégradé')">⚠️ Dégradé</span>
+        <span class="tsel etat-sel" onclick="selectEtat(this,'Dangereux')">🚨 Dangereux</span>
+      </div>
+
       <div class="fl">Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">(jusqu'à 5)</span></div>
       <div class="photo-grid" id="add-photo-grid"></div>
       <div class="photo-count" id="add-photo-count">0 / 5 photos</div>
@@ -1115,7 +1124,7 @@ async function loadBenches(){
 let mapInstance, miniMap, miniMarker;
 let leafletMarkers=[], tempPinMarker=null;
 let currentFilter='all', currentSort='note';
-let selectedStars=0, addedCount=0;
+let selectedStars=0, addedCount=0, selectedEtat='';
 let pinMode=false, pendingLat=null, pendingLng=null;
 
 function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
@@ -1790,6 +1799,12 @@ async function submitReview(){
 
 function setStar(n){selectedStars=n;document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('lit',i<n));}
 
+function selectEtat(el, val){
+  document.querySelectorAll('.etat-sel').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedEtat=val;
+}
+
 async function submitBench(){
   const name=document.getElementById('add-name').value.trim();
   const inp=document.getElementById('add-name');
@@ -1797,7 +1812,7 @@ async function submitBench(){
   inp.classList.remove('err');
   if(!selectedStars){showToast('Sélectionnez une note ⭐');return;}
   if(!pendingLat){showToast('Positionnez le banc sur la carte');return;}
-  const tags=[...document.querySelectorAll('#add-sheet .tsel.sel')].map(t=>t.textContent.trim());
+  const tags=[...document.querySelectorAll('#add-sheet .tsel.sel:not(.etat-sel)')].map(t=>t.textContent.trim());
   const comment=document.getElementById('add-comment').value.trim();
   const addrText=document.getElementById('loc-coords-text').textContent;
   const author=localStorage.getItem('benchmark-username')||'Anonyme';
@@ -1807,7 +1822,8 @@ async function submitBench(){
     const{data:nb,error:e1}=await db.from('benches').insert({
       name,location:addrText,lat:pendingLat,lng:pendingLng,
       description:comment||null,tags:tags.length?tags:['Calme'],
-      emoji:'🪑',rating:selectedStars,created_by:author
+      emoji:'🪑',rating:selectedStars,created_by:author,
+      etat:selectedEtat||null
     }).select().single();
     if(e1)throw e1;
     await db.from('reviews').insert({bench_id:nb.id,author,rating:selectedStars,comment:comment||null});
@@ -1904,7 +1920,7 @@ function resetForm(){
   document.getElementById('add-comment').value='';
   document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit'));
   document.querySelectorAll('#add-sheet .tsel').forEach(t=>t.classList.remove('sel'));
-  selectedStars=0;
+  selectedStars=0; selectedEtat='';
   initPhotoGrid('add');
 }
 
