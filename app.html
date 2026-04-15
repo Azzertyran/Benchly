@@ -1121,11 +1121,14 @@ async function loadBenches(){
     }
     const favSet=new Set(getFavIds());
     benches=rows.map(r=>{
-      const avis=(revMap[r.id]||[]).map(rv=>({id:rv.id,u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||''}));
+      const avis=(revMap[r.id]||[]).map(rv=>({id:rv.id,u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||'',etat:rv.etat||''}));
       const avg=avis.length?Math.round(avis.reduce((s,a)=>s+a.s,0)/avis.length*10)/10:(r.rating||0);
+      // Déterminer l'état le plus récent depuis les avis
+      const lastEtat=avis.find(a=>a.etat)?.etat||r.etat||'';
       return{id:r.id,lat:r.lat,lng:r.lng,name:r.name,loc:r.location||'',dist:calcDist(r.lat,r.lng),
         rating:avg,reviews:avis.length,tags:r.tags||[],emoji:r.emoji||'🪑',
-        desc:r.description||'',createdAt:r.created_at||'',photos:r.photos||[],avis,fav:favSet.has(r.id)};
+        desc:r.description||'',createdAt:r.created_at||'',photos:r.photos||[],avis,fav:favSet.has(r.id),
+        etat:lastEtat,_raw:r};
     });
   }catch(e){console.error(e);showToast('Erreur de connexion');}
   renderMarkers();renderExplorer();renderFavorites();updateStats();
@@ -1584,6 +1587,7 @@ function openBench(b){
       <div class="sh-loc">${b.loc}</div>
       <div class="rating-row"><span class="stars-disp">${S(Math.round(b.rating))}</span><span class="rnum">${b.rating.toFixed(1)}</span><span class="rcnt">${b.reviews} avis</span></div>
       <div class="tag-row">${b.tags.map(t=>`<span class="btag">${t}</span>`).join('')}</div>
+      ${b.etat?`<div style="margin:6px 0 10px;font-size:13px;color:var(--muted);">État : <strong style="color:var(--text)">${b.etat}</strong></div>`:''}
 
       <div class="act-row">
         <button class="act-btn" onclick="openItineraire(window._cb.lat,window._cb.lng)">📍 Itinéraire</button>
