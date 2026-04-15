@@ -1477,7 +1477,7 @@ function renderMarkers(){
   list.forEach(b=>{
     const el=makeMarkerElement(b);
     const m=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([b.lng,b.lat]).addTo(mapInstance);
-    el.addEventListener('click',()=>openBench(b));
+    el.addEventListener('click',(e)=>{ e.stopPropagation(); openBench(b); });
     leafletMarkers.push(m);
   });
   setTimeout(updateCountPill, 100);
@@ -1508,7 +1508,7 @@ function handleSearch(v){
   res.forEach(b=>{
     const el=makeMarkerElement(b);
     const m=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([b.lng,b.lat]).addTo(mapInstance);
-    el.addEventListener('click',()=>openBench(b));
+    el.addEventListener('click',(e)=>{ e.stopPropagation(); openBench(b); });
     leafletMarkers.push(m);
   });
   document.getElementById('count-pill').textContent=
