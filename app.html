@@ -13,9 +13,9 @@
 <link rel="apple-touch-icon" href="/icon-192.png">
 <title>BenchMark</title>
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.1.3/dist/maplibre-gl.css"/>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.1.3/dist/maplibre-gl.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -77,7 +77,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 
 /* CROSSHAIR CURSOR sur la carte en mode épingle */
 #map.pinmode{cursor:crosshair !important;}
-#map.pinmode .leaflet-interactive{cursor:crosshair !important;}
+#map.pinmode .maplibregl-canvas{cursor:crosshair !important;}
 
 /* TEMP PIN */
 .temp-pin-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;animation:bounceIn .3s cubic-bezier(.175,.885,.32,1.275);}
@@ -1312,37 +1312,42 @@ window.addEventListener('DOMContentLoaded',async()=>{
   document.getElementById('overlay').classList.remove('show');
 
   // Démarrer la carte centrée sur la France, puis géolocaliser l'utilisateur
-  mapInstance=L.map('map',{zoomControl:false,attributionControl:false}).setView([46.5,2.5],6);
-  L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
-    maxZoom:20,
-    attribution:'© <a href="https://www.maptiler.com">MapTiler</a> © <a href="https://www.openstreetmap.org/copyright">OSM</a>',
-    language:'fr'
-  }).addTo(mapInstance);
-  L.control.zoom({position:'bottomright'}).addTo(mapInstance);
+  mapInstance = new maplibregl.Map({
+    container: 'map',
+    style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [2.5, 46.5],
+    zoom: 6,
+    attributionControl: false
+  });
+  new maplibregl.NavigationControl({showCompass:false}).addTo(mapInstance);
   mapInstance.on('click', onMapClick);
   mapInstance.on('moveend', updateCountPill);
   mapInstance.on('zoomend', updateCountPill);
+
+  // Attendre que MapLibre soit prêt avant de charger les données
+  mapInstance.on('load', () => {
+    loadBenches();
+    updateCountPill();
+  });
 
   // Géolocalisation automatique
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
       pos => {
         const {latitude:lat, longitude:lng} = pos.coords;
-        mapInstance.setView([lat, lng], 14);
+        mapInstance.flyTo({center:[lng,lat], zoom:14});
         // Point bleu "Vous êtes ici"
-        L.circleMarker([lat,lng],{radius:8,fillColor:'#378ADD',fillOpacity:1,color:'white',weight:3})
-          .addTo(mapInstance)
-          .bindPopup('Vous êtes ici');
+        const geoEl = document.createElement('div');
+        geoEl.style.cssText='width:16px;height:16px;background:#378ADD;border:3px solid white;border-radius:50%;box-shadow:0 0 8px rgba(55,138,221,0.6)';
+        new maplibregl.Marker({element:geoEl}).setLngLat([lng,lat]).addTo(mapInstance);
       },
       () => {
         // Refus ou erreur → France entière, pas de point bleu
-        mapInstance.setView([46.5, 2.5], 6);
+        mapInstance.flyTo({center:[2.5,46.5], zoom:6});
       },
       {timeout:6000, maximumAge:60000}
     );
   }
-
-  loadBenches();
 
   // Auth Google
   await initAuth();
@@ -1379,16 +1384,14 @@ function exitPinMode(){
 
 function onMapClick(e){
   if(!pinMode) return;
-  pendingLat=e.latlng.lat;
-  pendingLng=e.latlng.lng;
+  pendingLat=e.lngLat.lat;
+  pendingLng=e.lngLat.lng;
 
   // Place temp pin
-  if(tempPinMarker) tempPinMarker.remove();
-  const icon=L.divIcon({
-    html:`<div style="font-size:32px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));animation:bounceIn .3s cubic-bezier(.175,.885,.32,1.275)">📍</div>`,
-    className:'',iconSize:[32,40],iconAnchor:[16,40]
-  });
-  tempPinMarker=L.marker([pendingLat,pendingLng],{icon}).addTo(mapInstance);
+  if(tempPinMarker){ tempPinMarker.remove(); tempPinMarker=null; }
+  const el=document.createElement('div');
+  el.innerHTML=`<div style="font-size:32px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35));animation:bounceIn .3s cubic-bezier(.175,.885,.32,1.275)">📍</div>`;
+  tempPinMarker=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([pendingLng,pendingLat]).addTo(mapInstance);
 
   exitPinMode();
   openAddForm(pendingLat, pendingLng);
@@ -1398,14 +1401,18 @@ function openAddForm(lat, lng){
   initPhotoGrid('add');
   // Init mini-map
   setTimeout(()=>{
-    if(miniMap){ miniMap.remove(); miniMap=null; }
-    miniMap=L.map('mini-map',{zoomControl:false,attributionControl:false,dragging:false,scrollWheelZoom:false,doubleClickZoom:false}).setView([lat,lng],16);
-    L.tileLayer('https://api.maptiler.com/maps/streets-v2/{z}/{x}/{y}.png?key=Th1MJRHGh9ncnNHJemKB',{
-      maxZoom:20,
-      attribution:''
-    }).addTo(miniMap);
-    const icon=L.divIcon({html:`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`,className:'',iconSize:[24,32],iconAnchor:[12,32]});
-    L.marker([lat,lng],{icon}).addTo(miniMap);
+    if(miniMap){ miniMap.remove(); miniMap=null; miniMarker=null; }
+    miniMap=new maplibregl.Map({
+      container:'mini-map',
+      style:'https://tiles.openfreemap.org/styles/liberty',
+      center:[lng,lat],
+      zoom:16,
+      interactive:false,
+      attributionControl:false
+    });
+    const miniEl=document.createElement('div');
+    miniEl.innerHTML=`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`;
+    miniMarker=new maplibregl.Marker({element:miniEl,anchor:'bottom'}).setLngLat([lng,lat]).addTo(miniMap);
   },50);
 
   // Reverse geocode coords label
@@ -1444,12 +1451,19 @@ function makeIcon(b){
     <rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/>
     <rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/>
   </svg>`;
-  return L.divIcon({html:svg,className:'',iconSize:[32,46],iconAnchor:[16,44]});
+  return svg;
+}
+function makeMarkerElement(b){
+  const svg=makeIcon(b);
+  const el=document.createElement('div');
+  el.style.cssText='width:32px;height:46px;cursor:pointer;';
+  el.innerHTML=svg;
+  return el;
 }
 function countLabel(){
   if(!mapInstance) return '';
   const bounds = mapInstance.getBounds();
-  const list = getFilteredBenches().filter(b => bounds.contains([b.lat, b.lng]));
+  const list = getFilteredBenches().filter(b => bounds.contains([b.lng, b.lat]));
   if(!list.length) return i18n('noBench');
   return list.length+(list.length>1?i18n('benchZone'):i18n('benchZoneOne'));
 }
@@ -1461,10 +1475,12 @@ function renderMarkers(){
   leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
   const list=getFilteredBenches();
   list.forEach(b=>{
-    const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));
+    const el=makeMarkerElement(b);
+    const m=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([b.lng,b.lat]).addTo(mapInstance);
+    el.addEventListener('click',()=>openBench(b));
     leafletMarkers.push(m);
   });
-  setTimeout(updateCountPill, 100); // attendre que la carte se stabilise
+  setTimeout(updateCountPill, 100);
 }
 function setFilter(tag,el){
   currentFilter=tag;
@@ -1481,7 +1497,6 @@ function getFilteredBenches(){
   return benches.filter(b=>b.tags.some(t=>t===currentFilter||t.includes(currentFilter.replace(/^\S+\s/,''))||currentFilter.includes(t.replace(/^\S+\s/,''))));
 }
 function handleSearch(v){
-  // Filtrage local des bancs en temps réel
   if(!v.trim()){renderMarkers();return;}
   const q=v.toLowerCase();
   leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
@@ -1491,7 +1506,9 @@ function handleSearch(v){
     b.tags.some(t=>t.toLowerCase().includes(q))
   );
   res.forEach(b=>{
-    const m=L.marker([b.lat,b.lng],{icon:makeIcon(b)}).addTo(mapInstance).on('click',()=>openBench(b));
+    const el=makeMarkerElement(b);
+    const m=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([b.lng,b.lat]).addTo(mapInstance);
+    el.addEventListener('click',()=>openBench(b));
     leafletMarkers.push(m);
   });
   document.getElementById('count-pill').textContent=
@@ -1512,10 +1529,11 @@ async function searchCity(v){
       const {lat,lon,display_name,boundingbox}=data[0];
       // Zoomer sur la ville
       if(boundingbox){
-        const bounds=[[parseFloat(boundingbox[0]),parseFloat(boundingbox[2])],[parseFloat(boundingbox[1]),parseFloat(boundingbox[3])]];
-        mapInstance.fitBounds(bounds,{padding:[20,20],maxZoom:14});
+        // boundingbox = [minlat, maxlat, minlon, maxlon]
+        const bounds=[[parseFloat(boundingbox[2]),parseFloat(boundingbox[0])],[parseFloat(boundingbox[3]),parseFloat(boundingbox[1])]];
+        mapInstance.fitBounds(bounds,{padding:20,maxZoom:14});
       } else {
-        mapInstance.setView([parseFloat(lat),parseFloat(lon)],13);
+        mapInstance.flyTo({center:[parseFloat(lon),parseFloat(lat)], zoom:13});
       }
       // Montrer les bancs dans la zone
       renderMarkers();
@@ -2533,7 +2551,7 @@ function locateMe(){
     navigator.geolocation.getCurrentPosition(
       pos => {
         const {latitude:lat, longitude:lng} = pos.coords;
-        mapInstance.setView([lat,lng], 15);
+        mapInstance.flyTo({center:[lng,lat], zoom:15});
         window._userLat = lat;
         window._userLng = lng;
       },
@@ -2585,9 +2603,10 @@ function addByGPS(){
       pendingLng = lng;
       // Placer un marqueur temporaire
       if(tempPinMarker) tempPinMarker.remove();
-      const icon = L.divIcon({html:`<div style="font-size:32px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))">📍</div>`,className:'',iconSize:[32,40],iconAnchor:[16,40]});
-      tempPinMarker = L.marker([lat, lng], {icon}).addTo(mapInstance);
-      mapInstance.setView([lat, lng], 17);
+      const el = document.createElement('div');
+      el.innerHTML=`<div style="font-size:32px;filter:drop-shadow(0 3px 6px rgba(0,0,0,.35))">📍</div>`;
+      tempPinMarker = new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([lng,lat]).addTo(mapInstance);
+      mapInstance.flyTo({center:[lng,lat], zoom:17});
       openAddForm(lat, lng);
     },
     err => {
@@ -2614,10 +2633,12 @@ function useMyLocation(){
       
       // Mettre à jour la mini-map
       if(miniMap){
-        miniMap.setView([lat, lng], 17);
+        miniMap.setCenter([lng, lat]);
+        miniMap.setZoom(17);
         if(miniMarker) miniMarker.remove();
-        const icon = L.divIcon({html:`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`,className:'',iconSize:[24,32],iconAnchor:[12,32]});
-        miniMarker = L.marker([lat, lng], {icon}).addTo(miniMap);
+        const miniEl = document.createElement('div');
+        miniEl.innerHTML=`<div style="font-size:24px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.4))">📍</div>`;
+        miniMarker = new maplibregl.Marker({element:miniEl,anchor:'bottom'}).setLngLat([lng,lat]).addTo(miniMap);
       }
       
       // Géocodage inverse
