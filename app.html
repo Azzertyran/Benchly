@@ -1576,7 +1576,6 @@ function openBench(b){
       <div class="sec-label">Avis (${b.reviews})</div>
       ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card" data-review-id="${a.id}"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
     </div>`;
-  mapInstance.panTo([b.lat,b.lng]);
   // Charger les likes depuis Supabase
   const reviewIds = b.avis.filter(a=>a.id).map(a=>a.id);
   if(reviewIds.length){
