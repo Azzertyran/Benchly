@@ -1123,8 +1123,9 @@ async function loadBenches(){
     benches=rows.map(r=>{
       const avis=(revMap[r.id]||[]).map(rv=>({id:rv.id,u:rv.author,n:getInitials(rv.author),s:rv.rating,t:rv.comment||'',etat:rv.etat||''}));
       const avg=avis.length?Math.round(avis.reduce((s,a)=>s+a.s,0)/avis.length*10)/10:(r.rating||0);
-      // Déterminer l'état le plus récent depuis les avis
-      const lastEtat=avis.find(a=>a.etat)?.etat||r.etat||'';
+      // Prendre l'état du dernier avis qui en a un, sinon celui du banc
+      const avisAvecEtat=[...(revMap[r.id]||[])].filter(rv=>rv.etat).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at));
+      const lastEtat=avisAvecEtat.length?avisAvecEtat[0].etat:(r.etat||'');
       return{id:r.id,lat:r.lat,lng:r.lng,name:r.name,loc:r.location||'',dist:calcDist(r.lat,r.lng),
         rating:avg,reviews:avis.length,tags:r.tags||[],emoji:r.emoji||'🪑',
         desc:r.description||'',createdAt:r.created_at||'',photos:r.photos||[],avis,fav:favSet.has(r.id),
