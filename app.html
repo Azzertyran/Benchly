@@ -2186,6 +2186,7 @@ function handleBenchCardClick(el){
 let _editType = null;
 let _editId = null;
 let _editStars = 0;
+let _editEtat = '';
 
 function closeEditModal(){
   const m = document.getElementById('edit-modal');
@@ -2227,7 +2228,7 @@ async function editReview(id){
   const{data:rev} = await db.from('reviews').select('*').eq('id',id).single();
   if(!rev) return;
   _editStars = rev.rating||0;
-  const currentEtat = rev.etat||'';
+  _editEtat = rev.etat||'';
 
   document.getElementById('edit-modal-title').textContent = 'Modifier mon avis';
   document.getElementById('edit-modal-body').innerHTML = `
@@ -2241,7 +2242,7 @@ async function editReview(id){
       <div class="edit-label">État du banc</div>
       <div class="tsel-wrap" id="edit-etat-wrap">
         ${[['✨','Comme neuf'],['👍','Bon état'],['😐','Passable'],['⚠️','Dégradé'],['🚨','Dangereux']].map(([emoji,val])=>
-          `<span class="tsel etat-sel-edit ${currentEtat===emoji+' '+val||currentEtat===val?'sel':''}" onclick="selectEditEtat(this,'${val}')">${emoji} ${val}</span>`
+          `<span class="tsel etat-sel-edit ${_editEtat===emoji+' '+val||_editEtat===val?'sel':''}" onclick="selectEditEtat(this,'${emoji} ${val}')">${emoji} ${val}</span>`
         ).join('')}
       </div>
     </div>
@@ -2256,6 +2257,7 @@ async function editReview(id){
 function selectEditEtat(el, val){
   document.querySelectorAll('.etat-sel-edit').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
+  _editEtat = val;
 }
 
 function setEditStar(n){
@@ -2281,8 +2283,7 @@ async function saveEdit(){
     }catch(e){showToast('Erreur lors de la mise à jour');}
   } else if(_editType==='review'){
     const comment = document.getElementById('edit-comment').value.trim();
-    const etatEl = document.querySelector('.etat-sel-edit.sel');
-    const etat = etatEl ? etatEl.textContent.trim() : null;
+    const etat = _editEtat || null;
     if(!_editStars){showToast('Choisissez une note');return;}
     try{
       await db.from('reviews').update({rating:_editStars,comment,etat}).eq('id',_editId);
