@@ -826,6 +826,17 @@ window.goPage=goPage;
         </div>
       </div>
 
+      <div class="tag-group" style="margin-bottom:4px;">
+        <div class="tag-group-label">État du banc</div>
+        <div class="tsel-wrap" id="rv-etat-wrap">
+          <span class="tsel etat-rv" onclick="selectRvEtat(this,'Comme neuf')">✨ Comme neuf</span>
+          <span class="tsel etat-rv" onclick="selectRvEtat(this,'Bon état')">👍 Bon état</span>
+          <span class="tsel etat-rv" onclick="selectRvEtat(this,'Passable')">😐 Passable</span>
+          <span class="tsel etat-rv" onclick="selectRvEtat(this,'Dégradé')">⚠️ Dégradé</span>
+          <span class="tsel etat-rv" onclick="selectRvEtat(this,'Dangereux')">🚨 Dangereux</span>
+        </div>
+      </div>
+
       <div class="fl" style="margin-top:14px;">Photos <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">(jusqu'à 5)</span></div>
       <div class="photo-grid" id="rv-photo-grid"></div>
       <div class="photo-count" id="rv-photo-count">0 / 5 photos</div>
@@ -1752,6 +1763,11 @@ function setBigStar(n){
   document.getElementById('star-hint').textContent=starHints[n]||'';
 }
 
+function selectRvEtat(el, val){
+  document.querySelectorAll('.etat-rv').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
 async function submitReview(){
   if(!reviewStars){document.getElementById('star-hint').textContent='\u{1F446} Choisissez une note d\'abord';return;}
   const authorRaw=document.getElementById('review-author').value.trim();
@@ -1760,11 +1776,13 @@ async function submitReview(){
   const comment=document.getElementById('review-comment').value.trim();
   const b=benches.find(x=>x.id===reviewBenchId);
   if(!b)return;
-  const selectedTags=[...document.querySelectorAll('#review-sheet .tsel.sel')].map(el=>el.dataset.tag||el.textContent.trim());
+  const selectedTags=[...document.querySelectorAll('#review-sheet .tsel.sel:not(.etat-rv)')].map(el=>el.dataset.tag||el.textContent.trim());
+  const etatEl=document.querySelector('.etat-rv.sel');
+  const etat=etatEl?etatEl.textContent.trim().split(' ').slice(1).join(' '):null;
   const submitBtn=document.querySelector('#review-sheet .submit-btn');
   if(submitBtn){submitBtn.disabled=true;submitBtn.textContent='Publication…';}
   try{
-    await db.from('reviews').insert({bench_id:b.id,author:authorRaw,rating:reviewStars,comment:comment||null});
+    await db.from('reviews').insert({bench_id:b.id,author:authorRaw,rating:reviewStars,comment:comment||null,etat:etat||null});
     const newUrls=[];
     for(const dataUrl of photoStore['rv']){
       const res=await fetch(dataUrl);const blob=await res.blob();
@@ -2201,10 +2219,10 @@ async function editReview(id){
   _editType = 'review';
   _editId = id;
 
-  // Charger l'avis depuis Supabase
   const{data:rev} = await db.from('reviews').select('*').eq('id',id).single();
   if(!rev) return;
   _editStars = rev.rating||0;
+  const currentEtat = rev.etat||'';
 
   document.getElementById('edit-modal-title').textContent = 'Modifier mon avis';
   document.getElementById('edit-modal-body').innerHTML = `
@@ -2215,11 +2233,24 @@ async function editReview(id){
       </div>
     </div>
     <div class="edit-field">
+      <div class="edit-label">État du banc</div>
+      <div class="tsel-wrap" id="edit-etat-wrap">
+        ${[['✨','Comme neuf'],['👍','Bon état'],['😐','Passable'],['⚠️','Dégradé'],['🚨','Dangereux']].map(([emoji,val])=>
+          `<span class="tsel etat-sel-edit ${currentEtat===val?'sel':''}" onclick="selectEditEtat(this,'${val}')">${emoji} ${val}</span>`
+        ).join('')}
+      </div>
+    </div>
+    <div class="edit-field">
       <div class="edit-label">Commentaire</div>
       <textarea class="edit-input" id="edit-comment" rows="4">${rev.comment||''}</textarea>
     </div>`;
 
   document.getElementById('edit-modal').classList.add('show');
+}
+
+function selectEditEtat(el, val){
+  document.querySelectorAll('.etat-sel-edit').forEach(e=>e.classList.remove('sel'));
+  el.classList.add('sel');
 }
 
 function setEditStar(n){
@@ -2245,9 +2276,11 @@ async function saveEdit(){
     }catch(e){showToast('Erreur lors de la mise à jour');}
   } else if(_editType==='review'){
     const comment = document.getElementById('edit-comment').value.trim();
+    const etatEl = document.querySelector('.etat-sel-edit.sel');
+    const etat = etatEl ? etatEl.textContent.trim().split(' ').slice(1).join(' ') : null;
     if(!_editStars){showToast('Choisissez une note');return;}
     try{
-      await db.from('reviews').update({rating:_editStars,comment}).eq('id',_editId);
+      await db.from('reviews').update({rating:_editStars,comment,etat}).eq('id',_editId);
       showToast('✓ Avis mis à jour');
       closeEditModal();
       await loadBenches();
