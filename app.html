@@ -1319,7 +1319,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
     zoom: 6,
     attributionControl: false
   });
-  new maplibregl.NavigationControl({showCompass:false}).addTo(mapInstance);
+  mapInstance.addControl(new maplibregl.NavigationControl({showCompass:false}), 'bottom-right');
   mapInstance.on('click', onMapClick);
   mapInstance.on('moveend', updateCountPill);
   mapInstance.on('zoomend', updateCountPill);
