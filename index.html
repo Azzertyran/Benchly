@@ -10,8 +10,8 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23378ADD'/%3E%3Crect x='5' y='13' width='22' height='4' rx='2' fill='white'/%3E%3Crect x='5' y='9' width='22' height='3' rx='1.5' fill='rgba(255,255,255,0.6)'/%3E%3Crect x='7' y='17' width='3' height='6' rx='1.5' fill='white'/%3E%3Crect x='22' y='17' width='3' height='6' rx='1.5' fill='white'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="/icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.1.3/dist/maplibre-gl.css"/>
+<script src="https://unpkg.com/maplibre-gl@4.1.3/dist/maplibre-gl.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 :root{
@@ -389,16 +389,29 @@ window.addEventListener('scroll', () => {
   document.getElementById('nav').classList.toggle('scrolled', window.scrollY > 40);
 });
 
-// Carte démo Leaflet
-const demoMap = L.map('demo-map', {zoomControl:true, attributionControl:false}).setView([47.474,-0.554],13);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19}).addTo(demoMap);
+// Carte démo MapLibre
+const demoMap = new maplibregl.Map({
+  container: 'demo-map',
+  style: 'https://tiles.openfreemap.org/styles/liberty',
+  center: [-0.554, 47.474],
+  zoom: 13,
+  attributionControl: false
+});
 
 // Charger les bancs depuis Supabase
 const SUPA_URL='https://utcaqpnoupizlfzxppwt.supabase.co';
 const SUPA_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InV0Y2FxcG5vdXBpemxmenhwcHd0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQ5NjA0NTcsImV4cCI6MjA5MDUzNjQ1N30.xaFG5h2jKLbc3tgi9Nx4Cp6zANAh9qFnR3JW1Iibg5g';
 const db = supabase.createClient(SUPA_URL, SUPA_KEY);
 
-function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
+function S(n,t=5){
+  let out='';
+  for(let i=1;i<=t;i++){
+    if(n>=i) out+='★';
+    else if(n>=i-0.5) out+='½';
+    else out+='☆';
+  }
+  return out;
+}
 
 function animateCount(id, target){
   const el = document.getElementById(id);
@@ -416,57 +429,54 @@ function animateCount(id, target){
 }
 
 async function loadDemoMap(){
-  // Géolocalisation : centrer sur l'utilisateur si accepté, sinon France entière
   if(navigator.geolocation){
     navigator.geolocation.getCurrentPosition(
-      pos => demoMap.setView([pos.coords.latitude, pos.coords.longitude], 13),
-      ()  => demoMap.setView([46.5, 2.5], 6) // France entière si refus
+      pos => demoMap.flyTo({center:[pos.coords.longitude, pos.coords.latitude], zoom:13}),
+      ()   => demoMap.flyTo({center:[2.5, 46.5], zoom:6})
     );
   } else {
-    demoMap.setView([46.5, 2.5], 6);
+    demoMap.flyTo({center:[2.5, 46.5], zoom:6});
   }
 
-  // Charger les bancs
   const {data:benches} = await db.from('benches').select('*');
   const {data:reviews} = await db.from('reviews').select('*');
 
-  // Compteurs stats
   animateCount('stat-benches', benches?.length || 0);
   animateCount('stat-reviews', reviews?.length || 0);
 
-  // Construire map avis par banc
   const revMap = {};
   (reviews||[]).forEach(r => {
     if(!revMap[r.bench_id]) revMap[r.bench_id] = [];
     revMap[r.bench_id].push(r);
   });
 
-  // Placer les marqueurs
-  (benches||[]).forEach(b => {
-    const avis = revMap[b.id] || [];
-    const avg = avis.length
-      ? (avis.reduce((s,a)=>s+a.rating,0)/avis.length).toFixed(1)
-      : '—';
-
-    const avgN = parseFloat(avg)||0;
-    const mc = avgN>=4.7?'#0C447C':avgN>=4.0?'#378ADD':avgN>=3.0?'#1D9E75':avgN>=2.5?'#EF9F27':'#E24B4A';
-    const benchSvg = `<svg width="32" height="46" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="${mc}" stroke="white" stroke-width="2"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>`;
-    const icon = L.divIcon({
-      html: benchSvg,
-      className:'', iconSize:[32,46], iconAnchor:[16,44]
+  demoMap.on('load', () => {
+    (benches||[]).forEach(b => {
+      const avis = revMap[b.id] || [];
+      const avg = avis.length
+        ? (avis.reduce((s,a)=>s+a.rating,0)/avis.length).toFixed(1)
+        : '--';
+      const avgN = parseFloat(avg)||0;
+      const mc = avgN>=4.5?'#1A7A4A':avgN>=3.5?'#4CAF50':avgN>=2.5?'#F5C518':avgN>=1.5?'#EF9F27':'#E24B4A';
+      const benchSvg = '<svg width="32" height="46" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="' + mc + '" stroke="white" stroke-width="2"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg>';
+      const el = document.createElement('div');
+      el.style.cssText = 'width:32px;height:46px;cursor:pointer;';
+      el.innerHTML = benchSvg;
+      const tags = (b.tags||[]).map(t=>'<span style="font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:50px">'+t+'</span>').join('');
+      const popup = new maplibregl.Popup({maxWidth:'220px', offset:25}).setHTML(
+        '<div style="font-family:'DM Sans',sans-serif;min-width:180px">' +
+        '<div style="font-weight:500;font-size:14px;margin-bottom:3px">' + b.name + '</div>' +
+        '<div style="font-size:12px;color:#888;margin-bottom:6px">' + (b.location||'') + '</div>' +
+        '<div style="color:#F5A623;font-size:13px;margin-bottom:6px">' + S(avgN) + ' <span style="color:#333;font-weight:500">' + avg + '</span> <span style="color:#aaa">(' + avis.length + ' avis)</span></div>' +
+        '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">' + tags + '</div>' +
+        '<a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l'app →</a>' +
+        '</div>'
+      );
+      new maplibregl.Marker({element:el, anchor:'bottom'})
+        .setLngLat([b.lng, b.lat])
+        .setPopup(popup)
+        .addTo(demoMap);
     });
-
-    const tags = (b.tags||[]).map(t=>`<span style="font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:50px">${t}</span>`).join('');
-
-    L.marker([b.lat, b.lng], {icon}).addTo(demoMap).bindPopup(`
-      <div style="font-family:'DM Sans',sans-serif;min-width:180px">
-        <div style="font-weight:500;font-size:14px;margin-bottom:3px">${b.name}</div>
-        <div style="font-size:12px;color:#888;margin-bottom:6px">${b.location||''}</div>
-        <div style="color:#F5A623;font-size:13px;margin-bottom:6px">${S(Math.round(parseFloat(avg)||0))} <span style="color:#333;font-weight:500">${avg}</span> <span style="color:#aaa">(${avis.length} avis)</span></div>
-        <div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">${tags}</div>
-        <a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l’app →</a>
-      </div>
-    `, {maxWidth:220});
   });
 }
 
