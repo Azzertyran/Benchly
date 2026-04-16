@@ -450,7 +450,7 @@ async function loadDemoMap(){
     revMap[r.bench_id].push(r);
   });
 
-  demoMap.on('load', () => {
+  function placerMarqueurs(){
     (benches||[]).forEach(b => {
       const avis = revMap[b.id] || [];
       const avg = avis.length
@@ -476,7 +476,13 @@ async function loadDemoMap(){
         .setPopup(popup)
         .addTo(demoMap);
     });
-  });
+  }
+
+  if(demoMap.isStyleLoaded()){
+    placerMarqueurs();
+  } else {
+    demoMap.on('load', placerMarqueurs);
+  }
 }
 
 loadDemoMap();
