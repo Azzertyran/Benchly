@@ -463,15 +463,14 @@ async function loadDemoMap(){
       el.style.cssText = 'width:32px;height:46px;cursor:pointer;';
       el.innerHTML = benchSvg;
       const tags = (b.tags||[]).map(t=>'<span style="font-size:10px;padding:2px 7px;background:#E6F1FB;color:#185FA5;border-radius:50px">'+t+'</span>').join('');
-      const popup = new maplibregl.Popup({maxWidth:'220px', offset:25}).setHTML(
-        '<div style="font-family:'DM Sans',sans-serif;min-width:180px">' +
+      const popupHtml = '<div style="font-family:DM Sans,sans-serif;min-width:180px">' +
         '<div style="font-weight:500;font-size:14px;margin-bottom:3px">' + b.name + '</div>' +
         '<div style="font-size:12px;color:#888;margin-bottom:6px">' + (b.location||'') + '</div>' +
         '<div style="color:#F5A623;font-size:13px;margin-bottom:6px">' + S(avgN) + ' <span style="color:#333;font-weight:500">' + avg + '</span> <span style="color:#aaa">(' + avis.length + ' avis)</span></div>' +
         '<div style="display:flex;gap:4px;flex-wrap:wrap;margin-bottom:10px">' + tags + '</div>' +
-        '<a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l'app →</a>' +
-        '</div>'
-      );
+        '<a href="/app" style="display:block;background:#378ADD;color:white;text-align:center;padding:8px;border-radius:8px;text-decoration:none;font-size:13px">Voir dans l\u2019app \u2192</a>' +
+        '</div>';
+      const popup = new maplibregl.Popup({maxWidth:'220px', offset:25}).setHTML(popupHtml);
       new maplibregl.Marker({element:el, anchor:'bottom'})
         .setLngLat([b.lng, b.lat])
         .setPopup(popup)
