@@ -138,8 +138,9 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .author-name-input::placeholder{color:#bbb;font-weight:400;}
 .author-edit-hint{font-size:10px;color:var(--blue);flex-shrink:0;font-style:italic;}
 .big-stars{display:flex;gap:10px;justify-content:center;padding:12px 0 4px;}
-.bsb{font-size:40px;cursor:pointer;background:none;border:none;padding:0;color:#e0e0e0;transition:color .1s,transform .15s;line-height:1;}
+.bsb{font-size:40px;cursor:pointer;background:none;border:none;padding:0;color:#e0e0e0;transition:color .1s,transform .15s;line-height:1;position:relative;}
 .bsb.lit{color:var(--amber);}
+.bsb.half{background:linear-gradient(to right, var(--amber) 50%, #e0e0e0 50%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .bsb:hover{transform:scale(1.2);}
 .star-hint{text-align:center;font-size:12px;color:var(--muted);height:18px;margin-bottom:12px;transition:all .15s;}
 
@@ -191,6 +192,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .star-row{display:flex;gap:6px;margin-top:2px;}
 .sb{font-size:28px;cursor:pointer;background:none;border:none;padding:0;color:#ddd;transition:color .1s,transform .1s;}
 .sb.lit{color:var(--amber);}
+.sb.half{background:linear-gradient(to right, var(--amber) 50%, #ddd 50%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 
 /* TAG GROUPS */
 .tag-group{margin-bottom:4px;}
@@ -382,6 +384,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .edit-stars{display:flex;gap:8px;margin-top:4px;}
 .edit-star{font-size:28px;cursor:pointer;background:none;border:none;color:#ddd;transition:color .1s;}
 .edit-star.lit{color:var(--amber);}
+.edit-star.half{background:linear-gradient(to right, var(--amber) 50%, #ddd 50%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .edit-actions{display:flex;gap:10px;margin-top:18px;position:sticky;bottom:0;background:var(--white);padding:12px 0 4px;}
 .edit-save{flex:1;padding:12px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;}
 .edit-cancel{padding:12px 20px;background:var(--sand);color:var(--muted);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:14px;cursor:pointer;}
@@ -783,11 +786,11 @@ window.goPage=goPage;
 
       <div class="fl" style="text-align:center;margin-bottom:0;">Note globale</div>
       <div class="big-stars" id="big-star-row">
-        <button class="bsb" onclick="setBigStar(1)">★</button>
-        <button class="bsb" onclick="setBigStar(2)">★</button>
-        <button class="bsb" onclick="setBigStar(3)">★</button>
-        <button class="bsb" onclick="setBigStar(4)">★</button>
-        <button class="bsb" onclick="setBigStar(5)">★</button>
+        <button class="bsb" data-star="1" ontouchend="handleStarTouch(event,1)" onclick="handleStarClick(event,1)">★</button>
+        <button class="bsb" data-star="2" ontouchend="handleStarTouch(event,2)" onclick="handleStarClick(event,2)">★</button>
+        <button class="bsb" data-star="3" ontouchend="handleStarTouch(event,3)" onclick="handleStarClick(event,3)">★</button>
+        <button class="bsb" data-star="4" ontouchend="handleStarTouch(event,4)" onclick="handleStarClick(event,4)">★</button>
+        <button class="bsb" data-star="5" ontouchend="handleStarTouch(event,5)" onclick="handleStarClick(event,5)">★</button>
       </div>
       <div class="star-hint" id="star-hint"></div>
 
@@ -880,11 +883,11 @@ window.goPage=goPage;
 
       <div class="fl">Votre note</div>
       <div class="star-row" id="star-row">
-        <button class="sb" onclick="setStar(1)">★</button>
-        <button class="sb" onclick="setStar(2)">★</button>
-        <button class="sb" onclick="setStar(3)">★</button>
-        <button class="sb" onclick="setStar(4)">★</button>
-        <button class="sb" onclick="setStar(5)">★</button>
+        <button class="sb" data-star="1" ontouchend="handleStarTouchAdd(event,1)" onclick="handleStarClickAdd(event,1)">★</button>
+        <button class="sb" data-star="2" ontouchend="handleStarTouchAdd(event,2)" onclick="handleStarClickAdd(event,2)">★</button>
+        <button class="sb" data-star="3" ontouchend="handleStarTouchAdd(event,3)" onclick="handleStarClickAdd(event,3)">★</button>
+        <button class="sb" data-star="4" ontouchend="handleStarTouchAdd(event,4)" onclick="handleStarClickAdd(event,4)">★</button>
+        <button class="sb" data-star="5" ontouchend="handleStarTouchAdd(event,5)" onclick="handleStarClickAdd(event,5)">★</button>
       </div>
 
       <div class="fl">Commentaire</div>
@@ -1142,7 +1145,15 @@ let currentFilter='all', currentSort='note';
 let selectedStars=0, addedCount=0, selectedEtat='';
 let pinMode=false, pendingLat=null, pendingLng=null;
 
-function S(n,t=5){return Array.from({length:t},(_,i)=>i<n?'★':'☆').join('');}
+function S(n,t=5){
+  let out='';
+  for(let i=1;i<=t;i++){
+    if(n>=i) out+='★';
+    else if(n>=i-0.5) out+='½';
+    else out+='☆';
+  }
+  return out;
+}
 
 // ── AUTH & USERNAME ───────────────────────────────────
 function getInitials(name){
@@ -1467,7 +1478,7 @@ function cancelAdd(){
 // ── MARKERS ──────────────────────────────────────────
 function makeIcon(b){
   const r = b.rating||0;
-  const color = r>=4.7?'#0C447C': r>=4.0?'#378ADD': r>=3.0?'#1D9E75': r>=2.5?'#EF9F27':'#E24B4A';
+  const color = r>=4.5?'#1A7A4A': r>=3.5?'#4CAF50': r>=2.5?'#F5C518': r>=1.5?'#EF9F27':'#E24B4A';
   const svg=`<svg width="32" height="46" viewBox="0 0 32 46" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="${color}" stroke="white" stroke-width="2"/>
     <rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/>
@@ -1723,7 +1734,6 @@ function sortList(key,el){
 
 // ── REVIEW ────────────────────────────────────────────
 let reviewBenchId=null, reviewStars=0;
-const starHints=['','Mauvais 😕','Passable 😐','Correct 🙂','Bien 😊','Excellent ! 🤩'];
 
 function openReview(id){
   reviewBenchId=id;
@@ -1732,7 +1742,7 @@ function openReview(id){
   document.getElementById('review-bench-name').textContent=b?('sur : '+b.name):'';
   document.getElementById('review-comment').value='';
   document.getElementById('star-hint').textContent='';
-  document.querySelectorAll('.bsb').forEach(s=>s.classList.remove('lit'));
+  document.querySelectorAll('.bsb').forEach(s=>{ s.classList.remove('lit','half'); });
 
   // Pré-remplir le nom depuis localStorage
   const savedName=localStorage.getItem('benchmark-username')||'Alexandre';
@@ -1762,9 +1772,50 @@ function updateAuthorPreview(val){
   document.getElementById('review-av-initials').textContent=initials;
 }
 
+const starHints={0.5:'Très mauvais 😣',1:'Mauvais 😕',1.5:'Mauvais 😕',2:'Passable 😐',2.5:'Passable 😐',3:'Correct 🙂',3.5:'Bien 😊',4:'Bien 😊',4.5:'Excellent ! 🤩',5:'Parfait ! 🤩'};
+
+function getHalfVal(el, star, clientX){
+  const rect = el.getBoundingClientRect();
+  const isLeft = clientX < rect.left + rect.width / 2;
+  return isLeft ? star - 0.5 : star;
+}
+
+function handleStarTouch(e, star){
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  const val = getHalfVal(e.currentTarget, star, touch.clientX);
+  setBigStar(val);
+}
+
+function handleStarClick(e, star){
+  const val = getHalfVal(e.currentTarget, star, e.clientX);
+  setBigStar(val);
+}
+
+function handleStarTouchAdd(e, star){
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  const val = getHalfVal(e.currentTarget, star, touch.clientX);
+  setStar(val);
+}
+
+function handleStarClickAdd(e, star){
+  const val = getHalfVal(e.currentTarget, star, e.clientX);
+  setStar(val);
+}
+
+function updateStarDisplay(buttons, val){
+  buttons.forEach((s, i) => {
+    const starNum = i + 1;
+    s.classList.remove('lit','half');
+    if(val >= starNum) s.classList.add('lit');
+    else if(val >= starNum - 0.5) s.classList.add('half');
+  });
+}
+
 function setBigStar(n){
   reviewStars=n;
-  document.querySelectorAll('.bsb').forEach((s,i)=>s.classList.toggle('lit',i<n));
+  updateStarDisplay(document.querySelectorAll('.bsb'), n);
   document.getElementById('star-hint').textContent=starHints[n]||'';
 }
 
@@ -1820,7 +1871,10 @@ async function submitReview(){
 }
 
 
-function setStar(n){selectedStars=n;document.querySelectorAll('.sb').forEach((b,i)=>b.classList.toggle('lit',i<n));}
+function setStar(n){
+  selectedStars=n;
+  updateStarDisplay(document.querySelectorAll('.sb'), n);
+}
 
 function selectEtat(el, val){
   document.querySelectorAll('.etat-sel').forEach(e=>e.classList.remove('sel'));
@@ -1941,7 +1995,7 @@ function initPhotoGrid(ns){
 function resetForm(){
   document.getElementById('add-name').value='';
   document.getElementById('add-comment').value='';
-  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit'));
+  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit','half'));
   document.querySelectorAll('#add-sheet .tsel').forEach(t=>t.classList.remove('sel'));
   selectedStars=0; selectedEtat='';
   initPhotoGrid('add');
@@ -2235,7 +2289,7 @@ async function editReview(id){
     <div class="edit-field">
       <div class="edit-label">Note</div>
       <div class="edit-stars" id="edit-stars-row">
-        ${[1,2,3,4,5].map(n=>`<button class="edit-star ${n<=_editStars?'lit':''}" onclick="setEditStar(${n})">${n<=_editStars?'★':'☆'}</button>`).join('')}
+        ${[1,2,3,4,5].map(n=>`<button class="edit-star ${_editStars>=n?'lit':_editStars>=n-0.5?'half':''}" data-star="${n}" ontouchend="handleStarTouchEdit(event,${n})" onclick="handleStarClickEdit(event,${n})">${'★'}</button>`).join('')}
       </div>
     </div>
     <div class="edit-field">
@@ -2260,12 +2314,21 @@ function selectEditEtat(el, val){
   _editEtat = val;
 }
 
+function handleStarTouchEdit(e, star){
+  e.preventDefault();
+  const touch = e.changedTouches[0];
+  const val = getHalfVal(e.currentTarget, star, touch.clientX);
+  setEditStar(val);
+}
+
+function handleStarClickEdit(e, star){
+  const val = getHalfVal(e.currentTarget, star, e.clientX);
+  setEditStar(val);
+}
+
 function setEditStar(n){
   _editStars = n;
-  document.querySelectorAll('.edit-star').forEach((s,i)=>{
-    s.classList.toggle('lit', i<n);
-    s.textContent = i<n?'★':'☆';
-  });
+  updateStarDisplay(document.querySelectorAll('.edit-star'), n);
 }
 
 async function saveEdit(){
@@ -2625,6 +2688,12 @@ window.openBench=openBench;
 window.openReview=openReview;
 window.closeReview=closeReview;
 window.setBigStar=setBigStar;
+window.handleStarTouch=handleStarTouch;
+window.handleStarClick=handleStarClick;
+window.handleStarTouchAdd=handleStarTouchAdd;
+window.handleStarClickAdd=handleStarClickAdd;
+window.handleStarTouchEdit=handleStarTouchEdit;
+window.handleStarClickEdit=handleStarClickEdit;
 window.submitReview=submitReview;
 window.updateAuthorPreview=updateAuthorPreview;
 function openAdd(){togglePinMode();}
