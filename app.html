@@ -1136,6 +1136,16 @@ async function loadBenches(){
     });
   }catch(e){console.error(e);showToast('Erreur de connexion');}
   renderMarkers();renderExplorer();renderFavorites();updateStats();
+  // Ouvrir un banc si lien partagé (#bench-[id])
+  const hash = window.location.hash;
+  if(hash && hash.startsWith('#bench-')){
+    const benchId = hash.replace('#bench-','');
+    const bench = benches.find(b=>b.id===benchId);
+    if(bench){
+      setTimeout(()=>openBench(bench), 500);
+      window.location.hash = '';
+    }
+  }
 }
 
 
