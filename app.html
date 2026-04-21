@@ -2282,10 +2282,58 @@ function closeEditModal(){
 }
 
 async function editBench(id){
-  _editType = 'bench';
-  _editId = id;
-  const b = benches.find(x=>String(x.id)===String(id));
+  await openEditFull(id, null);
+}
+
+async function editReview(id){
+  await openEditFull(null, id);
+}
+
+async function openEditFull(benchId, reviewId){
+  let b = null, rev = null;
+
+  if(reviewId){
+    _editType = 'both';
+    _editId = reviewId;
+    const{data:r} = await db.from('reviews').select('*').eq('id',reviewId).single();
+    if(!r) return;
+    rev = r;
+    _editStars = r.rating||0;
+    _editEtat = r.etat||'';
+    _editBenchId = r.bench_id||null;
+    b = benches.find(x=>String(x.id)===String(r.bench_id));
+  } else {
+    _editType = 'bench';
+    _editId = benchId;
+    b = benches.find(x=>String(x.id)===String(benchId));
+    _editBenchId = benchId;
+    const author = localStorage.getItem('benchmark-username')||'';
+    if(author && b){
+      const{data:r} = await db.from('reviews').select('*').eq('bench_id',benchId).eq('author',author).maybeSingle();
+      if(r){ rev = r; _editId = r.id; _editStars = r.rating||0; _editEtat = r.etat||''; }
+    }
+  }
+
   if(!b) return;
+
+  const allTags = [
+    {group:'Environnement', tags:['🌅 Vue panoramique','🌳 Ombragé','☀️ Ensoleillé','🍃 Air frais','🐦 Faune / nature','💧 Proche eau']},
+    {group:'Ambiance', tags:['🔇 Calme','🎵 Animé / musique','🌧️ Abrité pluie']},
+    {group:'Accessibilité', tags:['♿ Accessible PMR','🚌 Proche transports','🧒 Adapté enfants','🐶 Chiens bienvenus']},
+    {group:'Matériaux', tags:['🪵 Bois','🔩 Bois et métal','🪨 Pierre / granit','🏗️ Béton','♻️ Plastique recyclé','🌿 Bois composite','🔧 Métal / fonte']},
+  ];
+
+  const starsHtml = [1,2,3,4,5].map(n=>`<button class="edit-star ${_editStars>=n?'lit':_editStars>=n-0.5?'half':''}" data-star="${n}" ontouchend="handleStarTouchEdit(event,${n})" onclick="handleStarClickEdit(event,${n})">★</button>`).join('');
+
+  const etatHtml = [['✨','Comme neuf'],['👍','Bon état'],['😐','Passable'],['⚠️','Dégradé'],['🚨','Dangereux']].map(([emoji,val])=>`<span class="tsel etat-sel-edit ${_editEtat===emoji+' '+val||_editEtat===val?'sel':''}" onclick="selectEditEtat(this,'${emoji} ${val}')">${emoji} ${val}</span>`).join('');
+
+  const tagsHtml = allTags.map(({group, tags})=>`
+    <div class="tag-group" style="margin-bottom:10px;">
+      <div class="tag-group-label">${group}</div>
+      <div class="tsel-wrap">
+        ${tags.map(tag=>`<span class="tsel ${b.tags.includes(tag)?'sel':''}" onclick="this.classList.toggle('sel')" data-tag="${tag}">${tag}</span>`).join('')}
+      </div>
+    </div>`).join('');
 
   document.getElementById('edit-modal-title').textContent = 'Modifier le banc';
   document.getElementById('edit-modal-body').innerHTML = `
@@ -2298,51 +2346,26 @@ async function editBench(id){
       <textarea class="edit-input" id="edit-desc" rows="3">${b.desc||''}</textarea>
     </div>
     <div class="edit-field">
-      <div class="edit-label">Tags</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;" id="edit-tags">
-        ${['🌅 Vue panoramique','🌳 Ombragé','☀️ Ensoleillé','🔇 Calme','🌧️ Abrité pluie','🐶 Chiens bienvenus','🍃 Air frais','💧 Proche eau'].map(tag=>`
-          <span style="font-size:12px;padding:5px 11px;border-radius:50px;border:1.5px solid;cursor:pointer;${b.tags.includes(tag)?'background:var(--blue-light);border-color:var(--blue);color:var(--blue-mid)':'background:var(--white);border-color:var(--border);color:var(--muted)'}" onclick="this.dataset.sel=this.dataset.sel==='1'?'0':'1';this.style.background=this.dataset.sel==='1'?'var(--blue-light)':'var(--white)';this.style.borderColor=this.dataset.sel==='1'?'var(--blue)':'var(--border)';this.style.color=this.dataset.sel==='1'?'var(--blue-mid)':'var(--muted)'" data-tag="${tag}" data-sel="${b.tags.includes(tag)?'1':'0'}">${tag}</span>
-        `).join('')}
-      </div>
-    </div>`;
-
-  document.getElementById('edit-modal').classList.add('show');
-}
-
-async function editReview(id){
-  _editType = 'review';
-  _editId = id;
-
-  const{data:rev} = await db.from('reviews').select('*').eq('id',id).single();
-  if(!rev) return;
-  _editStars = rev.rating||0;
-  _editEtat = rev.etat||'';
-  _editBenchId = rev.bench_id||null;
-
-  document.getElementById('edit-modal-title').textContent = 'Modifier mon avis';
-  document.getElementById('edit-modal-body').innerHTML = `
-    <div class="edit-field">
-      <div class="edit-label">Note</div>
-      <div class="edit-stars" id="edit-stars-row">
-        ${[1,2,3,4,5].map(n=>`<button class="edit-star ${_editStars>=n?'lit':_editStars>=n-0.5?'half':''}" data-star="${n}" ontouchend="handleStarTouchEdit(event,${n})" onclick="handleStarClickEdit(event,${n})">${'★'}</button>`).join('')}
-      </div>
+      <div class="edit-label">Caractéristiques</div>
+      ${tagsHtml}
+    </div>
+    ${rev ? `
+    <div class="edit-field" style="border-top:1px solid var(--border);margin-top:8px;padding-top:16px;">
+      <div class="edit-label">Votre note</div>
+      <div class="edit-stars" id="edit-stars-row">${starsHtml}</div>
     </div>
     <div class="edit-field">
       <div class="edit-label">État du banc</div>
-      <div class="tsel-wrap" id="edit-etat-wrap">
-        ${[['✨','Comme neuf'],['👍','Bon état'],['😐','Passable'],['⚠️','Dégradé'],['🚨','Dangereux']].map(([emoji,val])=>
-          `<span class="tsel etat-sel-edit ${_editEtat===emoji+' '+val||_editEtat===val?'sel':''}" onclick="selectEditEtat(this,'${emoji} ${val}')">${emoji} ${val}</span>`
-        ).join('')}
-      </div>
+      <div class="tsel-wrap" id="edit-etat-wrap">${etatHtml}</div>
     </div>
     <div class="edit-field">
-      <div class="edit-label">Commentaire</div>
+      <div class="edit-label">Votre commentaire</div>
       <textarea class="edit-input" id="edit-comment" rows="4">${rev.comment||''}</textarea>
-    </div>`;
+    </div>` : ''}
+  `;
 
   document.getElementById('edit-modal').classList.add('show');
 }
-
 function selectEditEtat(el, val){
   document.querySelectorAll('.etat-sel-edit').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
@@ -2367,54 +2390,38 @@ function setEditStar(n){
 }
 
 async function saveEdit(){
-  if(_editType==='bench'){
-    const name = document.getElementById('edit-name').value.trim();
-    const desc = document.getElementById('edit-desc').value.trim();
-    const tags = [...document.querySelectorAll('#edit-tags span[data-sel="1"]')].map(el=>el.dataset.tag);
-    if(!name){showToast('Le nom est requis');return;}
-    try{
-      await db.from('benches').update({name,description:desc,tags}).eq('id',_editId);
-      showToast('✓ Banc mis à jour');
-      closeEditModal();
-      // Mettre à jour directement l'objet dans benches[] sans recharger
-      const idx = benches.findIndex(b=>String(b.id)===String(_editId));
-      if(idx>=0){
-        benches[idx].name = name;
-        benches[idx].desc = desc;
-        benches[idx].tags = tags;
+  const name = document.getElementById('edit-name')?.value.trim();
+  const desc = document.getElementById('edit-desc')?.value.trim();
+  const tags = [...document.querySelectorAll('#edit-modal-body .tsel.sel:not(.etat-sel-edit)')].map(el=>el.dataset.tag).filter(Boolean);
+  const comment = document.getElementById('edit-comment')?.value.trim();
+  const etat = _editEtat || null;
+
+  if(!name){showToast('Le nom est requis');return;}
+
+  try{
+    // 1. Toujours mettre à jour le banc
+    await db.from('benches').update({name, description:desc, tags}).eq('id', _editBenchId);
+
+    // 2. Mettre à jour l'avis si on en a un
+    if(_editId && (_editType==='both' || (_editType==='bench' && document.getElementById('edit-comment')))){
+      if(_editStars){
+        await db.from('reviews').update({rating:_editStars, comment:comment||null, etat}).eq('id', _editId);
       }
-      // Fermer contrib-sheet et rouvrir la fiche immédiatement
-      const cs = document.getElementById('contrib-sheet');
-      if(cs) cs.style.transform='translateX(100%)';
-      renderContribBenches();
-      renderMarkers();
-      const updated = benches[idx>=0?idx:0];
-      if(idx>=0){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
-      // Recharger en arrière-plan après délai pour laisser la fiche s'afficher
-      setTimeout(()=>loadBenches(), 2000);
-    }catch(e){showToast('Erreur lors de la mise à jour');}
-  } else if(_editType==='review'){
-    const comment = document.getElementById('edit-comment').value.trim();
-    const etat = _editEtat || null;
-    if(!_editStars){showToast('Choisissez une note');return;}
-    try{
-      await db.from('reviews').update({rating:_editStars,comment,etat}).eq('id',_editId);
-      showToast('✓ Avis mis à jour');
-      closeEditModal();
-      // Fermer contrib-sheet
-      const cs2 = document.getElementById('contrib-sheet');
-      if(cs2) cs2.style.transform='translateX(100%)';
-      // Recharger depuis Supabase et rouvrir la fiche
-      const targetId = _editBenchId || (window._cb && window._cb.id);
-      await loadBenches();
-      if(targetId){
-        const updated = benches.find(b=>String(b.id)===String(targetId));
-        if(updated){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
-      }
-    }catch(e){showToast('Erreur lors de la mise à jour');}
+    }
+
+    showToast('✓ Modifications enregistrées');
+    closeEditModal();
+    const cs = document.getElementById('contrib-sheet');
+    if(cs) cs.style.transform='translateX(100%)';
+    await loadBenches();
+    renderContribBenches();
+    const updated = benches.find(b=>String(b.id)===String(_editBenchId));
+    if(updated){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
+  }catch(e){
+    console.error('saveEdit error', e);
+    showToast('Erreur lors de la mise à jour');
   }
 }
-
 // ── PARTAGE & SIGNALEMENT ────────────────────────────
 async function shareBench(b){
   const url = `https://www.benchmap.app/app#bench-${b.id}`;
@@ -2937,6 +2944,7 @@ window.updateCountPill=updateCountPill;
 window.handleBenchCardClick=handleBenchCardClick;
 window.editBench=editBench;
 window.editReview=editReview;
+window.openEditFull=openEditFull;
 window.closeEditModal=closeEditModal;
 window.saveEdit=saveEdit;
 window.setEditStar=setEditStar;
