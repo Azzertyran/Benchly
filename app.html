@@ -414,6 +414,29 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 
 /* Marker */
 @keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.1)}100%{transform:scale(1);opacity:1}}
+
+/* ── USER PROFILE MODAL ── */
+#user-profile-modal{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:20000;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;}
+#user-profile-modal.show{opacity:1;pointer-events:auto;}
+#user-profile-sheet{background:var(--bg);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:82vh;display:flex;flex-direction:column;transform:translateY(100%);transition:transform .3s cubic-bezier(.32,0,.67,0);}
+#user-profile-modal.show #user-profile-sheet{transform:translateY(0);}
+.up-header{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 12px;border-bottom:1px solid var(--border);}
+.up-title{font-weight:600;font-size:15px;color:var(--ink);}
+.up-close{background:none;border:none;font-size:20px;color:var(--muted);cursor:pointer;padding:0 4px;}
+.up-body{overflow-y:auto;padding:14px 16px;flex:1;}
+.up-info{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.up-av{width:44px;height:44px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:600;color:white;flex-shrink:0;}
+.up-meta{flex:1;}
+.up-name{font-size:16px;font-weight:600;color:var(--ink);}
+.up-stats{font-size:12px;color:var(--muted);margin-top:2px;}
+.up-review-item{padding:12px 0;border-bottom:0.5px solid var(--border);}
+.up-review-item:last-child{border-bottom:none;}
+.up-review-bench{font-size:13px;font-weight:500;color:var(--blue-mid);margin-bottom:3px;cursor:pointer;}
+.up-review-bench:hover{text-decoration:underline;}
+.up-review-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.up-review-text{font-size:13px;color:var(--text);line-height:1.45;}
+.up-review-etat{font-size:11px;color:var(--muted);margin-bottom:2px;}
+.up-empty{text-align:center;padding:30px 0;color:var(--muted);font-size:13px;}
 </style>
 </head>
 <body>
@@ -1620,7 +1643,7 @@ function openBench(b){
         <button class="act-btn" style="color:var(--muted)" onclick="reportBench(window._cb)">🚩 Signaler</button>
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
-      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card" data-review-id="${a.id}"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div><div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
+      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card" data-review-id="${a.id}"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name rv-name-link" onclick="showUserReviews('${a.u}')" style="cursor:pointer;color:var(--blue-mid);">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div>${a.etat?`<div style="font-size:11px;color:var(--muted);margin-bottom:2px;">État constaté : ${a.etat}</div>`:''}<div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
     </div>`;
   // Charger les likes depuis Supabase
   const reviewIds = b.avis.filter(a=>a.id).map(a=>a.id);
@@ -2364,6 +2387,11 @@ async function saveEdit(){
       closeEditModal();
       await loadBenches();
       renderContribReviews();
+      // Recharger la fiche du banc si elle est ouverte
+      if(window._cb && window._cb.id){
+        const updated = benches.find(b=>b.id===window._cb.id);
+        if(updated){ window._cb=updated; openBench(updated); }
+      }
     }catch(e){showToast('Erreur lors de la mise à jour');}
   }
 }
@@ -2516,7 +2544,7 @@ async function renderLeaderboard(){
     // Trier par score
     const ranking = Object.entries(scores)
       .sort((a,b)=>b[1]-a[1])
-      .slice(0,10);
+      .slice(0,5);
     
     const myRank = Object.entries(scores)
       .sort((a,b)=>b[1]-a[1])
@@ -2532,12 +2560,12 @@ async function renderLeaderboard(){
       return '<div class="leaderboard-row">'
         +'<div class="leaderboard-rank '+(rankClasses[i]||'')+'">'+rankDisplay+'</div>'
         +'<div class="leaderboard-av">'+initials+'</div>'
-        +'<div class="leaderboard-name'+(isMe?' me':'')+'">'+name+(isMe?' (moi)':'')+'</div>'
+        +'<div class="leaderboard-name'+(isMe?' me':'')+'">'+(!isMe?'<span style="cursor:pointer;color:var(--blue-mid);" onclick="showUserReviews(\'' +name+ '\')">' +name+ '</span>':name+' (moi)')+'</div>'
         +'<div class="leaderboard-score">'+score+' pts</div>'
         +'</div>';
     }).join('');
     
-    const myRankHtml = myRank > 0 && myRank > 10
+    const myRankHtml = myRank > 0 && myRank > 5
       ? '<div class="leaderboard-my-rank">Ton rang : #'+myRank+' · '+(scores[myName]||0)+' pts</div>'
       : '';
     
@@ -2819,6 +2847,61 @@ window.openLightbox=openLightbox;
 window.closeLightbox=closeLightbox;
 window.addPhotos=addPhotos;
 window.removePhoto=removePhoto;
+
+// ── PROFIL UTILISATEUR ────────────────────────────────
+async function showUserReviews(username){
+  if(!username) return;
+  const modal = document.getElementById('user-profile-modal');
+  const listEl = document.getElementById('up-reviews-list');
+  const initials = username.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2);
+  document.getElementById('up-av').textContent = initials;
+  document.getElementById('up-name').textContent = username;
+  document.getElementById('up-title').textContent = 'Avis de ' + username;
+  document.getElementById('up-stats').textContent = 'Chargement…';
+  listEl.innerHTML = '<div class="up-empty">Chargement…</div>';
+  modal.classList.add('show');
+  try{
+    // Récupérer tous les avis de cet utilisateur
+    const {data: reviews} = await db.from('reviews')
+      .select('id, rating, comment, etat, created_at, bench_id')
+      .eq('author', username)
+      .order('created_at', {ascending: false});
+    if(!reviews || !reviews.length){
+      listEl.innerHTML = '<div class="up-empty">Aucun avis encore posté.</div>';
+      document.getElementById('up-stats').textContent = '0 avis';
+      return;
+    }
+    // Stats
+    const avg = reviews.reduce((s,r)=>s+(r.rating||0),0) / reviews.length;
+    document.getElementById('up-stats').textContent = reviews.length + ' avis · moyenne ' + avg.toFixed(1) + ' ★';
+    // Récupérer les noms des bancs
+    const benchIds = [...new Set(reviews.map(r=>r.bench_id).filter(Boolean))];
+    const {data: benchNames} = await db.from('benches').select('id, name').in('id', benchIds);
+    const benchMap = {};
+    (benchNames||[]).forEach(b=>{ benchMap[b.id]=b.name; });
+    // Rendre les avis
+    const S = window.S || (n => '★'.repeat(Math.min(5,Math.max(0,n))));
+    listEl.innerHTML = reviews.map(r => {
+      const bname = benchMap[r.bench_id] || 'Banc inconnu';
+      const date = r.created_at ? new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'}) : '';
+      return `<div class="up-review-item">
+        <div class="up-review-bench" onclick="closeUserProfile();const b=benches.find(x=>x.id==='${r.bench_id}');if(b)openBench(b);">${bname}</div>
+        <div class="up-review-meta"><span style="font-size:12px;">${S(Math.round(r.rating||0))}</span><span style="font-size:11px;color:var(--muted);">${(r.rating||0).toFixed(1)} · ${date}</span></div>
+        ${r.etat ? `<div class="up-review-etat">État constaté : ${r.etat}</div>` : ''}
+        ${r.comment ? `<div class="up-review-text">${r.comment}</div>` : ''}
+      </div>`;
+    }).join('');
+  }catch(e){
+    console.error('showUserReviews error', e);
+    listEl.innerHTML = '<div class="up-empty">Erreur de chargement.</div>';
+  }
+}
+function closeUserProfile(){
+  document.getElementById('user-profile-modal').classList.remove('show');
+}
+window.showUserReviews = showUserReviews;
+window.closeUserProfile = closeUserProfile;
+
 window.closeAll=closeAll;
 window.sortList=sortList;
 window.openContrib=openContrib;
@@ -2853,13 +2936,35 @@ window.addEventListener('load', function() {
    'openAdminPanel','closeAdminPanel','adminDeleteBench','adminDeleteReview',
    'updateCountPill','handleBenchCardClick','editBench','editReview',
    'closeEditModal','saveEdit','setEditStar','saveWelcomeName',
-   'editUsername','handleAuthBtn','loginWithGoogle'].forEach(function(fn) {
+   'editUsername','handleAuthBtn','loginWithGoogle',
+   'showUserReviews','closeUserProfile'].forEach(function(fn) {
     if(typeof window[fn] === 'undefined') {
       try { window[fn] = eval(fn); } catch(e) {}
     }
   });
 });
 </script>
+
+
+<!-- USER PROFILE MODAL -->
+<div id="user-profile-modal" onclick="if(event.target===this)closeUserProfile()">
+  <div id="user-profile-sheet">
+    <div class="up-header">
+      <span class="up-title" id="up-title">Avis de …</span>
+      <button class="up-close" onclick="closeUserProfile()">✕</button>
+    </div>
+    <div class="up-body">
+      <div class="up-info">
+        <div class="up-av" id="up-av">?</div>
+        <div class="up-meta">
+          <div class="up-name" id="up-name"></div>
+          <div class="up-stats" id="up-stats"></div>
+        </div>
+      </div>
+      <div id="up-reviews-list"></div>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL DON -->
 <div id="don-modal" onclick="if(event.target===this)closeDon()">
