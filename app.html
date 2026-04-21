@@ -2401,32 +2401,16 @@ async function saveEdit(){
       await db.from('reviews').update({rating:_editStars,comment,etat}).eq('id',_editId);
       showToast('✓ Avis mis à jour');
       closeEditModal();
-      // Mettre à jour directement l'avis dans benches[] sans recharger
+      // Fermer contrib-sheet
+      const cs2 = document.getElementById('contrib-sheet');
+      if(cs2) cs2.style.transform='translateX(100%)';
+      // Recharger depuis Supabase et rouvrir la fiche
       const targetId = _editBenchId || (window._cb && window._cb.id);
+      await loadBenches();
       if(targetId){
-        const bIdx = benches.findIndex(b=>String(b.id)===String(targetId));
-        if(bIdx>=0){
-          const aIdx = benches[bIdx].avis.findIndex(a=>String(a.id)===String(_editId));
-          if(aIdx>=0){
-            benches[bIdx].avis[aIdx].s = _editStars;
-            benches[bIdx].avis[aIdx].t = comment;
-            benches[bIdx].avis[aIdx].etat = etat||'';
-          }
-          // Recalculer la note moyenne
-          const avis = benches[bIdx].avis;
-          benches[bIdx].rating = avis.length ? Math.round(avis.reduce((s,a)=>s+a.s,0)/avis.length*10)/10 : 0;
-          // Fermer contrib-sheet et rouvrir la fiche
-          const cs2 = document.getElementById('contrib-sheet');
-          if(cs2) cs2.style.transform='translateX(100%)';
-          renderContribReviews();
-          renderMarkers();
-          const updated = benches[bIdx];
-          window._cb = updated;
-          setTimeout(()=>openBench(updated), 350);
-        }
+        const updated = benches.find(b=>String(b.id)===String(targetId));
+        if(updated){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
       }
-      // Recharger en arrière-plan après délai
-      setTimeout(()=>loadBenches(), 2000);
     }catch(e){showToast('Erreur lors de la mise à jour');}
   }
 }
