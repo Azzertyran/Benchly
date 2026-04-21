@@ -2378,6 +2378,9 @@ async function saveEdit(){
       closeEditModal();
       await loadBenches();
       renderContribBenches();
+      // Rouvrir la fiche du banc avec les données fraîches
+      const updated = benches.find(b=>String(b.id)===String(_editId));
+      if(updated){ window._cb=updated; openBench(updated); }
     }catch(e){showToast('Erreur lors de la mise à jour');}
   } else if(_editType==='review'){
     const comment = document.getElementById('edit-comment').value.trim();
