@@ -2390,8 +2390,8 @@ async function saveEdit(){
       renderMarkers();
       const updated = benches[idx>=0?idx:0];
       if(idx>=0){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
-      // Recharger en arrière-plan pour sync complète
-      loadBenches();
+      // Recharger en arrière-plan après délai pour laisser la fiche s'afficher
+      setTimeout(()=>loadBenches(), 2000);
     }catch(e){showToast('Erreur lors de la mise à jour');}
   } else if(_editType==='review'){
     const comment = document.getElementById('edit-comment').value.trim();
@@ -2425,8 +2425,8 @@ async function saveEdit(){
           setTimeout(()=>openBench(updated), 350);
         }
       }
-      // Recharger en arrière-plan
-      loadBenches();
+      // Recharger en arrière-plan après délai
+      setTimeout(()=>loadBenches(), 2000);
     }catch(e){showToast('Erreur lors de la mise à jour');}
   }
 }
