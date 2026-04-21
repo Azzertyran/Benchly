@@ -2378,9 +2378,11 @@ async function saveEdit(){
       closeEditModal();
       await loadBenches();
       renderContribBenches();
-      // Rouvrir la fiche du banc avec les données fraîches
+      // Fermer contrib-sheet puis rouvrir la fiche avec données fraîches
+      const cs = document.getElementById('contrib-sheet');
+      if(cs) cs.style.transform='translateX(100%)';
       const updated = benches.find(b=>String(b.id)===String(_editId));
-      if(updated){ window._cb=updated; openBench(updated); }
+      if(updated){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
     }catch(e){showToast('Erreur lors de la mise à jour');}
   } else if(_editType==='review'){
     const comment = document.getElementById('edit-comment').value.trim();
@@ -2392,11 +2394,13 @@ async function saveEdit(){
       closeEditModal();
       await loadBenches();
       renderContribReviews();
-      // Rouvrir la fiche du banc avec les données fraîches
+      // Fermer contrib-sheet puis rouvrir la fiche avec données fraîches
+      const cs2 = document.getElementById('contrib-sheet');
+      if(cs2) cs2.style.transform='translateX(100%)';
       const targetId = _editBenchId || (window._cb && window._cb.id);
       if(targetId){
         const updated = benches.find(b=>String(b.id)===String(targetId));
-        if(updated){ window._cb=updated; openBench(updated); }
+        if(updated){ window._cb=updated; setTimeout(()=>openBench(updated), 350); }
       }
     }catch(e){showToast('Erreur lors de la mise à jour');}
   }
