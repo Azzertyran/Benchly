@@ -224,7 +224,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .sort-row::-webkit-scrollbar{display:none;}
 .sort-chip{font-size:12px;padding:5px 12px;border-radius:50px;border:1.5px solid var(--border);cursor:pointer;background:var(--white);color:var(--muted);white-space:nowrap;transition:all .15s;}
 .sort-chip.active{background:var(--ink);color:white;border-color:var(--ink);}
-.bench-list{padding:12px 14px;display:flex;flex-direction:column;gap:10px;}
+.bench-list{padding:12px 14px 24px;display:flex;flex-direction:column;gap:10px;}
 .bench-card{background:var(--white);border-radius:var(--r);overflow:hidden;display:flex;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.06);transition:transform .1s;}
 .bench-card:active{transform:scale(.98);}
 .bc-img{width:80px;flex-shrink:0;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;overflow:hidden;}
@@ -269,7 +269,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .mi-arrow{color:#ccc;font-size:18px;}
 
 /* CONTRIBUTIONS PAGE */
-#contrib-sheet{position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:64px;background:var(--sand);z-index:2000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;}
+#contrib-sheet{position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:calc(64px + env(safe-area-inset-bottom));background:var(--sand);z-index:2000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;}
 #contrib-sheet.open{transform:translateX(0);}
 #contrib-sheet::-webkit-scrollbar{display:none;}
 .contrib-head{background:var(--white);padding:52px 16px 0;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;}
@@ -696,7 +696,7 @@ window.goPage=goPage;
   <!-- PAGE FAVORIS -->
   <div class="page" id="page-favorites">
     <div class="page-head"><h2 data-i18n="favoritesTitle">Mes favoris</h2><p id="fav-sub" data-i18n="favoritesSub">Vos bancs sauvegardés</p></div>
-    <div id="fav-list" style="padding:12px 14px;display:flex;flex-direction:column;gap:10px;"></div>
+    <div id="fav-list" style="padding:12px 14px 24px;display:flex;flex-direction:column;gap:10px;"></div>
   </div>
 
   <!-- PAGE PROFIL -->
@@ -756,7 +756,7 @@ window.goPage=goPage;
     <div class="menu-section" style="display:none">
       </div>
     </div>
-    <div style="height:24px;"></div>
+    <div style="height:32px;"></div>
   </div>
 
   <!-- WELCOME / AUTH MODAL -->
@@ -984,7 +984,7 @@ window.goPage=goPage;
   <div class="toast" id="toast"></div>
 
   <!-- ADMIN PANEL -->
-  <div id="admin-sheet" style="position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:64px;background:var(--sand);z-index:3000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;">
+  <div id="admin-sheet" style="position:fixed;top:0;left:0;width:100%;height:100%;padding-bottom:calc(64px + env(safe-area-inset-bottom));background:var(--sand);z-index:3000;transform:translateX(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);overflow-y:auto;">
     <div style="background:var(--white);padding:52px 16px 14px;border-bottom:1px solid var(--border);position:sticky;top:0;z-index:2;">
       <button onclick="closeAdminPanel()" style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--red);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;padding:0 0 10px;" data-i18n="back">← Retour</button>
       <div style="font-family:'DM Serif Display',serif;font-size:20px;color:var(--red);">Panneau admin 🔐</div>
