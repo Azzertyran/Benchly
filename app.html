@@ -336,6 +336,21 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .review-like-btn:hover{border-color:var(--blue);color:var(--blue);}
 .review-like-btn.liked{background:var(--blue-light);border-color:var(--blue);color:var(--blue-mid);}
 
+/* RÉPONSES AUX AVIS */
+.reply-toggle-btn{background:none;border:none;font-size:11px;color:var(--blue);cursor:pointer;padding:2px 0;margin-left:8px;font-family:'DM Sans',sans-serif;}
+.replies-section{margin-top:8px;padding-left:14px;border-left:2px solid var(--blue-light);}
+.reply-item{display:flex;gap:8px;margin-bottom:8px;}
+.reply-av{width:22px;height:22px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600;color:var(--blue-mid);flex-shrink:0;}
+.reply-body{flex:1;}
+.reply-author{font-size:11px;font-weight:600;color:var(--ink);}
+.reply-text{font-size:12px;color:var(--muted);line-height:1.5;margin-top:1px;}
+.reply-date{font-size:10px;color:#bbb;margin-top:2px;}
+.reply-form{display:none;margin-top:8px;gap:6px;align-items:flex-end;}
+.reply-form.open{display:flex;}
+.reply-input{flex:1;border:1.5px solid var(--border);border-radius:var(--rs);padding:8px 10px;font-family:'DM Sans',sans-serif;font-size:12px;color:var(--ink);resize:none;outline:none;background:var(--sand);}
+.reply-input:focus{border-color:var(--blue);background:var(--white);}
+.reply-send-btn{padding:8px 12px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;white-space:nowrap;flex-shrink:0;}
+
 /* CLASSEMENT */
 .leaderboard-section{padding:16px 16px 0;}
 .leaderboard-title{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
@@ -1005,6 +1020,7 @@ window.goPage=goPage;
       </div>
 
       <div class="fl">Photos <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--red);font-size:12px;">* obligatoire</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">(jusqu'à 5)</span></div>
+      <div class="photo-grid" id="add-photo-grid"></div>
       <div class="photo-count" id="add-photo-count">0 / 5 photos</div>
       <input type="file" accept="image/*" multiple id="add-photo-input" style="display:none" onchange="addPhotos(this,'add')">
       <input type="file" accept="image/*" capture="environment" id="add-photo-cam" style="display:none" onchange="addPhotos(this,'add')">
@@ -1761,7 +1777,27 @@ function openBench(b){
         ${b._raw?.created_by===localStorage.getItem('benchmark-username')?`<button class="act-btn" style="color:var(--red);border-color:#FCEBEB;background:#FCEBEB;" onclick="deleteBench(window._cb.id)"><span class="act-ico">🗑️</span>Suppr.</button>`:''}
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
-      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card" data-review-id="${a.id}"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name rv-name-link" onclick="showUserReviews('${a.u}')" style="cursor:pointer;color:var(--blue-mid);">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div>${a.etat?`<div style="font-size:11px;color:var(--muted);margin-bottom:2px;">État constaté : ${a.etat}</div>`:''}<div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
+      ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`
+        <div class="review-card" data-review-id="${a.id}">
+          <div class="av">${a.n}</div>
+          <div style="flex:1;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span class="rv-name rv-name-link" onclick="showUserReviews('${a.u}')" style="cursor:pointer;color:var(--blue-mid);">${a.u}</span>
+              <span class="rv-stars">${S(a.s)}</span>
+            </div>
+            ${a.etat?`<div style="font-size:11px;color:var(--muted);margin-bottom:2px;">État constaté : ${a.etat}</div>`:''}
+            <div class="rv-text">${a.t}</div>
+            <div style="display:flex;align-items:center;gap:0;margin-top:6px;">
+              <button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button>
+              <button class="reply-toggle-btn" onclick="toggleReplyForm('${a.id}')">Répondre</button>
+            </div>
+            <div class="replies-section" id="replies-${a.id}"></div>
+            <div class="reply-form" id="reply-form-${a.id}">
+              <textarea class="reply-input" id="reply-input-${a.id}" rows="2" placeholder="Votre réponse…"></textarea>
+              <button class="reply-send-btn" onclick="submitReply('${a.id}')">Envoyer</button>
+            </div>
+          </div>
+        </div>`).join('')}
     </div>`;
   // Charger les likes depuis Supabase
   const reviewIds = b.avis.filter(a=>a.id).map(a=>a.id);
@@ -1778,6 +1814,8 @@ function openBench(b){
         }
       });
     });
+    // Charger les réponses
+    loadRepliesForReviews(reviewIds);
   }
 }
 
@@ -2211,6 +2249,85 @@ function resetForm(){
   selectedStars=0; selectedEtat='';
   initPhotoGrid('add');
 }
+
+// ── RÉPONSES AUX AVIS ─────────────────────────────────
+async function loadRepliesForReviews(reviewIds){
+  if(!reviewIds.length) return;
+  try{
+    const{data}=await db.from('review_replies')
+      .select('*')
+      .in('review_id', reviewIds)
+      .order('created_at',{ascending:true});
+    if(!data) return;
+    // Grouper par review_id
+    const map={};
+    data.forEach(r=>{ if(!map[r.review_id]) map[r.review_id]=[]; map[r.review_id].push(r); });
+    Object.entries(map).forEach(([rid, replies])=>{
+      const el=document.getElementById('replies-'+rid);
+      if(!el) return;
+      el.innerHTML=replies.map(r=>{
+        const ini=getInitials(r.author);
+        const date=new Date(r.created_at).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+        return `<div class="reply-item">
+          <div class="reply-av">${ini}</div>
+          <div class="reply-body">
+            <span class="reply-author">${r.author}</span>
+            <div class="reply-text">${r.content}</div>
+            <div class="reply-date">${date}</div>
+          </div>
+        </div>`;
+      }).join('');
+      // Afficher le compteur sur le bouton
+      const btn=el.closest('.review-card')?.querySelector('.reply-toggle-btn');
+      if(btn && replies.length) btn.textContent=`💬 ${replies.length} réponse${replies.length>1?'s':''}`;
+    });
+  }catch(e){console.warn('loadReplies error',e);}
+}
+
+function toggleReplyForm(reviewId){
+  const form=document.getElementById('reply-form-'+reviewId);
+  if(!form) return;
+  const isOpen=form.classList.toggle('open');
+  if(isOpen){
+    const input=document.getElementById('reply-input-'+reviewId);
+    if(input) setTimeout(()=>input.focus(),100);
+  }
+}
+
+async function submitReply(reviewId){
+  const input=document.getElementById('reply-input-'+reviewId);
+  if(!input) return;
+  const content=input.value.trim();
+  if(!content){input.focus();return;}
+  const author=localStorage.getItem('benchmark-username')||'Anonyme';
+  const btn=input.nextElementSibling;
+  if(btn){btn.disabled=true;btn.textContent='...';}
+  try{
+    const{error}=await db.from('review_replies').insert({
+      review_id:reviewId, author, content
+    });
+    if(error) throw error;
+    input.value='';
+    document.getElementById('reply-form-'+reviewId)?.classList.remove('open');
+    // Recharger les réponses pour cet avis
+    await loadRepliesForReviews([reviewId]);
+    showToast('✓ Réponse publiée !');
+    // Notif
+    try{
+      const rev=window._cb?.avis?.find(a=>a.id===reviewId);
+      if(rev && rev.u !== author){
+        createNotification(rev.u,'💬',author+' a répondu à votre avis sur "'+window._cb.name+'"');
+      }
+    }catch(e){}
+  }catch(e){
+    console.error(e);
+    showToast('Erreur lors de la réponse');
+  }finally{
+    if(btn){btn.disabled=false;btn.textContent='Envoyer';}
+  }
+}
+window.toggleReplyForm=toggleReplyForm;
+window.submitReply=submitReply;
 
 async function updateStats(){
   const author = localStorage.getItem('benchmark-username')||'';
