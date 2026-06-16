@@ -30,8 +30,9 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .page{position:absolute;inset:0;bottom:calc(64px + env(safe-area-inset-bottom));overflow-y:auto;overflow-x:hidden;display:none;flex-direction:column;}
 .page.active{display:flex;}
 .page::-webkit-scrollbar{display:none;}
+#page-map{overflow:hidden;} /* la carte gère son propre scroll/pan */
 #page-map{background:#e8f0e4;}
-#map{position:absolute;inset:0;z-index:1;}
+#map{position:absolute;inset:0;bottom:0;z-index:1;}
 
 /* TOPBAR */
 #topbar{position:absolute;top:0;left:0;right:0;z-index:1000;padding:14px 14px 0;display:flex;flex-direction:column;gap:9px;pointer-events:none;}
@@ -42,6 +43,9 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .search-pill{flex:1;display:flex;align-items:center;gap:7px;background:var(--white);border-radius:50px;padding:9px 13px;box-shadow:0 2px 12px rgba(0,0,0,.1);pointer-events:all;}
 .search-pill input{border:none;outline:none;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--ink);background:transparent;flex:1;width:100%;}
 .search-pill input::placeholder{color:#bbb;}
+.suggest-item{padding:10px 14px;font-size:13px;color:var(--ink);cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:4px;}
+.suggest-item:last-child{border-bottom:none;}
+.suggest-item:active,.suggest-item:hover{background:var(--blue-light);}
 .filter-scroll{display:flex;gap:7px;overflow-x:auto;pointer-events:all;padding-bottom:2px;}
 .filter-scroll::-webkit-scrollbar{display:none;}
 .chip{font-size:12px;padding:5px 12px;border-radius:50px;border:none;cursor:pointer;white-space:nowrap;background:var(--white);color:var(--muted);box-shadow:0 2px 8px rgba(0,0,0,.08);transition:all .15s;}
@@ -84,7 +88,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 @keyframes bounceIn{0%{transform:scale(.3) translateY(-20px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
 
 /* BENCH SHEET */
-#bench-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1002;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:78%;overflow-y:auto;visibility:hidden;}
+#bench-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1002;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:calc(100dvh - 64px - env(safe-area-inset-bottom) - env(safe-area-inset-top) - 10px);overflow-y:auto;visibility:hidden;}
 #bench-sheet.open{transform:translateY(0);visibility:visible;}
 #bench-sheet::-webkit-scrollbar{display:none;}
 .drag-bar{text-align:center;padding:10px 0 0;position:sticky;top:0;background:var(--white);z-index:2;}
@@ -642,9 +646,10 @@ window.goPage=goPage;
           <div class="logo-mark"><svg width="14" height="14" viewBox="0 0 14 14" fill="none"><rect x="1" y="6" width="12" height="2.5" rx="1" fill="white"/><rect x="2" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x="10" y="8.5" width="2" height="3.5" rx="1" fill="white"/><rect x=".5" y="4.5" width="13" height="2" rx="1" fill="rgba(255,255,255,.55)"/></svg></div>
           <span class="logo-text">BenchMark</span>
         </a>
-        <div class="search-pill">
+        <div class="search-pill" style="position:relative;">
           <svg width="13" height="13" viewBox="0 0 16 16" fill="none"><circle cx="7" cy="7" r="5" stroke="#bbb" stroke-width="1.5"/><path d="M11 11l3 3" stroke="#bbb" stroke-width="1.5" stroke-linecap="round"/></svg>
-          <input type="text" placeholder="Quartier, ville…" id="search-input" oninput="handleSearch(this.value)" onkeydown="if(event.key==='Enter')searchCity(this.value)">
+          <input type="text" placeholder="Quartier, ville…" id="search-input" autocomplete="off" oninput="handleSearch(this.value);debouncedCitySuggest(this.value)" onkeydown="if(event.key==='Enter'){closeSuggest();searchCity(this.value);}if(event.key==='Escape')closeSuggest()">
+          <div id="search-suggest" style="display:none;position:absolute;top:100%;left:0;right:0;background:white;border-radius:12px;box-shadow:0 4px 20px rgba(0,0,0,.15);z-index:9999;margin-top:6px;overflow:hidden;max-height:200px;overflow-y:auto;"></div>
         </div>
       </div>
       <div class="filter-scroll">
@@ -867,6 +872,7 @@ window.goPage=goPage;
       <div class="photo-grid" id="rv-photo-grid"></div>
       <div class="photo-count" id="rv-photo-count">0 / 5 photos</div>
       <input type="file" accept="image/*" multiple id="rv-photo-input" style="display:none" onchange="addPhotos(this,'rv')">
+      <input type="file" accept="image/*" capture="environment" id="rv-photo-cam" style="display:none" onchange="addPhotos(this,'rv')">
 
       <button class="submit-btn" style="margin-top:18px;" onclick="submitReview()">Publier mon avis</button>
     </div>
@@ -975,6 +981,7 @@ window.goPage=goPage;
       <div class="photo-grid" id="add-photo-grid"></div>
       <div class="photo-count" id="add-photo-count">0 / 5 photos</div>
       <input type="file" accept="image/*" multiple id="add-photo-input" style="display:none" onchange="addPhotos(this,'add')">
+      <input type="file" accept="image/*" capture="environment" id="add-photo-cam" style="display:none" onchange="addPhotos(this,'add')">
 
       <button class="submit-btn" id="submit-btn" onclick="submitBench()">Publier ce banc</button>
     </div>
@@ -1424,6 +1431,11 @@ window.addEventListener('DOMContentLoaded',async()=>{
   loadNotifications();
   // Charger les badges si connecté
 
+  // Fermer les suggestions de recherche au clic extérieur
+  document.addEventListener('click', function(e){
+    if(!e.target.closest('.search-pill')) closeSuggest();
+  });
+
   // Valider avec Entrée
   document.getElementById('welcome-name').addEventListener('keydown', e=>{
     if(e.key==='Enter') saveWelcomeName();
@@ -1615,7 +1627,66 @@ async function searchCity(v){
   }
 }
 
-// ── BENCH SHEET ───────────────────────────────────────
+// ── AUTOCOMPLETE VILLE ────────────────────────────────
+let _suggestTimer = null;
+function debouncedCitySuggest(v){
+  clearTimeout(_suggestTimer);
+  if(!v || v.length < 2){ closeSuggest(); return; }
+  _suggestTimer = setTimeout(()=>fetchCitySuggestions(v), 300);
+}
+async function fetchCitySuggestions(v){
+  // D'abord chercher dans les bancs existants
+  const q = v.toLowerCase();
+  const localMatches = [...new Set(
+    benches
+      .filter(b => b.name.toLowerCase().includes(q) || b.loc.toLowerCase().includes(q))
+      .map(b => b.loc.split(',')[0].trim())
+      .filter(Boolean)
+  )].slice(0,3);
+  // Puis Nominatim pour les villes
+  let cityMatches = [];
+  try{
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(v)}&format=json&limit=4&accept-language=fr&countrycodes=fr,be,ch`);
+    const data = await res.json();
+    cityMatches = data.map(d => ({label: d.display_name.split(',').slice(0,2).join(', '), lat: d.lat, lon: d.lon, bb: d.boundingbox}));
+  }catch(e){}
+  renderSuggestions(localMatches, cityMatches);
+}
+function renderSuggestions(localMatches, cityMatches){
+  const box = document.getElementById('search-suggest');
+  if(!box) return;
+  const html = [
+    ...localMatches.map(m=>`<div class="suggest-item" onclick="selectSuggestLocal('${m.replace(/'/g,"\\'")}')"><span style="font-size:11px;margin-right:6px;">📍</span>${m}</div>`),
+    ...cityMatches.map(c=>`<div class="suggest-item" onclick="selectSuggestCity(${c.lat},${c.lon},${JSON.stringify(c.bb)})"><span style="font-size:11px;margin-right:6px;">🏙️</span>${c.label}</div>`)
+  ].join('');
+  if(!html){ closeSuggest(); return; }
+  box.innerHTML = html;
+  box.style.display = 'block';
+}
+function closeSuggest(){
+  const box = document.getElementById('search-suggest');
+  if(box) box.style.display = 'none';
+}
+function selectSuggestLocal(loc){
+  document.getElementById('search-input').value = loc;
+  handleSearch(loc);
+  closeSuggest();
+}
+function selectSuggestCity(lat, lon, bb){
+  closeSuggest();
+  document.getElementById('search-input').blur();
+  if(bb){
+    const bounds=[[parseFloat(bb[2]),parseFloat(bb[0])],[parseFloat(bb[3]),parseFloat(bb[1])]];
+    mapInstance.fitBounds(bounds,{padding:20,maxZoom:14});
+  } else {
+    mapInstance.flyTo({center:[parseFloat(lon),parseFloat(lat)],zoom:13});
+  }
+  setTimeout(()=>{ renderMarkers(); goPage('map', document.getElementById('nav-map')); }, 400);
+}
+window.debouncedCitySuggest=debouncedCitySuggest;
+window.closeSuggest=closeSuggest;
+window.selectSuggestLocal=selectSuggestLocal;
+window.selectSuggestCity=selectSuggestCity;
 function openBench(b){
   if(pinMode) return;
   window._cb=b;
@@ -1873,12 +1944,18 @@ async function submitReview(){
   try{
     await db.from('reviews').insert({bench_id:b.id,author:authorRaw,rating:reviewStars,comment:comment||null,etat:etat||null});
     const newUrls=[];
-    for(const dataUrl of photoStore['rv']){
-      const res=await fetch(dataUrl);const blob=await res.blob();
-      const ext=blob.type.split('/')[1]||'jpg';
-      const path=`${b.id}/${Date.now()}.${ext}`;
-      const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type});
-      if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);newUrls.push(pub.publicUrl);}
+    // Upload séquentiel sécurisé (évite les bugs async Safari iOS)
+    const rvPhotos = [...(photoStore['rv'] || [])];
+    for(let i=0; i<rvPhotos.length; i++){
+      try{
+        const dataUrl = rvPhotos[i];
+        const res=await fetch(dataUrl);
+        const blob=await res.blob();
+        const ext=(blob.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+        const path=`${b.id}/${Date.now()}-${i}.${ext}`;
+        const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type,upsert:false});
+        if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);newUrls.push(pub.publicUrl);}
+      }catch(photoErr){console.warn('Photo upload error',i,photoErr);}
     }
     const allPhotos=[...(b.photos||[]),...newUrls];
     const upd={};
@@ -1938,12 +2015,17 @@ async function submitBench(){
     if(e1)throw e1;
     await db.from('reviews').insert({bench_id:nb.id,author,rating:selectedStars,comment:comment||null});
     const photoUrls=[];
-    for(const dataUrl of photoStore['add']){
-      const res=await fetch(dataUrl);const blob=await res.blob();
-      const ext=blob.type.split('/')[1]||'jpg';
-      const path=`${nb.id}/${Date.now()}.${ext}`;
-      const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type});
-      if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);photoUrls.push(pub.publicUrl);}
+    const addPhotosArr = [...(photoStore['add'] || [])];
+    for(let i=0; i<addPhotosArr.length; i++){
+      try{
+        const dataUrl = addPhotosArr[i];
+        const res=await fetch(dataUrl);
+        const blob=await res.blob();
+        const ext=(blob.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+        const path=`${nb.id}/${Date.now()}-${i}.${ext}`;
+        const{error:pe}=await db.storage.from('photos').upload(path,blob,{contentType:blob.type,upsert:false});
+        if(!pe){const{data:pub}=db.storage.from('photos').getPublicUrl(path);photoUrls.push(pub.publicUrl);}
+      }catch(photoErr){console.warn('Photo upload error',i,photoErr);}
     }
     if(photoUrls.length) await db.from('benches').update({photos:photoUrls}).eq('id',nb.id);
     addedCount++;
@@ -1973,11 +2055,19 @@ function renderPhotoGrid(ns){
     grid.appendChild(thumb);
   });
   if(photos.length<MAX_PHOTOS){
+    // Bouton galerie
     const add=document.createElement('div');
     add.className='photo-add-btn';
-    add.innerHTML=`<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="#bbb" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 5l1.5-2.5h3L14 5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ajouter</span>`;
+    add.innerHTML=`<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="#bbb" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 5l1.5-2.5h3L14 5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Galerie</span>`;
     add.onclick=()=>document.getElementById(ns+'-photo-input').click();
     grid.appendChild(add);
+    // Bouton caméra directe
+    const cam=document.createElement('div');
+    cam.className='photo-add-btn';
+    cam.style.borderColor='var(--blue)';
+    cam.innerHTML=`<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="var(--blue)" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="var(--blue)" stroke-width="1.4"/><circle cx="11" cy="12.5" r="1.5" fill="var(--blue)"/><path d="M8 5l1.5-2.5h3L14 5" stroke="var(--blue)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="color:var(--blue)">Photo</span>`;
+    cam.onclick=()=>document.getElementById(ns+'-photo-cam').click();
+    grid.appendChild(cam);
   }
   count.textContent=`${photos.length} / ${MAX_PHOTOS} photo${photos.length>1?'s':''}`;
   count.style.color=photos.length>=MAX_PHOTOS?'var(--blue-mid)':'var(--muted)';
