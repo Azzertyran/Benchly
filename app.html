@@ -186,16 +186,44 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .user-avatar{width:28px;height:28px;border-radius:50%;object-fit:cover;border:2px solid var(--blue-light);}
 .user-avatar-placeholder{width:28px;height:28px;border-radius:50%;background:var(--blue-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:500;color:var(--blue-mid);}
 
-/* ADD SHEET */
-#add-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1003;transform:translateY(110%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:90%;overflow-y:auto;visibility:hidden;}
+/* ADD SHEET WIZARD */
+#add-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1003;transform:translateY(110%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:92dvh;overflow-y:auto;visibility:hidden;}
 #add-sheet.open{transform:translateY(0);visibility:visible;}
 #add-sheet::-webkit-scrollbar{display:none;}
-.add-head{display:flex;align-items:center;justify-content:space-between;padding:16px 16px 13px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--white);z-index:2;}
+.add-head{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 13px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--white);z-index:2;}
 .add-title-wrap{display:flex;flex-direction:column;}
 .add-title{font-family:'DM Serif Display',serif;font-size:18px;line-height:1.2;}
-.add-subtitle{font-size:11px;color:var(--muted);margin-top:2px;}
+.add-subtitle{font-size:var(--t-meta);color:var(--muted);margin-top:2px;}
 .close-x{width:28px;height:28px;border-radius:50%;background:#f0f0f0;border:none;cursor:pointer;font-size:15px;color:var(--muted);flex-shrink:0;}
-.add-body{padding:4px 16px 36px;}
+.add-body{padding:0 20px 36px;}
+.wizard-progress{display:flex;align-items:flex-start;padding:16px 20px 8px;position:sticky;top:57px;background:var(--white);z-index:1;}
+.wizard-step-wrap{display:flex;flex-direction:column;align-items:center;flex:1;}
+.wizard-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;transition:all .25s;border:2px solid var(--border);background:var(--white);color:var(--muted);}
+.wizard-dot.active{background:var(--blue);border-color:var(--blue);color:white;}
+.wizard-dot.done{background:var(--green);border-color:var(--green);color:white;}
+.wizard-label{font-size:10px;color:var(--muted);margin-top:5px;white-space:nowrap;}
+.wizard-label.active{color:var(--blue);font-weight:500;}
+.wizard-connector{flex:1;height:2px;background:var(--border);margin-top:14px;transition:background .25s;}
+.wizard-connector.done{background:var(--green);}
+.wizard-pane{display:none;padding-top:6px;}
+.wizard-pane.active{display:block;}
+.wizard-nav{display:flex;gap:10px;margin-top:24px;padding-top:16px;border-top:1px solid var(--border);}
+.wizard-back-btn{padding:13px 20px;background:var(--sand);color:var(--muted);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:var(--t-body);cursor:pointer;flex-shrink:0;}
+.wizard-next-btn{flex:1;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;transition:background .15s;}
+.wizard-next-btn:disabled{background:#ccc;cursor:not-allowed;}
+.wizard-skip{display:block;text-align:center;margin-top:10px;font-size:var(--t-meta);color:var(--muted);cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;width:100%;}
+.step1-photo-hero{width:100%;height:190px;border-radius:var(--r);border:2px dashed #ccc;background:var(--sand);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s;}
+.step1-photo-hero.has-photo{border:none;}
+.step1-photo-hero img.step1-preview{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+.step1-photo-change{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.55);color:white;border:none;border-radius:20px;padding:5px 12px;font-size:var(--t-meta);cursor:pointer;font-family:'DM Sans',sans-serif;}
+.step1-photo-icon{font-size:32px;opacity:.4;}
+.step1-photo-label{font-size:var(--t-body);color:var(--muted);font-weight:500;}
+.step1-photo-sub{font-size:var(--t-meta);color:#bbb;}
+.step1-photo-btns{display:flex;gap:8px;margin-top:10px;}
+.step1-photo-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:var(--t-meta);cursor:pointer;background:var(--white);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:6px;}
+.step1-photo-btn.cam{background:var(--blue);border-color:var(--blue);color:white;}
+.step2-stars{display:flex;gap:8px;justify-content:center;padding:16px 0 6px;}
+.step2-hint{text-align:center;font-size:var(--t-body);color:var(--muted);min-height:22px;margin-bottom:10px;transition:all .15s;}
 
 /* LOCATION PREVIEW */
 .loc-preview{margin-top:14px;border:1.5px solid var(--border);border-radius:var(--rs);overflow:hidden;}
@@ -938,112 +966,164 @@ window.goPage=goPage;
     </div>
   </div>
 
-  <!-- ADD SHEET -->
+  <!-- ADD SHEET WIZARD -->
   <div id="add-sheet">
     <div class="add-head">
       <div class="add-title-wrap">
-        <span class="add-title">Nouveau banc</span>
-        <span class="add-subtitle" id="add-coords-label">Localisation confirmée sur la carte</span>
+        <span class="add-title" id="wizard-title">Nouveau banc</span>
+        <span class="add-subtitle" id="add-coords-label">Localisation confirmée</span>
       </div>
       <button class="close-x" onclick="cancelAdd()">✕</button>
     </div>
+
+    <!-- Barre de progression -->
+    <div class="wizard-progress">
+      <div class="wizard-step-wrap">
+        <div class="wizard-dot active" id="wdot-1">1</div>
+        <div class="wizard-label active" id="wlbl-1">Photo</div>
+      </div>
+      <div class="wizard-connector" id="wcon-1"></div>
+      <div class="wizard-step-wrap">
+        <div class="wizard-dot" id="wdot-2">2</div>
+        <div class="wizard-label" id="wlbl-2">Note & nom</div>
+      </div>
+      <div class="wizard-connector" id="wcon-2"></div>
+      <div class="wizard-step-wrap">
+        <div class="wizard-dot" id="wdot-3">3</div>
+        <div class="wizard-label" id="wlbl-3">Détails</div>
+      </div>
+    </div>
+
     <div class="add-body">
 
-      <!-- Localisation preview -->
-      <div style="display:flex;gap:8px;margin-bottom:4px;margin-top:14px;">
-        <button onclick="useMyLocation()" style="flex:1;padding:10px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" fill="white"/><circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
-          Utiliser ma position
-        </button>
-        <button onclick="cancelAdd()" style="padding:10px 14px;background:var(--sand);color:var(--muted);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;">
-          Repositionner
-        </button>
-      </div>
-      <div class="loc-preview">
-        <div id="mini-map"></div>
-        <div class="loc-info">
-          <div class="loc-dot"></div>
-          <div class="loc-coords" id="loc-coords-text">Chargement…<span id="loc-coords-sub"></span></div>
+      <!-- ══ ÉTAPE 1 : Photo + Position ══ -->
+      <div class="wizard-pane active" id="wpane-1">
+        <div class="fl" style="margin-top:14px;">📍 Position</div>
+        <div style="display:flex;gap:8px;margin-bottom:8px;">
+          <button onclick="useMyLocation()" style="flex:1;padding:10px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:var(--t-meta);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+            <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="3" fill="white"/><circle cx="10" cy="10" r="7" stroke="white" stroke-width="1.5"/><path d="M10 1v3M10 16v3M1 10h3M16 10h3" stroke="white" stroke-width="1.5" stroke-linecap="round"/></svg>
+            Ma position GPS
+          </button>
+          <button onclick="cancelAdd()" style="padding:10px 14px;background:var(--sand);color:var(--muted);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:var(--t-meta);cursor:pointer;">Repositionner</button>
+        </div>
+        <div class="loc-preview">
+          <div id="mini-map"></div>
+          <div class="loc-info">
+            <div class="loc-dot"></div>
+            <div class="loc-coords" id="loc-coords-text">Chargement…<span id="loc-coords-sub"></span></div>
+          </div>
+        </div>
+
+        <div class="fl" style="margin-top:18px;">📸 Photo du banc <span style="color:var(--red);font-weight:600;">*</span></div>
+        <div class="step1-photo-hero" id="step1-hero" onclick="document.getElementById('add-photo-input').click()">
+          <div class="step1-photo-icon">📷</div>
+          <div class="step1-photo-label">Ajouter une photo</div>
+          <div class="step1-photo-sub">Obligatoire pour publier</div>
+        </div>
+        <div class="step1-photo-btns">
+          <button class="step1-photo-btn" onclick="document.getElementById('add-photo-input').click()">🖼️ Galerie</button>
+          <button class="step1-photo-btn cam" onclick="document.getElementById('add-photo-cam').click()">📷 Prendre une photo</button>
+        </div>
+        <input type="file" accept="image/*" multiple id="add-photo-input" style="display:none" onchange="wizardHandlePhoto(this)">
+        <input type="file" accept="image/*" capture="environment" id="add-photo-cam" style="display:none" onchange="wizardHandlePhoto(this)">
+        <!-- Grille photos supplémentaires (cachée en étape 1, utilisée en étape 3) -->
+        <div style="display:none"><div class="photo-grid" id="add-photo-grid"></div><div class="photo-count" id="add-photo-count">0 / 5 photos</div></div>
+
+        <div class="wizard-nav">
+          <button class="wizard-next-btn" id="wizard-btn-1" onclick="wizardNext(2)" disabled>Suivant →</button>
         </div>
       </div>
 
-      <div class="fl">Nom du lieu</div>
-      <input class="fi" id="add-name" type="text" placeholder="ex : Banc du belvédère…">
+      <!-- ══ ÉTAPE 2 : Note + Nom ══ -->
+      <div class="wizard-pane" id="wpane-2">
+        <div class="fl" style="margin-top:14px;">Votre note</div>
+        <div class="step2-stars" id="star-row">
+          <button class="sb" data-star="1" ontouchend="handleStarTouchAdd(event,1)" onclick="handleStarClickAdd(event,1)">★</button>
+          <button class="sb" data-star="2" ontouchend="handleStarTouchAdd(event,2)" onclick="handleStarClickAdd(event,2)">★</button>
+          <button class="sb" data-star="3" ontouchend="handleStarTouchAdd(event,3)" onclick="handleStarClickAdd(event,3)">★</button>
+          <button class="sb" data-star="4" ontouchend="handleStarTouchAdd(event,4)" onclick="handleStarClickAdd(event,4)">★</button>
+          <button class="sb" data-star="5" ontouchend="handleStarTouchAdd(event,5)" onclick="handleStarClickAdd(event,5)">★</button>
+        </div>
+        <div class="step2-hint" id="step2-hint"></div>
 
-      <div class="fl">Votre note</div>
-      <div class="star-row" id="star-row">
-        <button class="sb" data-star="1" ontouchend="handleStarTouchAdd(event,1)" onclick="handleStarClickAdd(event,1)">★</button>
-        <button class="sb" data-star="2" ontouchend="handleStarTouchAdd(event,2)" onclick="handleStarClickAdd(event,2)">★</button>
-        <button class="sb" data-star="3" ontouchend="handleStarTouchAdd(event,3)" onclick="handleStarClickAdd(event,3)">★</button>
-        <button class="sb" data-star="4" ontouchend="handleStarTouchAdd(event,4)" onclick="handleStarClickAdd(event,4)">★</button>
-        <button class="sb" data-star="5" ontouchend="handleStarTouchAdd(event,5)" onclick="handleStarClickAdd(event,5)">★</button>
-      </div>
+        <div class="fl">Nom du banc</div>
+        <input class="fi" id="add-name" type="text" placeholder="ex : Banc du belvédère…" oninput="wizardCheckStep2()">
 
-      <div class="fl">Commentaire</div>
-      <textarea class="fi" id="add-comment" rows="3" placeholder="Ambiance, vue, confort, heure idéale…"></textarea>
+        <div class="fl">Commentaire <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb;">(optionnel)</span></div>
+        <textarea class="fi" id="add-comment" rows="3" placeholder="Ambiance, vue, confort, heure idéale…"></textarea>
 
-      <div class="fl">Caractéristiques</div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Environnement</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌅 Vue panoramique</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌳 Ombragé</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">☀️ Ensoleillé</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🍃 Air frais</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🐦 Faune / nature</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">💧 Proche eau</span>
+        <div class="wizard-nav">
+          <button class="wizard-back-btn" onclick="wizardNext(1)">← Retour</button>
+          <button class="wizard-next-btn" id="wizard-btn-2" onclick="wizardNext(3)" disabled>Suivant →</button>
         </div>
       </div>
 
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Ambiance</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">🔇 Calme</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🎵 Animé / musique</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌧️ Abrité pluie</span>
+      <!-- ══ ÉTAPE 3 : Détails (optionnel) ══ -->
+      <div class="wizard-pane" id="wpane-3">
+        <p style="font-size:var(--t-meta);color:var(--muted);margin-top:14px;line-height:1.6;">Ces infos sont optionnelles mais aident les autres utilisateurs à choisir le bon banc.</p>
+
+        <div class="fl" style="margin-top:14px;">Caractéristiques</div>
+        <div class="tag-group" style="margin-bottom:10px;">
+          <div class="tag-group-label">Environnement</div>
+          <div class="tsel-wrap">
+            <span class="tsel" onclick="this.classList.toggle('sel')">🌅 Vue panoramique</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🌳 Ombragé</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">☀️ Ensoleillé</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🍃 Air frais</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🐦 Faune / nature</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">💧 Proche eau</span>
+          </div>
         </div>
-      </div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Accessibilité</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">♿ Accessible PMR</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🚌 Proche transports</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🧒 Adapté enfants</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🐶 Chiens bienvenus</span>
+        <div class="tag-group" style="margin-bottom:10px;">
+          <div class="tag-group-label">Ambiance</div>
+          <div class="tsel-wrap">
+            <span class="tsel" onclick="this.classList.toggle('sel')">🔇 Calme</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🎵 Animé / musique</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🌧️ Abrité pluie</span>
+          </div>
         </div>
-      </div>
-
-      <div class="tag-group" style="margin-bottom:10px;">
-        <div class="tag-group-label">Matériaux</div>
-        <div class="tsel-wrap">
-          <span class="tsel" onclick="this.classList.toggle('sel')">🪵 Bois</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🔩 Bois et métal</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🪨 Pierre / granit</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🏗️ Béton</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">♻️ Plastique recyclé</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🌿 Bois composite</span>
-          <span class="tsel" onclick="this.classList.toggle('sel')">🔧 Métal / fonte</span>
+        <div class="tag-group" style="margin-bottom:10px;">
+          <div class="tag-group-label">Accessibilité</div>
+          <div class="tsel-wrap">
+            <span class="tsel" onclick="this.classList.toggle('sel')">♿ Accessible PMR</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🚌 Proche transports</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🧒 Adapté enfants</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🐶 Chiens bienvenus</span>
+          </div>
         </div>
+        <div class="tag-group" style="margin-bottom:10px;">
+          <div class="tag-group-label">Matériaux</div>
+          <div class="tsel-wrap">
+            <span class="tsel" onclick="this.classList.toggle('sel')">🪵 Bois</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🔩 Bois et métal</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🪨 Pierre / granit</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🏗️ Béton</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">♻️ Plastique recyclé</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🌿 Bois composite</span>
+            <span class="tsel" onclick="this.classList.toggle('sel')">🔧 Métal / fonte</span>
+          </div>
+        </div>
+
+        <div class="fl">État du banc</div>
+        <div class="tsel-wrap" id="etat-wrap">
+          <span class="tsel etat-sel" onclick="selectEtat(this,'Comme neuf')">✨ Comme neuf</span>
+          <span class="tsel etat-sel" onclick="selectEtat(this,'Bon état')">👍 Bon état</span>
+          <span class="tsel etat-sel" onclick="selectEtat(this,'Passable')">😐 Passable</span>
+          <span class="tsel etat-sel" onclick="selectEtat(this,'Dégradé')">⚠️ Dégradé</span>
+          <span class="tsel etat-sel" onclick="selectEtat(this,'Dangereux')">🚨 Dangereux</span>
+        </div>
+
+        <div class="fl" style="margin-top:18px;">Photos supplémentaires <span style="font-weight:400;color:#bbb;">(jusqu'à 5)</span></div>
+        <div class="photo-grid" id="add-photo-grid-extra"></div>
+        <div class="photo-count" id="add-photo-count-extra"></div>
+
+        <div class="wizard-nav">
+          <button class="wizard-back-btn" onclick="wizardNext(2)">← Retour</button>
+          <button class="wizard-next-btn" id="submit-btn" onclick="submitBench()">Publier ce banc 🎉</button>
+        </div>
+        <button class="wizard-skip" onclick="submitBench()">Passer les détails et publier directement</button>
       </div>
 
-      <div class="tag-group-label">État du banc</div>
-      <div class="tsel-wrap" id="etat-wrap">
-        <span class="tsel etat-sel" onclick="selectEtat(this,'Comme neuf')">✨ Comme neuf</span>
-        <span class="tsel etat-sel" onclick="selectEtat(this,'Bon état')">👍 Bon état</span>
-        <span class="tsel etat-sel" onclick="selectEtat(this,'Passable')">😐 Passable</span>
-        <span class="tsel etat-sel" onclick="selectEtat(this,'Dégradé')">⚠️ Dégradé</span>
-        <span class="tsel etat-sel" onclick="selectEtat(this,'Dangereux')">🚨 Dangereux</span>
-      </div>
-
-      <div class="fl">Photos <span style="font-weight:500;text-transform:none;letter-spacing:0;color:var(--red);font-size:12px;">* obligatoire</span> <span style="font-weight:400;text-transform:none;letter-spacing:0;color:#bbb">(jusqu'à 5)</span></div>
-      <div class="photo-grid" id="add-photo-grid"></div>
-      <div class="photo-count" id="add-photo-count">0 / 5 photos</div>
-      <input type="file" accept="image/*" multiple id="add-photo-input" style="display:none" onchange="addPhotos(this,'add')">
-      <input type="file" accept="image/*" capture="environment" id="add-photo-cam" style="display:none" onchange="addPhotos(this,'add')">
-
-      <button class="submit-btn" id="submit-btn" onclick="submitBench()">Publier ce banc</button>
     </div>
   </div>
 
@@ -1591,8 +1671,166 @@ function onMapClick(e){
   openAddForm(pendingLat, pendingLng);
 }
 
+// ── WIZARD ADD FORM ───────────────────────────────────
+let _wizardStep = 1;
+const _starHintsAdd = {0.5:'Très mauvais 😣',1:'Mauvais 😕',1.5:'Mauvais 😕',2:'Passable 😐',2.5:'Passable 😐',3:'Correct 🙂',3.5:'Bien 😊',4:'Bien 😊',4.5:'Excellent ! 🤩',5:'Parfait ! 🤩'};
+
+function wizardNext(step){
+  // Validation avant de passer
+  if(step === 2 && photoStore['add'].length === 0){
+    showToast('📸 Ajoutez au moins une photo !');
+    const hero = document.getElementById('step1-hero');
+    if(hero){ hero.style.outline='2px solid var(--red)'; hero.style.borderRadius='16px'; setTimeout(()=>{hero.style.outline='';},2000); }
+    return;
+  }
+  if(step === 3){
+    const name = document.getElementById('add-name').value.trim();
+    if(!name){ document.getElementById('add-name').focus(); showToast('Donnez un nom au banc !'); return; }
+    if(!selectedStars){ showToast('Sélectionnez une note ⭐'); return; }
+  }
+  _wizardStep = step;
+  // Mettre à jour panes
+  document.querySelectorAll('.wizard-pane').forEach((p,i)=>{
+    p.classList.toggle('active', i+1 === step);
+  });
+  // Mettre à jour dots
+  [1,2,3].forEach(n=>{
+    const dot = document.getElementById('wdot-'+n);
+    const lbl = document.getElementById('wlbl-'+n);
+    dot.classList.toggle('active', n === step);
+    dot.classList.toggle('done', n < step);
+    dot.textContent = n < step ? '✓' : n;
+    lbl.classList.toggle('active', n === step);
+  });
+  // Mettre à jour connecteurs
+  [1,2].forEach(n=>{
+    const con = document.getElementById('wcon-'+n);
+    con.classList.toggle('done', step > n+1 || (step === n+1 && n < step));
+  });
+  // Titre
+  const titles = ['📷 Photo','⭐ Note & nom','🏷️ Détails (optionnel)'];
+  document.getElementById('wizard-title').textContent = titles[step-1];
+  // Scroll haut
+  document.getElementById('add-sheet').scrollTop = 0;
+  // Init photo extra en étape 3
+  if(step === 3) renderPhotoGridExtra();
+}
+
+function wizardHandlePhoto(input){
+  const files = [...input.files];
+  if(!files.length) return;
+  // Ajouter toutes les photos dans photoStore['add']
+  const remaining = 5 - photoStore['add'].length;
+  files.slice(0, remaining).forEach(async f=>{
+    const compressed = await compressImage(f);
+    photoStore['add'].push(compressed);
+    // Afficher la première dans le hero
+    const hero = document.getElementById('step1-hero');
+    if(hero && photoStore['add'].length === 1){
+      hero.classList.add('has-photo');
+      const existing = hero.querySelector('img.step1-preview');
+      if(existing) existing.remove();
+      const img = document.createElement('img');
+      img.className = 'step1-preview';
+      img.src = compressed;
+      hero.insertBefore(img, hero.firstChild);
+      // Bouton changer
+      if(!hero.querySelector('.step1-photo-change')){
+        const btn = document.createElement('button');
+        btn.className = 'step1-photo-change';
+        btn.textContent = '✏️ Changer';
+        btn.onclick = (e)=>{ e.stopPropagation(); document.getElementById('add-photo-input').click(); };
+        hero.appendChild(btn);
+      }
+    }
+    // Activer bouton suivant
+    document.getElementById('wizard-btn-1').disabled = false;
+  });
+  input.value = '';
+}
+
+function wizardCheckStep2(){
+  const name = document.getElementById('add-name').value.trim();
+  const btn = document.getElementById('wizard-btn-2');
+  if(btn) btn.disabled = !(name && selectedStars);
+}
+
+// Override setStar pour mettre à jour le hint et le bouton étape 2
+const _origSetStar = window.setStar;
+function setStar(n){
+  selectedStars = n;
+  updateStarDisplay(document.querySelectorAll('.sb'), n);
+  const hint = document.getElementById('step2-hint');
+  if(hint) hint.textContent = _starHintsAdd[n] || '';
+  wizardCheckStep2();
+}
+window.setStar = setStar;
+
+// Grille photos extra étape 3 (photos 2-5)
+function renderPhotoGridExtra(){
+  const grid = document.getElementById('add-photo-grid-extra');
+  const count = document.getElementById('add-photo-count-extra');
+  if(!grid) return;
+  const photos = photoStore['add'];
+  grid.innerHTML = '';
+  // Afficher photos existantes (sauf la 1ère déjà dans le hero)
+  photos.slice(1).forEach((src,i)=>{
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = `<img src="${src}"><button class="del-btn" onclick="removeExtraPhoto(${i+1})">✕</button>`;
+    grid.appendChild(thumb);
+  });
+  if(photos.length < 5){
+    const add = document.createElement('div');
+    add.className = 'photo-add-btn';
+    add.innerHTML = `<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="#bbb" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 5l1.5-2.5h3L14 5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Galerie</span>`;
+    add.onclick = ()=>document.getElementById('add-photo-input').click();
+    grid.appendChild(add);
+    const cam = document.createElement('div');
+    cam.className = 'photo-add-btn';
+    cam.style.borderColor = 'var(--blue)';
+    cam.innerHTML = `<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="var(--blue)" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="var(--blue)" stroke-width="1.4"/><circle cx="11" cy="12.5" r="1.5" fill="var(--blue)"/><path d="M8 5l1.5-2.5h3L14 5" stroke="var(--blue)" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span style="color:var(--blue)">Photo</span>`;
+    cam.onclick = ()=>document.getElementById('add-photo-cam').click();
+    grid.appendChild(cam);
+  }
+  if(count) count.textContent = `${photos.length} / 5 photo${photos.length>1?'s':''}`;
+}
+
+function removeExtraPhoto(idx){
+  photoStore['add'].splice(idx, 1);
+  renderPhotoGridExtra();
+}
+window.removeExtraPhoto = removeExtraPhoto;
+window.wizardNext = wizardNext;
+window.wizardHandlePhoto = wizardHandlePhoto;
+window.wizardCheckStep2 = wizardCheckStep2;
+
 function openAddForm(lat, lng){
-  initPhotoGrid('add');
+  // Reset wizard
+  _wizardStep = 1;
+  photoStore['add'] = [];
+  selectedStars = 0; selectedEtat = '';
+  document.querySelectorAll('.wizard-pane').forEach((p,i)=>p.classList.toggle('active',i===0));
+  document.getElementById('wizard-title').textContent = '📷 Photo';
+  [1,2,3].forEach(n=>{
+    const dot=document.getElementById('wdot-'+n);
+    const lbl=document.getElementById('wlbl-'+n);
+    dot.className='wizard-dot'+(n===1?' active':'');
+    dot.textContent=n;
+    lbl.className='wizard-label'+(n===1?' active':'');
+  });
+  [1,2].forEach(n=>{ const c=document.getElementById('wcon-'+n); if(c) c.className='wizard-connector'; });
+  // Réinitialiser héro photo
+  const hero=document.getElementById('step1-hero');
+  if(hero){ hero.classList.remove('has-photo'); hero.innerHTML='<div class="step1-photo-icon">📷</div><div class="step1-photo-label">Ajouter une photo</div><div class="step1-photo-sub">Obligatoire pour publier</div>'; }
+  document.getElementById('wizard-btn-1').disabled=true;
+  // Réinitialiser champs
+  document.getElementById('add-name').value='';
+  document.getElementById('add-comment').value='';
+  document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit','half'));
+  document.querySelectorAll('#add-sheet .tsel').forEach(t=>t.classList.remove('sel'));
+  const hint=document.getElementById('step2-hint'); if(hint) hint.textContent='';
+
   // Init mini-map
   setTimeout(()=>{
     if(miniMap){ miniMap.remove(); miniMap=null; miniMarker=null; }
@@ -1609,11 +1847,9 @@ function openAddForm(lat, lng){
     miniMarker=new maplibregl.Marker({element:miniEl,anchor:'bottom'}).setLngLat([lng,lat]).addTo(miniMap);
   },50);
 
-  // Reverse geocode coords label
   document.getElementById('loc-coords-text').textContent=lat.toFixed(5)+', '+lng.toFixed(5);
-  document.getElementById('add-coords-label').textContent='Position confirmée · cliquez "Repositionner" pour changer';
+  document.getElementById('add-coords-label').textContent='Position confirmée';
 
-  // Fetch address
   fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`)
     .then(r=>r.json())
     .then(d=>{
@@ -1624,6 +1860,7 @@ function openAddForm(lat, lng){
 
   document.getElementById('overlay').classList.add('show');
   document.getElementById('add-sheet').classList.add('open');
+  document.getElementById('add-sheet').scrollTop=0;
 }
 
 function cancelAdd(){
@@ -2222,30 +2459,16 @@ function selectEtat(el, val){
 
 async function submitBench(){
   const name=document.getElementById('add-name').value.trim();
-  const inp=document.getElementById('add-name');
-  if(!name){inp.classList.add('err');inp.focus();showToast('Donnez un nom au banc !');return;}
-  inp.classList.remove('err');
-  if(!selectedStars){showToast('Sélectionnez une note ⭐');return;}
+  if(!name){wizardNext(2);setTimeout(()=>{document.getElementById('add-name').focus();showToast('Donnez un nom au banc !');},300);return;}
+  if(!selectedStars){wizardNext(2);setTimeout(()=>showToast('Sélectionnez une note ⭐'),300);return;}
   if(!pendingLat){showToast('Positionnez le banc sur la carte');return;}
-  // Photo obligatoire
-  if(!photoStore['add']||photoStore['add'].length===0){
-    showToast('📸 Ajoutez au moins une photo du banc !');
-    // Faire scroller vers la section photo et la mettre en évidence
-    const grid=document.getElementById('add-photo-grid');
-    if(grid){
-      grid.scrollIntoView({behavior:'smooth',block:'center'});
-      grid.style.outline='2px solid var(--red)';
-      grid.style.borderRadius='var(--rs)';
-      setTimeout(()=>{grid.style.outline='';},2000);
-    }
-    return;
-  }
+  if(!photoStore['add']||photoStore['add'].length===0){wizardNext(1);showToast('📸 Ajoutez au moins une photo !');return;}
   const tags=[...document.querySelectorAll('#add-sheet .tsel.sel:not(.etat-sel)')].map(t=>t.textContent.trim());
   const comment=document.getElementById('add-comment').value.trim();
   const addrText=document.getElementById('loc-coords-text').textContent;
   const author=localStorage.getItem('benchmark-username')||'Anonyme';
   const btn=document.getElementById('submit-btn');
-  btn.disabled=true;btn.textContent='Publication…';
+  if(btn){btn.disabled=true;btn.textContent='Publication…';}
   try{
     const{data:nb,error:e1}=await db.from('benches').insert({
       name,location:addrText,lat:pendingLat,lng:pendingLng,
@@ -2256,10 +2479,10 @@ async function submitBench(){
     if(e1)throw e1;
     await db.from('reviews').insert({bench_id:nb.id,author,rating:selectedStars,comment:comment||null});
     const photoUrls=[];
-    const addPhotosArr = [...(photoStore['add'] || [])];
-    for(let i=0; i<addPhotosArr.length; i++){
+    const addPhotosArr=[...(photoStore['add']||[])];
+    for(let i=0;i<addPhotosArr.length;i++){
       try{
-        const dataUrl = addPhotosArr[i];
+        const dataUrl=addPhotosArr[i];
         const res=await fetch(dataUrl);
         const blob=await res.blob();
         const ext=(blob.type.split('/')[1]||'jpg').replace('jpeg','jpg');
@@ -2276,7 +2499,7 @@ async function submitBench(){
     updateStats();
     showToast('✓ "'+name+'" ajouté pour tout le monde !');
   }catch(e){console.error(e);showToast('Erreur lors de l\'ajout');}
-  finally{btn.disabled=false;btn.textContent='Publier ce banc';}
+  finally{if(btn){btn.disabled=false;btn.textContent='Publier ce banc 🎉';}}
 }
 
 // ── MULTI-PHOTO ───────────────────────────────────────
@@ -2362,7 +2585,7 @@ function resetForm(){
   document.querySelectorAll('.sb').forEach(b=>b.classList.remove('lit','half'));
   document.querySelectorAll('#add-sheet .tsel').forEach(t=>t.classList.remove('sel'));
   selectedStars=0; selectedEtat='';
-  initPhotoGrid('add');
+  photoStore['add']=[];
 }
 
 // ── RÉPONSES AUX AVIS ─────────────────────────────────
