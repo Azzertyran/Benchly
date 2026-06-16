@@ -92,9 +92,9 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 #bench-sheet::-webkit-scrollbar{display:none;}
 .drag-bar{text-align:center;padding:10px 0 0;position:sticky;top:0;background:var(--white);z-index:2;}
 .drag-handle{width:34px;height:4px;background:#e0e0e0;border-radius:2px;display:inline-block;}
-.bench-hero{height:148px;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;font-size:52px;margin:10px 14px 0;border-radius:var(--r);position:relative;}
-.bench-banner{position:relative;margin:10px 14px 0;border-radius:var(--r);overflow:hidden;}
-.bench-banner-scroll{display:flex;height:200px;overflow-x:auto;scroll-snap-type:x mandatory;gap:4px;border-radius:var(--r);}
+.bench-hero{height:200px;background:linear-gradient(180deg,var(--sky),var(--blue-light));display:flex;align-items:center;justify-content:center;font-size:52px;position:relative;}
+.bench-banner{position:relative;overflow:hidden;}
+.bench-banner-scroll{display:flex;height:220px;overflow-x:auto;scroll-snap-type:x mandatory;gap:0;}
 .bench-banner-scroll::-webkit-scrollbar{display:none;}
 .bench-banner-scroll img{height:100%;min-width:100%;object-fit:cover;scroll-snap-align:start;cursor:zoom-in;flex-shrink:0;}
 .photo-count-badge{position:absolute;bottom:10px;right:10px;background:rgba(0,0,0,.5);color:white;border-radius:20px;padding:2px 8px;font-size:11px;z-index:2;}
@@ -104,19 +104,32 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 #lightbox-close{color:white;font-size:32px;cursor:pointer;background:none;border:none;padding:8px;}
 .dist-badge{position:absolute;top:10px;right:10px;background:rgba(255,255,255,.92);border-radius:20px;padding:3px 9px;font-size:11px;font-weight:500;color:var(--blue-mid);box-shadow:0 1px 6px rgba(0,0,0,.1);z-index:2;}
 .fav-badge{position:absolute;top:10px;left:10px;background:rgba(255,255,255,.92);border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,.15);border:none;font-size:16px;z-index:2;}
-.sc{padding:13px 16px 28px;}
-.sh-name{font-family:'DM Serif Display',serif;font-size:21px;color:var(--ink);margin-bottom:2px;}
-.sh-loc{font-size:12px;color:var(--muted);margin-bottom:10px;}
-.rating-row{display:flex;align-items:center;gap:7px;margin-bottom:12px;}
-.stars-disp{color:var(--amber);font-size:14px;letter-spacing:-.5px;}
-.rnum{font-size:13px;font-weight:500;}.rcnt{font-size:12px;color:var(--muted);}
+.sc{padding:14px 16px 28px;}
+.sh-name{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:2px;}
+.sh-loc{font-size:12px;color:var(--muted);margin-bottom:12px;}
+.rating-row{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.rating-big-num{background:var(--blue-light);border-radius:12px;padding:8px 14px;text-align:center;flex-shrink:0;}
+.rating-big-val{font-family:'DM Serif Display',serif;font-size:28px;color:var(--blue-mid);line-height:1;}
+.rating-big-sub{font-size:9px;color:var(--blue);margin-top:2px;}
+.rating-right{display:flex;flex-direction:column;gap:3px;}
+.stars-disp{color:var(--amber);font-size:18px;letter-spacing:1px;}
+.rnum{font-size:13px;font-weight:500;color:var(--ink);}
+.rcnt{font-size:12px;color:var(--muted);}
 .tag-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;}
-.btag{font-size:11px;padding:3px 9px;background:var(--blue-light);color:var(--blue-mid);border-radius:50px;}
+.btag{font-size:11px;padding:3px 9px;border-radius:50px;}
+.btag-env{background:#EAF3DE;color:#3B6D11;}
+.btag-amb{background:#FAEEDA;color:#854F0B;}
+.btag-acc{background:#EEEDFE;color:#3C3489;}
+.btag-mat{background:#F1EFE8;color:#5F5E5A;}
+.btag-def{background:var(--blue-light);color:var(--blue-mid);}
 .sh-desc{font-size:13px;line-height:1.65;color:var(--muted);margin-bottom:16px;}
-.act-row{display:flex;gap:8px;margin-bottom:18px;}
-.act-btn{flex:1;padding:10px;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:5px;transition:background .1s;}
-.act-btn:hover{background:var(--sand);}
+.act-row{display:flex;gap:7px;margin-bottom:18px;}
+.act-btn{flex:1;padding:10px 4px;border-radius:12px;font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;border:1.5px solid var(--border);background:var(--white);color:var(--ink);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;transition:all .15s;line-height:1.2;}
+.act-btn .act-ico{font-size:16px;}
+.act-btn:active{opacity:.8;transform:scale(.97);}
 .act-btn.primary{background:var(--blue);border-color:var(--blue);color:white;}
+.act-btn.act-nav{background:var(--blue-light);border-color:var(--blue-light);color:var(--blue-mid);}
+.act-btn.act-fav{background:#FCEBEB;border-color:#FCEBEB;color:#A32D2D;}
 .sec-label{font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;padding-top:14px;border-top:1px solid var(--border);}
 .review-card{display:flex;gap:9px;margin-bottom:12px;}
 .av{width:30px;height:30px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:white;flex-shrink:0;}
@@ -253,15 +266,15 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 
 /* PROFILE */
 #page-profile{background:var(--sand);overflow-x:hidden;}
-.profile-hero{background:linear-gradient(160deg,var(--blue-deep),var(--blue));padding:52px 20px 26px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.profile-hero{background:linear-gradient(160deg,var(--blue-deep),var(--blue));padding:52px 20px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;}
 .profile-av{width:70px;height:70px;border-radius:50%;background:var(--blue);display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:26px;color:white;margin-bottom:10px;border:3px solid rgba(255,255,255,.3);}
 .profile-name{font-family:'DM Serif Display',serif;font-size:20px;color:white;margin-bottom:2px;}
 .profile-sub{font-size:12px;color:rgba(255,255,255,.7);}
-.stats-row{display:flex;background:var(--white);border-bottom:1px solid var(--border);}
-.stat-item{flex:1;padding:14px 10px;text-align:center;border-right:1px solid var(--border);}
-.stat-item:last-child{border-right:none;}
-.stat-num{font-family:'DM Serif Display',serif;font-size:22px;color:var(--blue);}
-.stat-label{font-size:11px;color:var(--muted);margin-top:1px;}
+.profile-stat-item{flex:1;padding:10px 8px;text-align:center;cursor:pointer;}
+.profile-stat-item:active{background:rgba(255,255,255,.08);}
+.profile-stat-num{font-family:'DM Serif Display',serif;font-size:22px;color:white;line-height:1;}
+.profile-stat-lbl{font-size:9px;color:rgba(255,255,255,.65);margin-top:3px;text-transform:uppercase;letter-spacing:.05em;}
+.profile-stat-sep{width:0.5px;background:rgba(255,255,255,.2);margin:10px 0;}
 .menu-section{margin:12px 14px 0;}
 .menu-lbl{font-size:11px;font-weight:500;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
 .menu-card{background:var(--white);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.05);}
@@ -729,12 +742,24 @@ window.goPage=goPage;
       </div>
       <div class="profile-name" id="profile-name">—</div>
       <div class="profile-sub" id="profile-sub">Membre BenchMark</div>
-      <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:14px;padding:8px 20px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:13px;cursor:pointer;" data-i18n="signIn">Se connecter avec Google</button>
-    </div>
-    <div class="stats-row">
-      <div class="stat-item" onclick="openContrib('contributions')" style="cursor:pointer;"><div class="stat-num" id="s-bancs">0</div><div class="stat-label" data-i18n="benchesAdded">Bancs ajoutés</div></div>
-      <div class="stat-item" onclick="openContrib('contributions');setTimeout(()=>switchContribTab('reviews',document.querySelectorAll('.contrib-tab')[1]),100)" style="cursor:pointer;"><div class="stat-num" id="s-avis">3</div><div class="stat-label" data-i18n="reviewsPosted">Avis postés</div></div>
-      <div class="stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;"><div class="stat-num" id="s-favs">0</div><div class="stat-label" data-i18n="favoritesStats">Favoris</div></div>
+      <button id="auth-btn" onclick="handleAuthBtn()" style="margin-top:10px;padding:7px 18px;border-radius:50px;border:1.5px solid rgba(255,255,255,.3);background:transparent;color:rgba(255,255,255,.8);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;" data-i18n="signIn">Se connecter avec Google</button>
+      <!-- Stats intégrées dans le hero -->
+      <div style="display:flex;gap:0;background:rgba(255,255,255,.12);border-radius:14px;padding:0;margin-top:16px;width:100%;overflow:hidden;">
+        <div class="profile-stat-item" onclick="openContrib('contributions')" style="cursor:pointer;">
+          <div class="profile-stat-num" id="s-bancs">0</div>
+          <div class="profile-stat-lbl">Bancs</div>
+        </div>
+        <div class="profile-stat-sep"></div>
+        <div class="profile-stat-item" onclick="openContrib('contributions');setTimeout(()=>switchContribTab('reviews',document.querySelectorAll('.contrib-tab')[1]),100)" style="cursor:pointer;">
+          <div class="profile-stat-num" id="s-avis">0</div>
+          <div class="profile-stat-lbl">Avis</div>
+        </div>
+        <div class="profile-stat-sep"></div>
+        <div class="profile-stat-item" onclick="goPage('favorites',document.getElementById('nav-favorites'))" style="cursor:pointer;">
+          <div class="profile-stat-num" id="s-favs">0</div>
+          <div class="profile-stat-lbl">Favoris</div>
+        </div>
+      </div>
     </div>
       <div class="badges-section" id="badges-container"></div>
       <div class="leaderboard-section" id="leaderboard-container"></div>
@@ -1194,6 +1219,18 @@ function S(n,t=5){
     else out+='☆';
   }
   return out;
+}
+const _TAG_ENV=['panoramique','ombragé','ensoleillé','air frais','faune','nature','eau'];
+const _TAG_AMB=['calme','animé','musique','abrité'];
+const _TAG_ACC=['pmr','transports','enfants','chiens'];
+const _TAG_MAT=['bois','métal','pierre','granit','béton','plastique','composite','fonte'];
+function tagClass(t){
+  const l=t.toLowerCase();
+  if(_TAG_ENV.some(k=>l.includes(k))) return 'btag btag-env';
+  if(_TAG_AMB.some(k=>l.includes(k))) return 'btag btag-amb';
+  if(_TAG_ACC.some(k=>l.includes(k))) return 'btag btag-acc';
+  if(_TAG_MAT.some(k=>l.includes(k))) return 'btag btag-mat';
+  return 'btag btag-def';
 }
 
 // ── AUTH & USERNAME ───────────────────────────────────
@@ -1695,24 +1732,33 @@ function openBench(b){
   document.getElementById('bench-sheet').classList.add('open');
   const photos=b.photos||[];
   const hero=photos.length
-    ?`<div class="bench-banner"><div class="bench-banner-scroll">${photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${photos.length>1?`<span class="photo-count-badge">${photos.length} photos</span>`:''}</div>`
-    :`<div class="bench-hero"><svg width="40" height="58" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="white"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(255,255,255,0.6)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="white"/></svg><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button></div>`;
+    ?`<div class="bench-banner"><div class="bench-banner-scroll">${photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${photos.length>1?`<span class="photo-count-badge">${photos.length} 📸</span>`:''}</div>`
+    :`<div class="bench-hero"><svg width="48" height="68" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD" opacity=".3"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="#185FA5"/><rect x="7" y="10" width="18" height="2.5" rx="1.25" fill="rgba(24,95,165,0.5)"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="#185FA5"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="#185FA5"/></svg><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button></div>`;
+  const ratingHint={0.5:'Très mauvais',1:'Mauvais',1.5:'Mauvais',2:'Passable',2.5:'Passable',3:'Correct 🙂',3.5:'Bien 😊',4:'Bien 😊',4.5:'Excellent 🤩',5:'Parfait 🤩'};
+  const hint=ratingHint[Math.round(b.rating*2)/2]||'';
   document.getElementById('sheet-inner').innerHTML=`
     ${hero}
     <div class="sc">
       <div class="sh-name">${b.name}</div>
       <div class="sh-loc">${b.loc}</div>
-      <div class="rating-row"><span class="stars-disp">${S(Math.round(b.rating))}</span><span class="rnum">${b.rating.toFixed(1)}</span><span class="rcnt">${b.reviews} avis</span></div>
-      <div class="tag-row">${b.tags.map(t=>`<span class="btag">${t}</span>`).join('')}</div>
-      ${b.etat?`<div style="margin:6px 0 10px;font-size:13px;color:var(--muted);">État : <strong style="color:var(--text)">${b.etat}</strong></div>`:''}
-
+      <div class="rating-row">
+        <div class="rating-big-num">
+          <div class="rating-big-val">${b.rating.toFixed(1)}</div>
+          <div class="rating-big-sub">/ 5 étoiles</div>
+        </div>
+        <div class="rating-right">
+          <span class="stars-disp">${S(b.rating)}</span>
+          <span class="rcnt">${b.reviews} avis · ${hint}</span>
+        </div>
+      </div>
+      <div class="tag-row">${b.tags.map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('')}</div>
+      ${b.etat?`<div style="margin:0 0 12px;font-size:13px;color:var(--muted);">État : <strong>${b.etat}</strong></div>`:''}
       <div class="act-row">
-        <button class="act-btn" onclick="openItineraire(window._cb.lat,window._cb.lng)">📍 Itinéraire</button>
-        <button class="act-btn" id="fav-act-btn" onclick="toggleFav(window._cb.id)">${b.fav?'❤️ Favori':'⭐ Favori'}</button>
-        <button class="act-btn primary" onclick="openReview(window._cb.id)">✍️ Mon avis</button>
-        <button class="act-btn" onclick="shareBench(window._cb)">🔗 Partager</button>
-        ${b._raw?.created_by===localStorage.getItem('benchmark-username')?`<button class="act-btn" style="color:var(--red);border-color:var(--red)" onclick="deleteBench(window._cb.id)">🗑️</button>`:''}
-        <button class="act-btn" style="color:var(--muted)" onclick="reportBench(window._cb)">🚩 Signaler</button>
+        <button class="act-btn act-nav" onclick="openItineraire(window._cb.lat,window._cb.lng)"><span class="act-ico">🗺️</span>Y aller</button>
+        <button class="act-btn act-fav" id="fav-act-btn" onclick="toggleFav(window._cb.id)"><span class="act-ico">${b.fav?'❤️':'🤍'}</span>${b.fav?'Sauvé':'Sauver'}</button>
+        <button class="act-btn primary" onclick="openReview(window._cb.id)"><span class="act-ico">✍️</span>Mon avis</button>
+        <button class="act-btn" onclick="shareBench(window._cb)"><span class="act-ico">🔗</span>Partager</button>
+        ${b._raw?.created_by===localStorage.getItem('benchmark-username')?`<button class="act-btn" style="color:var(--red);border-color:#FCEBEB;background:#FCEBEB;" onclick="deleteBench(window._cb.id)"><span class="act-ico">🗑️</span>Suppr.</button>`:''}
       </div>
       <div class="sec-label">Avis (${b.reviews})</div>
       ${b.avis.filter(a=>a.t&&a.t.trim()).map(a=>`<div class="review-card" data-review-id="${a.id}"><div class="av">${a.n}</div><div><div style="display:flex;align-items:center;gap:6px;"><span class="rv-name rv-name-link" onclick="showUserReviews('${a.u}')" style="cursor:pointer;color:var(--blue-mid);">${a.u}</span><span class="rv-stars">${S(a.s)}</span></div>${a.etat?`<div style="font-size:11px;color:var(--muted);margin-bottom:2px;">État constaté : ${a.etat}</div>`:''}<div class="rv-text">${a.t}</div><button class="review-like-btn" onclick="toggleLike('${a.id}',this)">👍 <span class="like-count">0</span></button></div></div>`).join('')}
