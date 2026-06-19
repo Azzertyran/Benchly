@@ -2071,6 +2071,7 @@ function openBench(b){
   window._cb=b;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('bench-sheet').classList.add('open');
+  incrementBenchView(b.id); // compteur de vues (non bloquant)
   const photos=b.photos||[];
   const hero=photos.length
     ?`<div class="bench-banner"><div class="bench-banner-scroll">${photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${photos.length>1?`<span class="photo-count-badge">${photos.length} 📸</span>`:''}</div>`
@@ -2093,7 +2094,8 @@ function openBench(b){
         </div>
       </div>
       <div class="tag-row">${b.tags.map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('')}</div>
-      ${b.etat?`<div style="margin:0 0 12px;font-size:13px;color:var(--muted);">État : <strong>${b.etat}</strong></div>`:''}
+      ${b.etat?`<div style="margin:0 0 8px;font-size:13px;color:var(--muted);">État : <strong>${b.etat}</strong></div>`:''}
+      <div style="font-size:var(--t-meta);color:var(--muted);margin-bottom:14px;" id="view-counter">👁️ …</div>
       <div class="act-row">
         <button class="act-btn act-nav" onclick="openItineraire(window._cb.lat,window._cb.lng)"><span class="act-ico">🗺️</span>Y aller</button>
         <button class="act-btn act-fav" id="fav-act-btn" onclick="toggleFav(window._cb.id)"><span class="act-ico">${b.fav?'❤️':'🤍'}</span>${b.fav?'Sauvé':'Sauver'}</button>
@@ -2692,6 +2694,25 @@ async function submitReply(reviewId){
 }
 window.toggleReplyForm=toggleReplyForm;
 window.submitReply=submitReply;
+
+// ── COMPTEUR DE VUES ──────────────────────────────────
+async function incrementBenchView(benchId){
+  try{
+    const{data,error}=await db.from('bench_views').select('views').eq('bench_id',benchId).single();
+    let views=1;
+    if(data){
+      views=data.views+1;
+      await db.from('bench_views').update({views,last_viewed:new Date().toISOString()}).eq('bench_id',benchId);
+    } else {
+      await db.from('bench_views').insert({bench_id:benchId,views:1,last_viewed:new Date().toISOString()});
+    }
+    const el=document.getElementById('view-counter');
+    if(el) el.textContent=`👁️ ${views.toLocaleString('fr-FR')} vue${views>1?'s':''}`;
+  }catch(e){
+    const el=document.getElementById('view-counter');
+    if(el) el.textContent='';
+  }
+}
 
 // ── MODE SURPRISE ─────────────────────────────────────
 let _surpriseBench = null;
