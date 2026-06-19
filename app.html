@@ -90,7 +90,22 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .temp-pin-icon{width:36px;height:36px;display:flex;align-items:center;justify-content:center;animation:bounceIn .3s cubic-bezier(.175,.885,.32,1.275);}
 @keyframes bounceIn{0%{transform:scale(.3) translateY(-20px);opacity:0;}100%{transform:scale(1) translateY(0);opacity:1;}}
 
-/* BENCH SHEET */
+.chip-surprise{background:linear-gradient(135deg,#FF6B6B,#FF9F43);color:white;border-color:transparent;font-weight:600;}
+.chip-surprise:hover{opacity:.9;}
+/* SURPRISE OVERLAY */
+#surprise-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:9500;display:none;align-items:center;justify-content:center;flex-direction:column;gap:0;}
+#surprise-overlay.show{display:flex;}
+.surprise-card{background:var(--white);border-radius:24px;width:min(340px,90vw);overflow:hidden;animation:surprisePop .4s cubic-bezier(.175,.885,.32,1.275);}
+@keyframes surprisePop{from{transform:scale(.7) translateY(40px);opacity:0}to{transform:scale(1) translateY(0);opacity:1}}
+.surprise-img{width:100%;height:200px;object-fit:cover;background:linear-gradient(135deg,var(--blue-light),var(--sky));display:flex;align-items:center;justify-content:center;font-size:52px;}
+.surprise-body{padding:20px;}
+.surprise-label{font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--amber);margin-bottom:6px;}
+.surprise-name{font-family:'DM Serif Display',serif;font-size:22px;color:var(--ink);margin-bottom:4px;}
+.surprise-meta{font-size:var(--t-meta);color:var(--muted);margin-bottom:16px;}
+.surprise-btns{display:flex;gap:8px;}
+.surprise-go{flex:1;padding:12px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;}
+.surprise-retry{padding:12px 14px;background:var(--sand);border:none;border-radius:var(--rs);font-size:18px;cursor:pointer;}
+.surprise-close{padding:12px 14px;background:var(--sand);border:none;border-radius:var(--rs);font-size:14px;color:var(--muted);cursor:pointer;font-family:'DM Sans',sans-serif;}
 #bench-sheet{position:absolute;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-radius:22px 22px 0 0;z-index:1002;transform:translateY(100%);transition:transform .35s cubic-bezier(.32,.72,0,1);max-height:calc(100dvh - 64px - env(safe-area-inset-bottom) - env(safe-area-inset-top) - 10px);overflow-y:auto;visibility:hidden;}
 #bench-sheet.open{transform:translateY(0);visibility:visible;}
 #bench-sheet.dragging{transition:none;}
@@ -268,6 +283,43 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 /* BANC DU JOUR */
 .bench-of-day{margin:14px 16px 4px;border-radius:var(--r);overflow:hidden;cursor:pointer;position:relative;background:var(--ink);}
 .bench-of-day:active{opacity:.92;}
+
+/* PHOTO DU MOIS */
+.photo-mois-wrap{margin:10px 16px 4px;border-radius:var(--r);overflow:hidden;position:relative;cursor:pointer;}
+.photo-mois-wrap:active{opacity:.92;}
+.photo-mois-img{width:100%;height:130px;object-fit:cover;display:block;filter:brightness(.8);}
+.photo-mois-overlay{position:absolute;inset:0;padding:12px 14px;display:flex;flex-direction:column;justify-content:space-between;}
+.photo-mois-badge{display:inline-flex;align-items:center;gap:5px;background:rgba(0,0,0,.5);backdrop-filter:blur(4px);color:white;font-size:10px;font-weight:700;padding:3px 8px;border-radius:6px;letter-spacing:.04em;text-transform:uppercase;width:fit-content;}
+.photo-mois-bottom{display:flex;align-items:flex-end;justify-content:space-between;}
+.photo-mois-name{font-family:'DM Serif Display',serif;font-size:15px;color:white;text-shadow:0 1px 4px rgba(0,0,0,.5);}
+.photo-mois-author{font-size:10px;color:rgba(255,255,255,.8);}
+
+/* BALADE MODE */
+.balade-bar{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom));left:0;right:0;background:var(--white);border-top:1px solid var(--border);padding:10px 16px;z-index:1100;display:none;align-items:center;gap:10px;}
+.balade-bar.show{display:flex;}
+.balade-count{font-size:var(--t-meta);color:var(--muted);flex:1;}
+.balade-count strong{color:var(--ink);font-size:var(--t-body);}
+.balade-btn{padding:9px 16px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:15px;cursor:pointer;}
+.balade-cancel{padding:9px 12px;background:var(--sand);color:var(--muted);border:none;border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:var(--t-meta);cursor:pointer;}
+.bench-card.balade-selected{outline:2px solid var(--blue);outline-offset:2px;}
+.balade-num-badge{position:absolute;top:8px;left:8px;background:var(--blue);color:white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;box-shadow:0 2px 6px rgba(0,0,0,.25);}
+
+/* PARTAGE ITINÉRAIRE */
+#share-itinerary-modal{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9600;display:none;align-items:flex-end;justify-content:center;}
+#share-itinerary-modal.show{display:flex;}
+.share-itin-sheet{background:var(--white);border-radius:22px 22px 0 0;width:100%;max-width:540px;padding:20px 20px calc(32px + env(safe-area-inset-bottom));animation:slideUp .3s cubic-bezier(.32,.72,0,1);}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.share-itin-title{font-family:'DM Serif Display',serif;font-size:20px;margin-bottom:4px;}
+.share-itin-sub{font-size:var(--t-meta);color:var(--muted);margin-bottom:16px;}
+.share-itin-list{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;}
+.share-itin-item{display:flex;align-items:center;gap:10px;background:var(--sand);border-radius:var(--rs);padding:10px 12px;}
+.share-itin-num{width:24px;height:24px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;}
+.share-itin-name{font-size:var(--t-body);font-weight:500;}
+.share-itin-dist{font-size:var(--t-meta);color:var(--muted);}
+.share-itin-url{background:var(--sand);border-radius:var(--rs);padding:10px 12px;font-size:11px;color:var(--blue);word-break:break-all;margin-bottom:14px;cursor:pointer;}
+.share-itin-btns{display:flex;gap:8px;}
+.share-itin-copy{flex:1;padding:12px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;}
+.share-itin-native{padding:12px 14px;background:var(--sand);border:none;border-radius:var(--rs);font-size:16px;cursor:pointer;}
 .bench-of-day-img{width:100%;height:180px;object-fit:cover;display:block;opacity:.85;}
 .bench-of-day-placeholder{width:100%;height:180px;background:linear-gradient(135deg,var(--blue-deep),var(--blue));display:flex;align-items:center;justify-content:center;font-size:48px;opacity:.6;}
 .bench-of-day-overlay{position:absolute;bottom:0;left:0;right:0;padding:14px 16px;background:linear-gradient(to top,rgba(0,0,0,.75) 0%,transparent 100%);}
@@ -373,7 +425,13 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .badge-new{position:relative;}
 .badge-new::after{content:"NEW";position:absolute;top:-4px;right:-4px;background:var(--red);color:white;font-size:7px;font-weight:700;padding:1px 4px;border-radius:4px;}
 
-/* LIKES SUR AVIS */
+/* MENTIONS */
+.mention-suggest{position:absolute;bottom:100%;left:0;right:0;background:var(--white);border:1px solid var(--border);border-radius:var(--rs);box-shadow:0 -4px 16px rgba(0,0,0,.1);z-index:100;overflow:hidden;max-height:140px;overflow-y:auto;}
+.mention-item{padding:8px 12px;font-size:var(--t-meta);color:var(--ink);cursor:pointer;display:flex;align-items:center;gap:8px;}
+.mention-item:hover,.mention-item.active{background:var(--blue-light);}
+.mention-av{width:22px;height:22px;border-radius:50%;background:var(--blue);color:white;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:600;flex-shrink:0;}
+.mention{color:var(--blue-mid);font-weight:500;}
+.reply-form{position:relative;}
 .review-like-btn{background:none;border:1px solid var(--border);border-radius:50px;padding:3px 10px;font-size:11px;color:var(--muted);cursor:pointer;display:inline-flex;align-items:center;gap:4px;margin-top:6px;transition:all .15s;}
 .review-like-btn:hover{border-color:var(--blue);color:var(--blue);}
 .review-like-btn.liked{background:var(--blue-light);border-color:var(--blue);color:var(--blue-mid);}
@@ -737,6 +795,7 @@ window.goPage=goPage;
         <button class="chip" onclick="setFilter('🐶 Chiens bienvenus',this)" data-i18n="dogs">🐶 Chiens</button>
         <button class="chip" onclick="setFilter('etat:bon',this)">✅ Bon état</button>
         <button class="chip" onclick="setFilter('etat:degrade',this)">⚠️ Dégradés</button>
+        <button class="chip chip-surprise" onclick="surpriseMe()">🎲 Surprise !</button>
       </div>
     </div>
     <div class="count-pill" id="count-pill">5 bancs dans cette zone</div>
@@ -761,7 +820,10 @@ window.goPage=goPage;
   <!-- PAGE EXPLORER -->
   <div class="page" id="page-explorer">
     <div style="position:sticky;top:0;z-index:10;background:var(--white);">
-      <div class="page-head"><h2 data-i18n="explorerTitle">Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
+      <div class="page-head" style="display:flex;align-items:center;justify-content:space-between;">
+        <div><h2 data-i18n="explorerTitle">Explorer</h2><p id="exp-sub">5 bancs autour de vous</p></div>
+        <button onclick="toggleBaladeMode()" id="balade-toggle-btn" style="padding:8px 12px;border:1.5px solid var(--border);border-radius:50px;font-family:'DM Sans',sans-serif;font-size:var(--t-meta);cursor:pointer;background:var(--white);color:var(--ink);display:flex;align-items:center;gap:5px;white-space:nowrap;flex-shrink:0;">🚶 Balade</button>
+      </div>
       <div class="sort-row">
       <button class="sort-chip active" onclick="sortList('note',this)">⭐ Mieux notés</button>
       <button class="sort-chip" onclick="sortList('dist',this)" data-i18n="sortNear">📍 Plus proches</button>
@@ -771,6 +833,7 @@ window.goPage=goPage;
       </div>
     </div>
     <div id="bench-of-day-wrap"></div>
+    <div id="photo-du-mois-wrap"></div>
     <div class="bench-list" id="bench-list"></div>
   </div>
 
@@ -1124,6 +1187,44 @@ window.goPage=goPage;
         <button class="wizard-skip" onclick="submitBench()">Passer les détails et publier directement</button>
       </div>
 
+    </div>
+  </div>
+
+  <!-- BARRE MODE BALADE -->
+  <div class="balade-bar" id="balade-bar">
+    <div class="balade-count"><strong id="balade-count-num">0</strong> banc<span id="balade-count-s"></span> sélectionné<span id="balade-count-s2"></span></div>
+    <button class="balade-cancel" onclick="toggleBaladeMode()">Annuler</button>
+    <button class="balade-btn" onclick="openShareItinerary()" id="balade-share-btn" disabled>Partager →</button>
+  </div>
+
+  <!-- MODAL PARTAGE ITINÉRAIRE -->
+  <div id="share-itinerary-modal" onclick="if(event.target===this)closeShareItinerary()">
+    <div class="share-itin-sheet">
+      <div class="share-itin-title">🚶 Ma balade</div>
+      <div class="share-itin-sub" id="share-itin-sub">3 bancs · ~1.2 km à pied</div>
+      <div class="share-itin-list" id="share-itin-list"></div>
+      <div class="share-itin-url" id="share-itin-url" onclick="copyItineraryUrl()"></div>
+      <div class="share-itin-btns">
+        <button class="share-itin-copy" onclick="copyItineraryUrl()">📋 Copier le lien</button>
+        <button class="share-itin-native" onclick="nativeShareItinerary()" title="Partager">📤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SURPRISE OVERLAY -->
+  <div id="surprise-overlay" onclick="if(event.target===this)closeSurprise()">
+    <div class="surprise-card" id="surprise-card">
+      <div class="surprise-img" id="surprise-img">🪑</div>
+      <div class="surprise-body">
+        <div class="surprise-label">🎲 Banc surprise !</div>
+        <div class="surprise-name" id="surprise-name">—</div>
+        <div class="surprise-meta" id="surprise-meta"></div>
+        <div class="surprise-btns">
+          <button class="surprise-go" onclick="goSurprise()">🗺️ Y aller !</button>
+          <button class="surprise-retry" onclick="surpriseMe()" title="Autre banc">🔀</button>
+          <button class="surprise-close" onclick="closeSurprise()">Fermer</button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1551,6 +1652,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   mapInstance.addControl(new maplibregl.NavigationControl({showCompass:false}), 'bottom-right');
   mapInstance.on('click', onMapClick);
   mapInstance.on('moveend', updateCountPill);
+  mapInstance.on('zoomend', ()=>renderMarkers()); // re-cluster au zoom
   mapInstance.on('zoomend', updateCountPill);
 
   // Attendre que MapLibre soit prêt avant de charger les données
@@ -1903,15 +2005,73 @@ function updateCountPill(){
   document.getElementById('count-pill').textContent = countLabel();
 }
 function renderMarkers(){
-  leafletMarkers.forEach(m=>m.remove());leafletMarkers=[];
-  const list=getFilteredBenches();
-  list.forEach(b=>{
-    const el=makeMarkerElement(b);
-    const m=new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([b.lng,b.lat]).addTo(mapInstance);
-    el.addEventListener('click',(e)=>{ e.stopPropagation(); openBench(b); });
-    leafletMarkers.push(m);
-  });
+  leafletMarkers.forEach(m=>m.remove()); leafletMarkers=[];
+  const list = getFilteredBenches();
+  const zoom = mapInstance.getZoom();
+
+  // Clustering si zoom < 13
+  if(zoom < 13){
+    const clusters = clusterBenches(list, zoom);
+    clusters.forEach(c=>{
+      if(c.count === 1){
+        const el = makeMarkerElement(c.bench);
+        const m = new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([c.lng,c.lat]).addTo(mapInstance);
+        el.addEventListener('click',(e)=>{ e.stopPropagation(); openBench(c.bench); });
+        leafletMarkers.push(m);
+      } else {
+        const el = makeClusterElement(c.count, c.avgRating);
+        const m = new maplibregl.Marker({element:el,anchor:'center'}).setLngLat([c.lng,c.lat]).addTo(mapInstance);
+        el.addEventListener('click',(e)=>{
+          e.stopPropagation();
+          mapInstance.flyTo({center:[c.lng,c.lat], zoom: Math.min(zoom+3, 14)});
+        });
+        leafletMarkers.push(m);
+      }
+    });
+  } else {
+    list.forEach(b=>{
+      const el = makeMarkerElement(b);
+      const m = new maplibregl.Marker({element:el,anchor:'bottom'}).setLngLat([b.lng,b.lat]).addTo(mapInstance);
+      el.addEventListener('click',(e)=>{ e.stopPropagation(); openBench(b); });
+      leafletMarkers.push(m);
+    });
+  }
   setTimeout(updateCountPill, 100);
+}
+
+function clusterBenches(list, zoom){
+  const radius = zoom < 8 ? 3 : zoom < 10 ? 1.5 : zoom < 12 ? 0.5 : 0.15;
+  const clusters = [];
+  const used = new Set();
+  list.forEach((b,i)=>{
+    if(used.has(i)) return;
+    const group = [b]; used.add(i);
+    list.forEach((b2,j)=>{
+      if(used.has(j)) return;
+      const d = Math.sqrt((b.lat-b2.lat)**2+(b.lng-b2.lng)**2);
+      if(d < radius){ group.push(b2); used.add(j); }
+    });
+    if(group.length === 1){
+      clusters.push({count:1, bench:b, lat:b.lat, lng:b.lng});
+    } else {
+      const lat = group.reduce((s,x)=>s+x.lat,0)/group.length;
+      const lng = group.reduce((s,x)=>s+x.lng,0)/group.length;
+      const avgRating = group.reduce((s,x)=>s+x.rating,0)/group.length;
+      clusters.push({count:group.length, lat, lng, avgRating});
+    }
+  });
+  return clusters;
+}
+
+function makeClusterElement(count, avgRating){
+  const color = avgRating>=4?'#1A7A4A': avgRating>=3?'#378ADD':'#EF9F27';
+  const size = count>20?52: count>10?46:40;
+  const el = document.createElement('div');
+  el.style.cssText=`width:${size}px;height:${size}px;border-radius:50%;background:${color};border:3px solid white;box-shadow:0 2px 8px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s;`;
+  el.innerHTML=`<span style="color:white;font-size:${count>9?13:15}px;font-weight:700;font-family:'DM Sans',sans-serif;">${count}</span>`;
+  el.onmouseenter=()=>el.style.transform='scale(1.1)';
+  el.onmouseleave=()=>el.style.transform='scale(1)';
+  return el;
 }
 function setFilter(tag,el){
   currentFilter=tag;
@@ -2045,6 +2205,8 @@ function openBench(b){
   window._cb=b;
   document.getElementById('overlay').classList.add('show');
   document.getElementById('bench-sheet').classList.add('open');
+  // Incrémenter les vues (sans bloquer l'affichage)
+  incrementBenchView(b.id);
   const photos=b.photos||[];
   const hero=photos.length
     ?`<div class="bench-banner"><div class="bench-banner-scroll">${photos.map(u=>`<img src="${u}" onclick="openLightbox('${u}')">`).join('')}</div><span class="dist-badge">📍 ${b.dist} km</span><button class="fav-badge" onclick="toggleFav(window._cb.id)">${b.fav?'❤️':'🤍'}</button>${photos.length>1?`<span class="photo-count-badge">${photos.length} 📸</span>`:''}</div>`
@@ -2068,6 +2230,9 @@ function openBench(b){
       </div>
       <div class="tag-row">${b.tags.map(t=>`<span class="${tagClass(t)}">${t}</span>`).join('')}</div>
       ${b.etat?`<div style="margin:0 0 12px;font-size:13px;color:var(--muted);">État : <strong>${b.etat}</strong></div>`:''}
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+        <span style="font-size:var(--t-meta);color:var(--muted);" id="view-counter-display">👁️ chargement…</span>
+      </div>
       <div class="act-row">
         <button class="act-btn act-nav" onclick="openItineraire(window._cb.lat,window._cb.lng)"><span class="act-ico">🗺️</span>Y aller</button>
         <button class="act-btn act-fav" id="fav-act-btn" onclick="toggleFav(window._cb.id)"><span class="act-ico">${b.fav?'❤️':'🤍'}</span>${b.fav?'Sauvé':'Sauver'}</button>
@@ -2092,7 +2257,8 @@ function openBench(b){
             </div>
             <div class="replies-section" id="replies-${a.id}"></div>
             <div class="reply-form" id="reply-form-${a.id}">
-              <textarea class="reply-input" id="reply-input-${a.id}" rows="2" placeholder="Votre réponse…"></textarea>
+              <div id="mention-suggest-${a.id}" class="mention-suggest" style="display:none;"></div>
+              <textarea class="reply-input" id="reply-input-${a.id}" rows="2" placeholder="Votre réponse… (@ pour mentionner)"></textarea>
               <button class="reply-send-btn" onclick="submitReply('${a.id}')">Envoyer</button>
             </div>
           </div>
@@ -2226,7 +2392,188 @@ function renderFavorites(){
 }
 
 // ── EXPLORER ──────────────────────────────────────────
-// ── BANC DU JOUR ──────────────────────────────────────
+// ── MODE BALADE ───────────────────────────────────────
+let _baladeMode = false;
+let _baladeSelection = []; // [{id, name, lat, lng, dist}]
+
+function toggleBaladeMode(){
+  _baladeMode = !_baladeMode;
+  _baladeSelection = [];
+  const bar = document.getElementById('balade-bar');
+  const btn = document.getElementById('balade-toggle-btn');
+  bar.classList.toggle('show', _baladeMode);
+  if(btn){
+    btn.style.background = _baladeMode ? 'var(--blue)' : 'var(--white)';
+    btn.style.color = _baladeMode ? 'white' : 'var(--ink)';
+    btn.style.borderColor = _baladeMode ? 'var(--blue)' : 'var(--border)';
+  }
+  updateBaladeBar();
+  // Re-render les cards pour afficher/cacher les badges de sélection
+  renderExplorer();
+}
+
+function toggleBaladeSelection(benchId, cardEl){
+  if(!_baladeMode) return false;
+  const b = benches.find(x=>x.id===benchId);
+  if(!b) return true;
+  const idx = _baladeSelection.findIndex(x=>x.id===benchId);
+  if(idx>-1){
+    _baladeSelection.splice(idx,1);
+    cardEl.classList.remove('balade-selected');
+    cardEl.querySelector('.balade-num-badge')?.remove();
+  } else {
+    if(_baladeSelection.length>=8){ showToast('Maximum 8 bancs par balade'); return true; }
+    _baladeSelection.push(b);
+    cardEl.classList.add('balade-selected');
+    const badge=document.createElement('div');
+    badge.className='balade-num-badge';
+    badge.textContent=_baladeSelection.length;
+    cardEl.querySelector('.bc-img').appendChild(badge);
+  }
+  updateBaladeBar();
+  return true; // a intercepté le clic
+}
+
+function updateBaladeBar(){
+  const n = _baladeSelection.length;
+  const numEl = document.getElementById('balade-count-num');
+  const sEl = document.getElementById('balade-count-s');
+  const s2El = document.getElementById('balade-count-s2');
+  const shareBtn = document.getElementById('balade-share-btn');
+  if(numEl) numEl.textContent = n;
+  if(sEl) sEl.textContent = n>1?'s':'';
+  if(s2El) s2El.textContent = n>1?'s':'';
+  if(shareBtn) shareBtn.disabled = n<2;
+}
+
+function openShareItinerary(){
+  if(_baladeSelection.length<2){ showToast('Sélectionnez au moins 2 bancs'); return; }
+  // Calcul distance totale (ordre de sélection)
+  let totalDist = 0;
+  for(let i=1;i<_baladeSelection.length;i++){
+    const a=_baladeSelection[i-1], b=_baladeSelection[i];
+    const d=Math.sqrt((a.lat-b.lat)**2+(a.lng-b.lng)**2)*111;
+    totalDist+=d;
+  }
+  const distKm = totalDist.toFixed(1);
+  const minWalk = Math.round(totalDist/4*60); // ~4km/h
+  document.getElementById('share-itin-sub').textContent=`${_baladeSelection.length} bancs · ~${distKm} km à pied (~${minWalk} min)`;
+  document.getElementById('share-itin-list').innerHTML=_baladeSelection.map((b,i)=>`
+    <div class="share-itin-item">
+      <div class="share-itin-num">${i+1}</div>
+      <div style="flex:1;">
+        <div class="share-itin-name">${b.name}</div>
+        <div class="share-itin-dist">📍 ${b.loc.split(',')[0]||b.loc}</div>
+      </div>
+    </div>`).join('');
+  // Générer URL partageable
+  const ids = _baladeSelection.map(b=>b.id).join(',');
+  const url = `${location.origin}${location.pathname}?balade=${ids}`;
+  document.getElementById('share-itin-url').textContent = url;
+  document.getElementById('share-itinerary-modal').classList.add('show');
+}
+
+function closeShareItinerary(){
+  document.getElementById('share-itinerary-modal').classList.remove('show');
+}
+
+function copyItineraryUrl(){
+  const url = document.getElementById('share-itin-url').textContent;
+  navigator.clipboard.writeText(url).then(()=>showToast('✓ Lien copié !')).catch(()=>{
+    // Fallback
+    const ta=document.createElement('textarea');
+    ta.value=url; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    showToast('✓ Lien copié !');
+  });
+}
+
+async function nativeShareItinerary(){
+  const url = document.getElementById('share-itin-url').textContent;
+  const names = _baladeSelection.map(b=>b.name).join(', ');
+  if(navigator.share){
+    await navigator.share({title:'Ma balade BenchMark', text:`Mon itinéraire : ${names}`, url});
+  } else {
+    copyItineraryUrl();
+  }
+}
+
+// Charger un itinéraire depuis l'URL (?balade=id1,id2,...)
+function loadBaladeFromUrl(){
+  const params = new URLSearchParams(location.search);
+  const baladeParam = params.get('balade');
+  if(!baladeParam) return;
+  const ids = baladeParam.split(',');
+  // Attendre que les bancs soient chargés
+  const check=()=>{
+    if(!benches.length){ setTimeout(check,500); return; }
+    _baladeSelection = ids.map(id=>benches.find(b=>b.id===id)).filter(Boolean);
+    if(_baladeSelection.length>=2){
+      goPage('explorer', document.getElementById('nav-explorer'));
+      _baladeMode=true;
+      document.getElementById('balade-bar').classList.add('show');
+      updateBaladeBar();
+      renderExplorer();
+      setTimeout(openShareItinerary, 500);
+    }
+  };
+  check();
+}
+
+window.toggleBaladeMode=toggleBaladeMode;
+window.toggleBaladeSelection=toggleBaladeSelection;
+window.openShareItinerary=openShareItinerary;
+window.closeShareItinerary=closeShareItinerary;
+window.copyItineraryUrl=copyItineraryUrl;
+window.nativeShareItinerary=nativeShareItinerary;
+async function incrementBenchView(benchId){
+  try{
+    // Upsert dans bench_views : incrémente ou crée
+    const{data:existing}=await db.from('bench_views').select('views').eq('bench_id',benchId).single();
+    if(existing){
+      await db.from('bench_views').update({views:existing.views+1,last_viewed:new Date().toISOString()}).eq('bench_id',benchId);
+      const el=document.getElementById('view-counter-display');
+      if(el) el.textContent=`👁️ ${existing.views+1} vue${existing.views+1>1?'s':''}`;
+    } else {
+      await db.from('bench_views').insert({bench_id:benchId,views:1,last_viewed:new Date().toISOString()});
+      const el=document.getElementById('view-counter-display');
+      if(el) el.textContent='👁️ 1 vue';
+    }
+  }catch(e){
+    const el=document.getElementById('view-counter-display');
+    if(el) el.textContent='';
+  }
+}
+let _surpriseBench = null;
+function surpriseMe(){
+  const pool = benches.filter(b=>b.rating>=3);
+  if(!pool.length){ showToast('Pas encore assez de bancs notés 😅'); return; }
+  _surpriseBench = pool[Math.floor(Math.random()*pool.length)];
+  const b = _surpriseBench;
+  const img = document.getElementById('surprise-img');
+  if(b.photos&&b.photos.length){
+    img.innerHTML=`<img src="${b.photos[0]}" style="width:100%;height:200px;object-fit:cover;display:block;">`;
+  } else {
+    img.innerHTML='🪑';
+    img.style.cssText='display:flex;align-items:center;justify-content:center;height:200px;font-size:52px;background:linear-gradient(135deg,var(--blue-light),var(--sky))';
+  }
+  document.getElementById('surprise-name').textContent = b.name;
+  document.getElementById('surprise-meta').textContent = `${S(Math.round(b.rating))} ${b.rating.toFixed(1)} · ${b.reviews} avis · 📍 ${b.dist} km`;
+  document.getElementById('surprise-overlay').classList.add('show');
+}
+function closeSurprise(){
+  document.getElementById('surprise-overlay').classList.remove('show');
+  _surpriseBench = null;
+}
+function goSurprise(){
+  if(!_surpriseBench) return;
+  closeSurprise();
+  mapInstance.flyTo({center:[_surpriseBench.lng,_surpriseBench.lat],zoom:17});
+  setTimeout(()=>openBench(_surpriseBench), 600);
+}
+window.surpriseMe=surpriseMe;
+window.closeSurprise=closeSurprise;
+window.goSurprise=goSurprise;
 function renderBenchOfDay(){
   const wrap = document.getElementById('bench-of-day-wrap');
   if(!wrap || !benches.length) return;
@@ -2263,8 +2610,42 @@ function handleBenchOfDayClick(id){
 }
 window.handleBenchOfDayClick = handleBenchOfDayClick;
 
+// ── PHOTO DU MOIS ─────────────────────────────────────
+function renderPhotoDuMois(){
+  const wrap = document.getElementById('photo-du-mois-wrap');
+  if(!wrap) return;
+  const now = new Date();
+  const monthSeed = now.getFullYear()*100+now.getMonth();
+  // Bancs avec photos ajoutés ce mois ou le mois dernier, triés par note
+  const withPhotos = benches.filter(b=>b.photos&&b.photos.length>0&&b.rating>=3);
+  if(withPhotos.length < 3){ wrap.innerHTML=''; return; }
+  const ranked = [...withPhotos].sort((a,b)=>(b.rating*2+b.reviews)-(a.rating*2+a.reviews));
+  const pick = ranked[monthSeed % ranked.length];
+  const moisFr = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'][now.getMonth()];
+  wrap.innerHTML=`
+    <div class="photo-mois-wrap" onclick="handlePhotoDuMoisClick('${pick.id}')">
+      <img class="photo-mois-img" src="${pick.photos[0]}" loading="lazy">
+      <div class="photo-mois-overlay">
+        <div class="photo-mois-badge">📸 Photo de ${moisFr}</div>
+        <div class="photo-mois-bottom">
+          <div>
+            <div class="photo-mois-name">${pick.name}</div>
+            <div class="photo-mois-author">${pick.loc.split(',')[0]||pick.loc} · ${S(Math.round(pick.rating))}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+function handlePhotoDuMoisClick(id){
+  const b=benches.find(x=>x.id===id);
+  if(!b) return;
+  goPage('map',document.getElementById('nav-map'));
+  setTimeout(()=>openBench(b),200);
+}
+window.handlePhotoDuMoisClick=handlePhotoDuMoisClick;
 function renderExplorer(){
   renderBenchOfDay();
+  renderPhotoDuMois();
   let list=[...getFilteredBenches()];
   if(currentSort==='note')list.sort((a,b)=>b.rating-a.rating);
   else if(currentSort==='dist')list.sort((a,b)=>a.dist-b.dist);
@@ -2277,7 +2658,9 @@ function renderExplorer(){
       ? `<img src="${b.photos[0]}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">`
       : `<div class="bc-no-photo"><svg width="36" height="36" viewBox="0 0 32 46" fill="none"><path d="M16 44C16 44 2 28 2 16C2 8.3 8.3 2 16 2C23.7 2 30 8.3 30 16C30 28 16 44 16 44Z" fill="#378ADD" opacity=".3"/><rect x="7" y="13" width="18" height="3" rx="1.5" fill="#185FA5" opacity=".6"/><rect x="9" y="16" width="2.5" height="4.5" rx="1.25" fill="#185FA5" opacity=".6"/><rect x="20.5" y="16" width="2.5" height="4.5" rx="1.25" fill="#185FA5" opacity=".6"/></svg><span>Pas encore de photo</span></div>`;
     const tag1 = b.tags[0]||'';
-    return `<div class="bench-card" data-id="${b.id}" onclick="handleBenchCardClick(this)">
+    const isSelected = _baladeMode && _baladeSelection.some(x=>x.id===b.id);
+    const selNum = isSelected ? _baladeSelection.findIndex(x=>x.id===b.id)+1 : 0;
+    return `<div class="bench-card${isSelected?' balade-selected':''}" data-id="${b.id}" onclick="_baladeMode?toggleBaladeSelection('${b.id}',this):handleBenchCardClick(this)">
       <div class="bc-img">${imgHtml}${b.photos&&b.photos.length>1?`<span style="position:absolute;bottom:8px;right:8px;background:rgba(0,0,0,.5);color:white;font-size:11px;padding:2px 7px;border-radius:10px;">📸 ${b.photos.length}</span>`:''}</div>
       <div class="bc-info">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;">
