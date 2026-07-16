@@ -239,6 +239,13 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .step1-photo-btns{display:flex;gap:8px;margin-top:10px;}
 .step1-photo-btn{flex:1;padding:11px;border:1.5px solid var(--border);border-radius:var(--rs);font-family:'DM Sans',sans-serif;font-size:var(--t-meta);cursor:pointer;background:var(--white);color:var(--ink);display:flex;align-items:center;justify-content:center;gap:6px;}
 .step1-photo-btn.cam{background:var(--blue);border-color:var(--blue);color:white;}
+.step1-photo-strip{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:2px;}
+.step1-photo-strip .thumb{position:relative;width:60px;height:60px;flex:0 0 60px;border-radius:10px;overflow:hidden;cursor:pointer;}
+.step1-photo-strip .thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+.step1-photo-strip .thumb.cover{outline:2px solid var(--blue);outline-offset:-2px;}
+.step1-photo-strip .thumb .cover-badge{position:absolute;bottom:2px;left:2px;font-size:10px;background:rgba(0,0,0,.55);color:#fff;border-radius:6px;padding:1px 4px;}
+.step1-photo-strip .thumb .del{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(0,0,0,.6);color:#fff;border:none;font-size:11px;line-height:18px;text-align:center;cursor:pointer;padding:0;}
+.step1-photo-hint{font-size:var(--t-meta);color:var(--muted);margin-top:6px;}
 .step2-stars{display:flex;gap:8px;justify-content:center;padding:16px 0 6px;}
 .step2-hint{text-align:center;font-size:var(--t-body);color:var(--muted);min-height:22px;margin-bottom:10px;transition:all .15s;}
 
@@ -278,6 +285,7 @@ html,body{height:100%;height:100dvh;width:100%;max-width:100%;font-family:'DM Sa
 .photo-add-btn:hover{border-color:var(--blue);background:var(--blue-light);}
 .photo-add-btn span{font-size:10px;color:var(--muted);}
 .photo-count{font-size:11px;color:var(--muted);margin-top:6px;text-align:right;}
+.photo-thumb .new-badge{position:absolute;bottom:4px;left:4px;font-size:9px;font-weight:600;background:var(--blue);color:#fff;border-radius:6px;padding:2px 5px;text-transform:uppercase;letter-spacing:.02em;}
 .submit-btn{width:100%;margin-top:18px;padding:13px;background:var(--blue);color:white;border:none;border-radius:var(--rs);font-family:'DM Serif Display',serif;font-size:16px;cursor:pointer;transition:background .15s;}
 .submit-btn:hover{background:var(--blue-mid);}
 .submit-btn:disabled{background:#ccc;cursor:not-allowed;}
@@ -1035,6 +1043,8 @@ window.goPage=goPage;
         </div>
         <input type="file" accept="image/*" multiple id="add-photo-input" style="display:none" onchange="wizardHandlePhoto(this)">
         <input type="file" accept="image/*" capture="environment" id="add-photo-cam" style="display:none" onchange="wizardHandlePhoto(this)">
+        <div class="step1-photo-strip" id="step1-photo-strip" style="display:none"></div>
+        <div class="step1-photo-hint" id="step1-photo-hint" style="display:none"></div>
         <!-- Grille photos supplémentaires (cachée en étape 1, utilisée en étape 3) -->
         <div style="display:none"><div class="photo-grid" id="add-photo-grid"></div><div class="photo-count" id="add-photo-count">0 / 5 photos</div></div>
 
@@ -1740,40 +1750,117 @@ function wizardNext(step){
   document.getElementById('add-sheet').scrollTop = 0;
   // Init photo extra en étape 3
   if(step === 3) renderPhotoGridExtra();
+  if(step === 1){ updateStep1Hero(); renderStep1PhotoStrip(); }
 }
 
 function wizardHandlePhoto(input){
   const files = [...input.files];
   if(!files.length) return;
-  // Ajouter toutes les photos dans photoStore['add']
   const remaining = 5 - photoStore['add'].length;
-  files.slice(0, remaining).forEach(async f=>{
-    const compressed = await compressImage(f);
-    photoStore['add'].push(compressed);
-    // Afficher la première dans le hero
-    const hero = document.getElementById('step1-hero');
-    if(hero && photoStore['add'].length === 1){
-      hero.classList.add('has-photo');
-      const existing = hero.querySelector('img.step1-preview');
-      if(existing) existing.remove();
-      const img = document.createElement('img');
-      img.className = 'step1-preview';
-      img.src = compressed;
-      hero.insertBefore(img, hero.firstChild);
-      // Bouton changer
-      if(!hero.querySelector('.step1-photo-change')){
-        const btn = document.createElement('button');
-        btn.className = 'step1-photo-change';
-        btn.textContent = '✏️ Changer';
-        btn.onclick = (e)=>{ e.stopPropagation(); document.getElementById('add-photo-input').click(); };
-        hero.appendChild(btn);
-      }
+  if(files.length > remaining && remaining >= 0) showToast(`Max 5 photos${files.length>remaining?` — ${files.length-remaining} ignorée${files.length-remaining>1?'s':''}`:''}`);
+  const toAdd = files.slice(0, remaining);
+  (async()=>{
+    for(const f of toAdd){
+      const compressed = await compressImage(f);
+      photoStore['add'].push(compressed);
     }
-    // Activer bouton suivant
-    document.getElementById('wizard-btn-1').disabled = false;
-  });
+    updateStep1Hero();
+    renderStep1PhotoStrip();
+    renderPhotoGridExtra();
+    document.getElementById('wizard-btn-1').disabled = photoStore['add'].length===0;
+  })();
   input.value = '';
 }
+
+// Met à jour la photo affichée en grand dans le hero (toujours la 1ère du tableau)
+function updateStep1Hero(){
+  const hero = document.getElementById('step1-hero');
+  if(!hero) return;
+  const photos = photoStore['add'];
+  if(!photos.length){
+    hero.classList.remove('has-photo');
+    const img = hero.querySelector('img.step1-preview');
+    if(img) img.remove();
+    const btn = hero.querySelector('.step1-photo-change');
+    if(btn) btn.remove();
+    return;
+  }
+  hero.classList.add('has-photo');
+  let img = hero.querySelector('img.step1-preview');
+  if(!img){
+    img = document.createElement('img');
+    img.className = 'step1-preview';
+    hero.insertBefore(img, hero.firstChild);
+  }
+  img.src = photos[0];
+  if(!hero.querySelector('.step1-photo-change')){
+    const btn = document.createElement('button');
+    btn.className = 'step1-photo-change';
+    btn.textContent = '✏️ Changer';
+    btn.onclick = (e)=>{ e.stopPropagation(); document.getElementById('add-photo-input').click(); };
+    hero.appendChild(btn);
+  }
+}
+
+// Bande de vignettes sous le hero : permet de parcourir toutes les photos prises,
+// de vérifier qu'elles ont bien été chargées, d'en supprimer une ou de changer la couverture
+function renderStep1PhotoStrip(){
+  const strip = document.getElementById('step1-photo-strip');
+  const hint = document.getElementById('step1-photo-hint');
+  if(!strip) return;
+  const photos = photoStore['add'];
+  strip.innerHTML = '';
+  if(photos.length < 2){
+    strip.style.display = 'none';
+    if(hint) hint.style.display = 'none';
+    return;
+  }
+  photos.forEach((src,i)=>{
+    const div = document.createElement('div');
+    div.className = 'thumb' + (i===0 ? ' cover' : '');
+    const img = document.createElement('img');
+    img.src = src;
+    div.appendChild(img);
+    if(i===0){
+      const badge = document.createElement('span');
+      badge.className = 'cover-badge';
+      badge.textContent = '★ Principale';
+      div.appendChild(badge);
+    }
+    const del = document.createElement('button');
+    del.className = 'del';
+    del.textContent = '✕';
+    del.onclick = (e)=>{ e.stopPropagation(); removeStep1Photo(i); };
+    div.appendChild(del);
+    div.addEventListener('click', ()=>setStep1Cover(i));
+    strip.appendChild(div);
+  });
+  strip.style.display = 'flex';
+  if(hint){
+    hint.textContent = `${photos.length} photos chargées — touchez-en une pour la mettre en avant`;
+    hint.style.display = 'block';
+  }
+}
+
+function setStep1Cover(i){
+  if(i===0) return;
+  const photos = photoStore['add'];
+  const [chosen] = photos.splice(i,1);
+  photos.unshift(chosen);
+  updateStep1Hero();
+  renderStep1PhotoStrip();
+  renderPhotoGridExtra();
+}
+
+function removeStep1Photo(i){
+  photoStore['add'].splice(i,1);
+  updateStep1Hero();
+  renderStep1PhotoStrip();
+  renderPhotoGridExtra();
+  document.getElementById('wizard-btn-1').disabled = photoStore['add'].length===0;
+}
+window.setStep1Cover = setStep1Cover;
+window.removeStep1Photo = removeStep1Photo;
 
 function wizardCheckStep2(){
   const name = document.getElementById('add-name').value.trim();
@@ -1849,6 +1936,8 @@ function openAddForm(lat, lng){
   // Réinitialiser héro photo
   const hero=document.getElementById('step1-hero');
   if(hero){ hero.classList.remove('has-photo'); hero.innerHTML='<div class="step1-photo-icon">📷</div><div class="step1-photo-label">Ajouter une photo</div><div class="step1-photo-sub">Obligatoire pour publier</div>'; }
+  const strip=document.getElementById('step1-photo-strip'); if(strip){ strip.style.display='none'; strip.innerHTML=''; }
+  const photoHint=document.getElementById('step1-photo-hint'); if(photoHint) photoHint.style.display='none';
   document.getElementById('wizard-btn-1').disabled=true;
   // Réinitialiser champs
   document.getElementById('add-name').value='';
@@ -3018,6 +3107,8 @@ let _editId = null;
 let _editBenchId = null;
 let _editStars = 0;
 let _editEtat = '';
+let _editExistingPhotos = [];
+let _editNewPhotos = [];
 
 function closeEditModal(){
   const m = document.getElementById('edit-modal');
@@ -3059,6 +3150,9 @@ async function openEditFull(benchId, reviewId){
 
   if(!b) return;
 
+  _editExistingPhotos = [...(b.photos||[])];
+  _editNewPhotos = [];
+
   const allTags = [
     {group:'Environnement', tags:['🌅 Vue panoramique','🌳 Ombragé','☀️ Ensoleillé','🍃 Air frais','🐦 Faune / nature','💧 Proche eau']},
     {group:'Ambiance', tags:['🔇 Calme','🎵 Animé / musique','🌧️ Abrité pluie']},
@@ -3092,6 +3186,12 @@ async function openEditFull(benchId, reviewId){
       <div class="edit-label">Caractéristiques</div>
       ${tagsHtml}
     </div>
+    <div class="edit-field">
+      <div class="edit-label">Photos <span style="font-weight:400;color:#bbb;">(jusqu'à ${MAX_PHOTOS})</span></div>
+      <div class="photo-grid" id="edit-photo-grid"></div>
+      <div class="photo-count" id="edit-photo-count"></div>
+      <input type="file" accept="image/*" multiple id="edit-photo-input" style="display:none" onchange="editHandlePhoto(this)">
+    </div>
     ${rev ? `
     <div class="edit-field" style="border-top:1px solid var(--border);margin-top:8px;padding-top:16px;">
       <div class="edit-label">Votre note</div>
@@ -3108,12 +3208,78 @@ async function openEditFull(benchId, reviewId){
   `;
 
   document.getElementById('edit-modal').classList.add('show');
+  renderEditPhotoGrid();
 }
 function selectEditEtat(el, val){
   document.querySelectorAll('.etat-sel-edit').forEach(e=>e.classList.remove('sel'));
   el.classList.add('sel');
   _editEtat = val;
 }
+
+// Grille photos de la modale d'édition : photos déjà en ligne + nouvelles en attente d'upload
+function renderEditPhotoGrid(){
+  const grid = document.getElementById('edit-photo-grid');
+  const count = document.getElementById('edit-photo-count');
+  if(!grid) return;
+  grid.innerHTML = '';
+  _editExistingPhotos.forEach((url,i)=>{
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    const img = document.createElement('img');
+    img.src = url;
+    thumb.appendChild(img);
+    const del = document.createElement('button');
+    del.className = 'del-btn';
+    del.type = 'button';
+    del.textContent = '✕';
+    del.onclick = ()=>{ _editExistingPhotos.splice(i,1); renderEditPhotoGrid(); };
+    thumb.appendChild(del);
+    grid.appendChild(thumb);
+  });
+  _editNewPhotos.forEach((src,i)=>{
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    const img = document.createElement('img');
+    img.src = src;
+    thumb.appendChild(img);
+    const badge = document.createElement('span');
+    badge.className = 'new-badge';
+    badge.textContent = 'Nouvelle';
+    thumb.appendChild(badge);
+    const del = document.createElement('button');
+    del.className = 'del-btn';
+    del.type = 'button';
+    del.textContent = '✕';
+    del.onclick = ()=>{ _editNewPhotos.splice(i,1); renderEditPhotoGrid(); };
+    thumb.appendChild(del);
+    grid.appendChild(thumb);
+  });
+  const total = _editExistingPhotos.length + _editNewPhotos.length;
+  if(total < MAX_PHOTOS){
+    const add = document.createElement('div');
+    add.className = 'photo-add-btn';
+    add.innerHTML = `<svg width="22" height="22" viewBox="0 0 22 22" fill="none"><rect x="1" y="5" width="20" height="15" rx="2.5" stroke="#bbb" stroke-width="1.4"/><circle cx="11" cy="12.5" r="3.5" stroke="#bbb" stroke-width="1.4"/><path d="M8 5l1.5-2.5h3L14 5" stroke="#bbb" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ajouter</span>`;
+    add.onclick = ()=>document.getElementById('edit-photo-input').click();
+    grid.appendChild(add);
+  }
+  if(count) count.textContent = `${total} / ${MAX_PHOTOS} photo${total>1?'s':''}`;
+}
+
+async function editHandlePhoto(input){
+  const files = [...input.files];
+  if(!files.length) return;
+  const remaining = MAX_PHOTOS - (_editExistingPhotos.length + _editNewPhotos.length);
+  if(remaining <= 0){ showToast(`Max ${MAX_PHOTOS} photos`); input.value=''; return; }
+  const toAdd = files.slice(0, remaining);
+  if(files.length > remaining) showToast(`Max ${MAX_PHOTOS} photos — ${files.length-remaining} ignorée${files.length-remaining>1?'s':''}`);
+  for(const f of toAdd){
+    const compressed = await compressImage(f);
+    _editNewPhotos.push(compressed);
+  }
+  renderEditPhotoGrid();
+  input.value = '';
+}
+window.editHandlePhoto = editHandlePhoto;
 
 function handleStarTouchEdit(e, star){
   e.preventDefault();
@@ -3142,10 +3308,24 @@ async function saveEdit(){
   if(!name){showToast('Le nom est requis');return;}
 
   try{
-    // 1. Toujours mettre à jour le banc
-    await db.from('benches').update({name, description:desc, tags}).eq('id', _editBenchId);
+    // 1. Upload des nouvelles photos + fusion avec celles conservées (celles supprimées ont déjà été retirées de _editExistingPhotos)
+    const finalPhotos = [..._editExistingPhotos];
+    for(let i=0;i<_editNewPhotos.length;i++){
+      try{
+        const dataUrl = _editNewPhotos[i];
+        const res = await fetch(dataUrl);
+        const blob = await res.blob();
+        const ext = (blob.type.split('/')[1]||'jpg').replace('jpeg','jpg');
+        const path = `${_editBenchId}/${Date.now()}-${i}.${ext}`;
+        const{error:pe} = await db.storage.from('photos').upload(path, blob, {contentType:blob.type, upsert:false});
+        if(!pe){ const{data:pub} = db.storage.from('photos').getPublicUrl(path); finalPhotos.push(pub.publicUrl); }
+      }catch(photoErr){ console.warn('Photo upload error (edit)', i, photoErr); }
+    }
 
-    // 2. Mettre à jour l'avis si on en a un
+    // 2. Toujours mettre à jour le banc
+    await db.from('benches').update({name, description:desc, tags, photos:finalPhotos}).eq('id', _editBenchId);
+
+    // 3. Mettre à jour l'avis si on en a un
     if(_editId && (_editType==='both' || (_editType==='bench' && document.getElementById('edit-comment')))){
       if(_editStars){
         await db.from('reviews').update({rating:_editStars, comment:comment||null, etat}).eq('id', _editId);
