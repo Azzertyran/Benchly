@@ -2034,12 +2034,22 @@ async function fetchCitySuggestions(v){
 function renderSuggestions(localMatches, cityMatches){
   const box = document.getElementById('search-suggest');
   if(!box) return;
-  const html = [
-    ...localMatches.map(m=>`<div class="suggest-item" onclick="selectSuggestLocal('${m.replace(/'/g,"\\'")}')"><span style="font-size:11px;margin-right:6px;">📍</span>${m}</div>`),
-    ...cityMatches.map(c=>`<div class="suggest-item" onclick="selectSuggestCity(${c.lat},${c.lon},${JSON.stringify(c.bb)})"><span style="font-size:11px;margin-right:6px;">🏙️</span>${c.label}</div>`)
-  ].join('');
-  if(!html){ closeSuggest(); return; }
-  box.innerHTML = html;
+  box.innerHTML = '';
+  if(!localMatches.length && !cityMatches.length){ closeSuggest(); return; }
+  localMatches.forEach(m=>{
+    const div = document.createElement('div');
+    div.className = 'suggest-item';
+    div.innerHTML = `<span style="font-size:11px;margin-right:6px;">📍</span>${m}`;
+    div.addEventListener('click', ()=>selectSuggestLocal(m));
+    box.appendChild(div);
+  });
+  cityMatches.forEach(c=>{
+    const div = document.createElement('div');
+    div.className = 'suggest-item';
+    div.innerHTML = `<span style="font-size:11px;margin-right:6px;">🏙️</span>${c.label}`;
+    div.addEventListener('click', ()=>selectSuggestCity(c.lat, c.lon, c.bb));
+    box.appendChild(div);
+  });
   box.style.display = 'block';
 }
 function closeSuggest(){
